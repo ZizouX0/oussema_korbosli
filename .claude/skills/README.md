@@ -91,12 +91,32 @@ SHA-256 over every file in the skill folder (relative path + content, sorted by 
 ### `vercel-labs/skills` (1)
 - find-skills  ·  _find-skills_
 
-## Runtime prerequisites (to *execute* certain skills)
+## Runtime dependencies
 
-Installation is complete and verified; some skills call external tools at run time:
-- **`pdf`, `docx`, `xlsx`, `pptx`** — Python packages used by their `scripts/` (see each skill's SKILL.md / scripts).
-- **`firecrawl*`** — the Firecrawl CLI plus a `FIRECRAWL_API_KEY`.
-- **`webapp-testing`** — Playwright and its browser binaries.
-- **`remembering-conversations`** — builds a small TS tool on first use.
+Some skills call external tools at run time. These have been **installed and
+verified** in this session. To reinstall them (e.g. in a fresh/ephemeral
+container, where installs do not persist), run:
 
-See each skill's `SKILL.md` for specifics. Verified hashes are recorded in `install-manifest.json`.
+```bash
+bash .claude/skills/setup-deps.sh
+```
+
+What it installs, and the verification performed:
+
+| For skills | Installed | Verified |
+|---|---|---|
+| `pdf` | `pypdf`, `pdfplumber`, `reportlab`, `pdf2image`, `pypdfium2`, `pytesseract` + `tesseract-ocr`, `poppler-utils` | create→read→extract PDF round-trip ✓ |
+| `xlsx` | `openpyxl`, `pandas`, `numpy` | workbook write→read ✓ |
+| `pptx` | `python-pptx`, `markitdown[pptx]`, `pptxgenjs` (npm) | presentation create→read ✓ |
+| `docx` | `docx` (npm) + OOXML libs (`lxml`, `defusedxml`) | module loads via `NODE_PATH` ✓ |
+| `webapp-testing` | `playwright` + chromium browser | headless launch + render ✓ |
+| `slack-gif-creator` | `Pillow`, `imageio`, `imageio-ffmpeg`, `numpy` | imports ✓ |
+| `mcp-builder` | `anthropic`, `mcp` | imports ✓ |
+| `firecrawl-*` | `firecrawl-cli` (npm, bin `firecrawl`) | CLI runs (`--status`) ✓ |
+
+**Manual configuration still required:**
+- **`firecrawl-*`** need a Firecrawl API key: `export FIRECRAWL_API_KEY=fc-...` (or `firecrawl login`), then verify with `firecrawl --status`.
+- The **JS** generators in `docx`/`pptx` need global node modules on the path: `export NODE_PATH=$(npm root -g)`.
+- **`remembering-conversations`** builds a small TS tool on first use.
+
+See each skill's `SKILL.md` for specifics. Verified per-skill hashes are recorded in `install-manifest.json`.
