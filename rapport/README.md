@@ -6,6 +6,10 @@ parcours Business Intelligence). It keeps the template's original cover page,
 logos and styles, and adds the full report body for the **gestion-agences**
 project (balanced application + Business Intelligence framing).
 
+Personalized with: **Oussema Korbosli** (étudiant), **Heni Abidi** (encadrant
+académique), **Melek Elmoula** (maître de stage), at **BTK – Banque
+Tuniso-Koweïtienne**.
+
 ## Structure
 
 Cover page → Résumé/Abstract → Remerciements → Sommaire (auto TOC) → Lists →
@@ -14,29 +18,38 @@ besoins → **Ch.3** Conception (incl. volet décisionnel / BI) → **Ch.4**
 Réalisation (incl. Power BI) → Conclusion & perspectives → Bibliographie →
 Annexes.
 
+## Diagrams (`diagrams/`)
+
+7 figures are already drawn from the project and **embedded** in the document
+(PlantUML sources + PNGs are kept in `diagrams/`, regenerate with
+`generate_diagrams.py` + `plantuml.jar`):
+
+| Fig | Diagram | File |
+|-----|---------|------|
+| 2  | Cas d'utilisation global   | `usecase.png` |
+| 3  | Architecture en couches    | `architecture.png` |
+| 4  | Diagramme de classes       | `classes.png` |
+| 5  | Séquence « Validation d'une demande » | `sequence.png` |
+| 6  | Schéma relationnel (BD)    | `er.png` |
+| 7  | Modèle décisionnel (V_BI_*)| `bi.png` |
+| 13 | Diagramme de Gantt         | `gantt.png` |
+
 ## How to finalize it in Word
 
 1. **Update the table of contents:** open in Word, press `Ctrl+A` then `F9`
    (choose "Update entire table"). The Sommaire is an auto-generated TOC field.
-2. **Fill the placeholders** — search (`Ctrl+F`) for `[` and replace:
-   - `[organisme d'accueil]` / `[host organization]` — host company name (FR + EN).
-   - `[organisme d'accueil — raison sociale, …]` and the "Décrire brièvement…"
-     line — section 1.2 about the host organization.
-   - `[Nom & Prénom]` — academic supervisor and company supervisor (remerciements
-     + cover signature block).
-   - `[caractéristiques : processeur, mémoire RAM, …]` — section 4.2.1.
-   - Cover page: **Soutenu le** (defense date), **dates** of the internship, and
-     the supervisor names.
-3. **Insert the 13 figures** — search for `à insérer` to find each placeholder
-   (architecture diagram, use-case / class / sequence diagrams, DB schema, BI
-   model, app screenshots, Power BI report, Gantt chart). Replace each with your
-   image and a proper Word caption (Références → Insérer une légende) so the
-   "Liste des figures" can be generated.
-
-> Note: the author name on the cover was pre-filled as **Oussema KORBOSLI** (from
-> the repository name) — correct it if needed.
+2. **Remaining placeholders** — search (`Ctrl+F`) for `[` :
+   - Section 1.2 — BTK details to complete (date de création, effectif, service
+     d'accueil / direction).
+   - Section 4.2.1 — poste de travail (processeur, RAM, OS).
+   - Cover page — **Soutenu le** (defense date) and the internship **dates**.
+3. **Remaining figures to add** (search `à insérer`) — these need your own
+   assets: **Fig 1** the official BTK logo, and **Fig 8–12** application
+   screenshots (login, dashboard, management modules, requests, Power BI report).
+   Add each with a Word caption (Références → Insérer une légende) so the "Liste
+   des figures" updates automatically.
 
 ## Source
 
-Generated with `python-docx` from the uploaded template; the project it documents
-lives in this same repository.
+Generated with `python-docx` from the uploaded template; diagrams rendered with
+PlantUML. The project it documents lives in this same repository.

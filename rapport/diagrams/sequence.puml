@@ -1,0 +1,44 @@
+@startuml
+
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+skinparam Padding 3
+
+skinparam sequence {
+  ArrowColor #14507A
+  LifeLineBorderColor #1B6CA8
+  ParticipantBorderColor #1B6CA8
+  ParticipantBackgroundColor #EAF3FA
+  ActorBorderColor #14507A
+}
+actor "Administrateur" as ADM
+participant "Navigateur" as NAV
+participant "GestionModifications\nServlet" as SRV
+participant "DemandeModification\nService (EJB)" as SVC
+participant "EntityManager\n(JPA)" as EM
+database "Oracle" as DB
+participant "JournalService" as JRN
+
+ADM -> NAV : clic « Valider la demande »
+NAV -> SRV : POST /gestion-demandes (id, décision)
+activate SRV
+SRV -> SVC : traiter(id, décision, commentaire)
+activate SVC
+SVC -> EM : find(DemandeModification, id)
+EM -> DB : SELECT
+DB --> EM : demande
+SVC -> SVC : statut = EFFECTUÉ / REFUSÉ
+SVC -> EM : merge(demande)
+EM -> DB : UPDATE
+SVC -> JRN : journaliser(action)
+JRN -> EM : persist(JournalAction)
+EM -> DB : INSERT
+SVC --> SRV : succès
+deactivate SVC
+SRV -> NAV : redirection + notification
+deactivate SRV
+NAV --> ADM : confirmation
+@enduml

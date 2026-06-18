@@ -1,0 +1,29 @@
+@startgantt
+
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+skinparam Padding 3
+
+printscale weekly
+Project starts 2026-02-02
+[Étude de l'existant et analyse] as [E] lasts 3 weeks
+[E] is colored in #1B6CA8/#EAF3FA
+[Spécification des besoins] as [S] lasts 2 weeks
+[S] starts at [E]'s end
+[Conception] as [C] lasts 3 weeks
+[C] starts at [S]'s end
+[C] is colored in #1B6CA8/#EAF3FA
+[Développement des modules] as [D] lasts 5 weeks
+[D] starts at [C]'s end
+[D] is colored in #14507A/#DCEAF5
+[Volet décisionnel (Power BI)] as [B] lasts 3 weeks
+[B] starts at [D]'s end
+[B] is colored in #C8861A/#FFF3DC
+[Tests et validation] as [T] lasts 2 weeks
+[T] starts at [B]'s end
+[Rédaction du rapport] as [R] lasts 5 weeks
+[R] starts at [C]'s end
+@endgantt

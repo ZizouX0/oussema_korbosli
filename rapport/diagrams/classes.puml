@@ -1,0 +1,92 @@
+@startuml
+
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+skinparam Padding 3
+
+skinparam classBackgroundColor #EAF3FA
+skinparam classBorderColor #1B6CA8
+skinparam classArrowColor #14507A
+
+class Agence {
+  -id : Long
+  -nom : String
+  -adresse : String
+  -district : String
+}
+class Utilisateur {
+  -id : Long
+  -libelleUtilisateur : String
+  -emailUtilisateur : String
+  -estGestionnaire : Double
+  -estSuspendu : Integer
+  +getRoleLabel() : String
+}
+class Gestionnaire {
+  -id : Long
+  -nom : String
+}
+class Client {
+  -id : Long
+  -nomClient : String
+  -typeClient : String
+  -secteurActivite : String
+  -statutClient : String
+}
+class Objectif {
+  -idObjectif : Long
+  -anneeMois : String
+  -productionCredits : Double
+  -souscriptionComptes : Double
+}
+class Banque {
+  -id : Long
+  -libelle : String
+}
+class SecurityUser {
+  -id : Long
+  -username : String
+  -password : String
+  -role : String
+}
+class DemandeClient {
+  -id : Long
+  -statut : String
+  -dateCreation : Date
+}
+class DemandeEmploye {
+  -id : Long
+  -statut : String
+}
+class DemandeModification {
+  -id : Long
+  -champ : String
+  -ancienneVal : String
+  -nouvelleVal : String
+  -statut : String
+}
+class JournalAction {
+  -id : Long
+  -action : String
+  -dateAction : Date
+}
+class Notification {
+  -id : Long
+  -message : String
+}
+
+Agence "1" -- "*" Utilisateur : rattache >
+Agence "1" -- "*" Client : gère >
+Agence "1" -- "*" Objectif : suit >
+Gestionnaire "1" -- "*" Client : encadre >
+Utilisateur "1" -- "*" Objectif : réalise >
+Utilisateur "1" -- "*" DemandeClient : soumet >
+Utilisateur "1" -- "*" DemandeEmploye : soumet >
+Utilisateur "1" -- "*" DemandeModification : soumet >
+Utilisateur "1" -- "*" JournalAction : génère >
+Banque "1" -- "*" Agence : possède >
+SecurityUser ..> Utilisateur : authentifie
+@enduml

@@ -1,0 +1,45 @@
+@startuml
+
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+skinparam Padding 3
+
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BorderColor #1B6CA8
+  BackgroundColor #EAF3FA
+}
+skinparam databaseBackgroundColor #DCEAF5
+skinparam databaseBorderColor #14507A
+
+actor "Navigateur\n(Client web)" as USER
+
+rectangle "Couche Présentation" as L1 {
+  [Pages JSP / JSTL]
+  [Feuilles de style CSS]
+  [Tableau de bord ApexCharts]
+}
+rectangle "Couche Contrôle" as L2 {
+  [Servlets @WebServlet]
+  [NotificationFilter]
+}
+rectangle "Couche Métier (EJB)" as L3 {
+  [Services métier\n(@Singleton / EJB)]
+}
+rectangle "Couche Persistance" as L4 {
+  [Entités JPA]
+  [Hibernate]
+}
+database "Base de données\nOracle" as DB
+[Microsoft Power BI] as PBI #FFF3DC
+
+USER --> L1 : HTTP
+L1 --> L2 : requêtes
+L2 --> L3 : appels de services
+L3 --> L4 : EntityManager
+L4 --> DB : JDBC / JTA
+PBI ..> DB : vues V_BI_*
+@enduml
