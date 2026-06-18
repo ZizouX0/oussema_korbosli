@@ -1,0 +1,29 @@
+-- Script pour la table de sécurité dédiée
+-- A exécuter dans votre base de données Oracle
+
+-- 1. Création de la séquence pour les IDs
+CREATE SEQUENCE SEC_USER_SEQ START WITH 1 INCREMENT BY 1;
+
+-- 2. Création de la table SECURITY_USERS
+CREATE TABLE SECURITY_USERS (
+    ID NUMBER PRIMARY KEY,
+    USERNAME VARCHAR2(100) NOT NULL UNIQUE,
+    PASSWORD VARCHAR2(100) NOT NULL,
+    ROLE VARCHAR2(50) NOT NULL
+);
+
+-- 3. Insertion des utilisateurs par défaut
+INSERT INTO SECURITY_USERS (ID, USERNAME, PASSWORD, ROLE) 
+VALUES (SEC_USER_SEQ.NEXTVAL, 'admin', 'admin', 'ADMIN');
+
+INSERT INTO SECURITY_USERS (ID, USERNAME, PASSWORD, ROLE) 
+VALUES (SEC_USER_SEQ.NEXTVAL, 'directeur', 'directeur', 'DIRECTEUR_COMMERCIAL');
+
+INSERT INTO SECURITY_USERS (ID, USERNAME, PASSWORD, ROLE) 
+VALUES (SEC_USER_SEQ.NEXTVAL, 'user1', 'user1', 'USER');
+
+INSERT INTO SECURITY_USERS (ID, USERNAME, PASSWORD, ROLE) 
+VALUES (SEC_USER_SEQ.NEXTVAL, 'user2', 'user2', 'USER');
+
+-- Validation des changements
+COMMIT;
