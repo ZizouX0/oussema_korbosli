@@ -1,0 +1,496 @@
+{
+  "generatedAt": "2026-06-18",
+  "lockVersion": 1,
+  "algorithm": "sha256 over all files in skill folder (relativePath+content, sorted by JS localeCompare); per vercel-labs/skills computeSkillFolderHash",
+  "totals": {
+    "skills": 60,
+    "verified": 60,
+    "pinnedToLockedCommit": 4
+  },
+  "skills": {
+    "Brainstorming Ideas Into Designs": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/collaboration/brainstorming/SKILL.md",
+      "installedAs": "brainstorming",
+      "computedHash": "162dafa2122d61cd5effbd17d49d99529c089cb20082617ef18a56ccc1a987d0",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Code Review Reception": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/collaboration/receiving-code-review/SKILL.md",
+      "installedAs": "receiving-code-review",
+      "computedHash": "a75c16d8bfc40230a8c6425a3e681f56650483bb612a2e7fb9de637ebcff42d1",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Collision-Zone Thinking": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/problem-solving/collision-zone-thinking/SKILL.md",
+      "installedAs": "collision-zone-thinking",
+      "computedHash": "cce3d2c9d49a81f167afa8531a8ffd374aac18cfbcdde325d7082df65973cb26",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Condition-Based Waiting": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/testing/condition-based-waiting/SKILL.md",
+      "installedAs": "condition-based-waiting",
+      "computedHash": "89e4fcdbc494a0a783430541cdf164ff3ea116d659a5edc945d83cd0bc5a3c48",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Defense-in-Depth Validation": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/debugging/defense-in-depth/SKILL.md",
+      "installedAs": "defense-in-depth",
+      "computedHash": "3c3db99b109eaae5b3b2b8755c0d0664cde6590ef7d7d90ad4879ce0b22a139d",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Dispatching Parallel Agents": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/collaboration/dispatching-parallel-agents/SKILL.md",
+      "installedAs": "dispatching-parallel-agents",
+      "computedHash": "1025ca3dc6517fb50a944b5d34c1243c113c69caa67ab670c46396d8435f69f5",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Executing Plans": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/collaboration/executing-plans/SKILL.md",
+      "installedAs": "executing-plans",
+      "computedHash": "cd4f6fe3433e7118b2102ed1dcbd4654ec2c1c449ea91bfa333fd4cf4f25cd24",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Finishing a Development Branch": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/collaboration/finishing-a-development-branch/SKILL.md",
+      "installedAs": "finishing-a-development-branch",
+      "computedHash": "a39b90d5b328578ee28fa582c2788c396cba4a5beedf39dd401c430c22aacdf5",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Gardening Skills Wiki": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/meta/gardening-skills-wiki/SKILL.md",
+      "installedAs": "gardening-skills-wiki",
+      "computedHash": "2a09676931f4cda4b337a47a8c1c8f649cbd3751f8b76e5cc9b62b395aecadce",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Getting Started with Skills": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/using-skills/SKILL.md",
+      "installedAs": "using-skills",
+      "computedHash": "33ecf2f89b3d99afb647543ff60fef8310a455731503e6b9d4aded5c832c0191",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Inversion Exercise": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/problem-solving/inversion-exercise/SKILL.md",
+      "installedAs": "inversion-exercise",
+      "computedHash": "56039d40fca1909f7e67988b6f7275b224d3d1de4518b8547ef5784c5fcfef7c",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Meta-Pattern Recognition": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/problem-solving/meta-pattern-recognition/SKILL.md",
+      "installedAs": "meta-pattern-recognition",
+      "computedHash": "6d13c05fe7a8685546a6b70ba206719e7009790c5446084582833906665e5250",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Preserving Productive Tensions": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/architecture/preserving-productive-tensions/SKILL.md",
+      "installedAs": "preserving-productive-tensions",
+      "computedHash": "67f2e4f255e131734b892105fadd0b1ba49cd50c0a7cfe8f293b22278b2d060b",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Pulling Updates from Skills Repository": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/meta/pulling-updates-from-skills-repository/SKILL.md",
+      "installedAs": "pulling-updates-from-skills-repository",
+      "computedHash": "2a073464dae51556a294438377dd2bcbe020a16f805b938bb49010bc83ec1f36",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Remembering Conversations": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/collaboration/remembering-conversations/SKILL.md",
+      "installedAs": "remembering-conversations",
+      "computedHash": "09f394916c8d91797bee35e0d638110dec756b578b5d5384c41981816f2cc1f9",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Requesting Code Review": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/collaboration/requesting-code-review/SKILL.md",
+      "installedAs": "requesting-code-review",
+      "computedHash": "433ad0be654f19a5dd85c1633930f52743f2d424a468baa692bb38c1d6789f0e",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Root Cause Tracing": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/debugging/root-cause-tracing/SKILL.md",
+      "installedAs": "root-cause-tracing",
+      "computedHash": "681ed311e21b850f504cd7aa6c2c21ba477a1cb6797834f569b23df44e7fd42c",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Scale Game": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/problem-solving/scale-game/SKILL.md",
+      "installedAs": "scale-game",
+      "computedHash": "decc9621932531d418e3ab109cfcd4fe4cc42ddfe9c8b74f0ac897ca4bc97100",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Sharing Skills": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/meta/sharing-skills/SKILL.md",
+      "installedAs": "sharing-skills",
+      "computedHash": "8ff613f3cdaf8354f6bdff3258ac5a716fed7724e0a9daeb84075540aa0d6a83",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Simplification Cascades": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/problem-solving/simplification-cascades/SKILL.md",
+      "installedAs": "simplification-cascades",
+      "computedHash": "8900e59240e7b6b7ede22f76e92d223cc76c17c65da7449d58da0592d29be5c3",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Subagent-Driven Development": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/collaboration/subagent-driven-development/SKILL.md",
+      "installedAs": "subagent-driven-development",
+      "computedHash": "05262a9bf326c02dac20abd2c008fb4e32573531102a3c79e72ed39f7254a2f9",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Systematic Debugging": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/debugging/systematic-debugging/SKILL.md",
+      "installedAs": "systematic-debugging",
+      "computedHash": "7945407a2a7dcce93f27961e5359fe39363ba06a743f8758458eb2942caa7cd9",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Test-Driven Development (TDD)": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/testing/test-driven-development/SKILL.md",
+      "installedAs": "test-driven-development",
+      "computedHash": "6ddfc058c51139a1304d2b0d2cfe03268c82138cc2c3c2bc6070cf37a9f8b2b2",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Testing Anti-Patterns": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/testing/testing-anti-patterns/SKILL.md",
+      "installedAs": "testing-anti-patterns",
+      "computedHash": "1ca5523b902fa359ff3733ed0fb6db494ac53aa2206231785caa11dfc26dc8a0",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Testing Skills With Subagents": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/meta/testing-skills-with-subagents/SKILL.md",
+      "installedAs": "testing-skills-with-subagents",
+      "computedHash": "fd054d37cc627409b2fb31ffd2d18891072397406b9c5b98189171eff5d4f9c3",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Tracing Knowledge Lineages": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/research/tracing-knowledge-lineages/SKILL.md",
+      "installedAs": "tracing-knowledge-lineages",
+      "computedHash": "e79b7e0029cc0f7805a723992240af6bf10ba84ccf2d7e6c110fe365ad42aba1",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Using Git Worktrees": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/collaboration/using-git-worktrees/SKILL.md",
+      "installedAs": "using-git-worktrees",
+      "computedHash": "46218cd09fff54cde072e3e46ea8ec15ac8bc78b81e0e4105b7576a585e7d840",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Verification Before Completion": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/debugging/verification-before-completion/SKILL.md",
+      "installedAs": "verification-before-completion",
+      "computedHash": "e92d5a3644dd565321def4dd1a40c08dd5e2e19e76cfe848ec09110b7ff50c99",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "When Stuck - Problem-Solving Dispatch": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/problem-solving/when-stuck/SKILL.md",
+      "installedAs": "when-stuck",
+      "computedHash": "60c81e81f23332c8125a635f70a062bed94fc0d2c57f01235fb0fd0341b3fc97",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Writing Plans": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/collaboration/writing-plans/SKILL.md",
+      "installedAs": "writing-plans",
+      "computedHash": "2a94f07591ee1e474665d589ab73d0e83be4071647f1bb639cf6a86d650353c3",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "Writing Skills": {
+      "source": "obra/superpowers-skills",
+      "skillPath": "skills/meta/writing-skills/SKILL.md",
+      "installedAs": "writing-skills",
+      "computedHash": "37949349003b108dcff63c1df9f8b2f969cc718fa7506ed47648d40f2f39a4e5",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "algorithmic-art": {
+      "source": "anthropics/skills",
+      "skillPath": "skills/algorithmic-art/SKILL.md",
+      "installedAs": "algorithmic-art",
+      "computedHash": "b2ca295de7f9c86c444f1fa21239e22e0eb7013ced1c652169b9402cc96ff744",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "brand-guidelines": {
+      "source": "anthropics/skills",
+      "skillPath": "skills/brand-guidelines/SKILL.md",
+      "installedAs": "brand-guidelines",
+      "computedHash": "e48840db6ea772ceecdb68b4e50f8cc77e2534b7580aeaf4a6fe6ee7bd845d7d",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "canvas-design": {
+      "source": "anthropics/skills",
+      "skillPath": "skills/canvas-design/SKILL.md",
+      "installedAs": "canvas-design",
+      "computedHash": "3fa7ea60170023ad8268bf9fd734ea75dd404279a2ef8ddf5abaa1102ad8e5f4",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "claude-api": {
+      "source": "anthropics/skills",
+      "skillPath": "skills/claude-api/SKILL.md",
+      "installedAs": "claude-api",
+      "computedHash": "954ea4ccdb1aeb5c709f4b23961d4295a20c128b535ac4cbf33bf903f16d3fb4",
+      "hashMatchesLock": true,
+      "pinnedCommit": "da20c92503b2",
+      "pinnedCommitDate": "2026-05-28"
+    },
+    "doc-coauthoring": {
+      "source": "anthropics/skills",
+      "skillPath": "skills/doc-coauthoring/SKILL.md",
+      "installedAs": "doc-coauthoring",
+      "computedHash": "b964e4c3ffe13f66f76dd7919073e60c7aec622cd8a8363bb36323188100cf8e",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "docx": {
+      "source": "anthropics/skills",
+      "skillPath": "skills/docx/SKILL.md",
+      "installedAs": "docx",
+      "computedHash": "6962db07127ee540a56e4677f65576d0727668a1d67f7da8bc978f10791c2bfe",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "installedAs": "find-skills",
+      "computedHash": "d31e234f0c90694a670222cdd1dafa853e051d7066beda389f1097c22dadd461",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "firecrawl": {
+      "source": "firecrawl/cli",
+      "skillPath": "skills/firecrawl-cli/SKILL.md",
+      "installedAs": "firecrawl-cli",
+      "computedHash": "3fb16339aa14ef2dfd56952c95c1061d40b59153dd9fe1aea90f003de6fc94b5",
+      "hashMatchesLock": true,
+      "pinnedCommit": "9007a7139be4",
+      "pinnedCommitDate": "2026-05-27"
+    },
+    "firecrawl-agent": {
+      "source": "firecrawl/cli",
+      "skillPath": "skills/firecrawl-agent/SKILL.md",
+      "installedAs": "firecrawl-agent",
+      "computedHash": "cd56d2fae177ac801d440b4ddf1fcd06d4456841a850b7a31572c4ebf5e0e356",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "firecrawl-crawl": {
+      "source": "firecrawl/cli",
+      "skillPath": "skills/firecrawl-crawl/SKILL.md",
+      "installedAs": "firecrawl-crawl",
+      "computedHash": "bf3882a8c3d9f1c4caf4b487b81f925f8986f5c98d28326e74c71dd8cd5faf70",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "firecrawl-download": {
+      "source": "firecrawl/cli",
+      "skillPath": "skills/firecrawl-download/SKILL.md",
+      "installedAs": "firecrawl-download",
+      "computedHash": "82c403305fc798c1a29883f660a794cadce62416cf4391a02e1218ca7a6e831b",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "firecrawl-interact": {
+      "source": "firecrawl/cli",
+      "skillPath": "skills/firecrawl-interact/SKILL.md",
+      "installedAs": "firecrawl-interact",
+      "computedHash": "48a002789b87838d6bf2748915e653f0b0e1eb31ab183212dd522a95725a2ee3",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "firecrawl-map": {
+      "source": "firecrawl/cli",
+      "skillPath": "skills/firecrawl-map/SKILL.md",
+      "installedAs": "firecrawl-map",
+      "computedHash": "80d4843983b4bd103e10e8e38e0b458b1478309eec3328227309a33792e2bc61",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "firecrawl-monitor": {
+      "source": "firecrawl/cli",
+      "skillPath": "skills/firecrawl-monitor/SKILL.md",
+      "installedAs": "firecrawl-monitor",
+      "computedHash": "c0b4673c89e605afa3a145a1495e8749044c8f6acc1ef1d192a84ab037ba7c3f",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "firecrawl-parse": {
+      "source": "firecrawl/cli",
+      "skillPath": "skills/firecrawl-parse/SKILL.md",
+      "installedAs": "firecrawl-parse",
+      "computedHash": "c2902b8c18234d03556f5c1d70650a01bcbc58ed11a41f3608f99e381fe77314",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "firecrawl-scrape": {
+      "source": "firecrawl/cli",
+      "skillPath": "skills/firecrawl-scrape/SKILL.md",
+      "installedAs": "firecrawl-scrape",
+      "computedHash": "84247f4175e5ab6104aa2c4ff4038f1eae98d992a253755ca18d3b62e28a7b5c",
+      "hashMatchesLock": true,
+      "pinnedCommit": "2618c20d8d50",
+      "pinnedCommitDate": "2026-04-08"
+    },
+    "firecrawl-search": {
+      "source": "firecrawl/cli",
+      "skillPath": "skills/firecrawl-search/SKILL.md",
+      "installedAs": "firecrawl-search",
+      "computedHash": "57c6d1777f0574de182e7569f36f6fb60eb1912a3db3942dd03092f6e2e5054b",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "installedAs": "frontend-design",
+      "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67",
+      "hashMatchesLock": true,
+      "pinnedCommit": "00756142ab04",
+      "pinnedCommitDate": "2025-12-04"
+    },
+    "internal-comms": {
+      "source": "anthropics/skills",
+      "skillPath": "skills/internal-comms/SKILL.md",
+      "installedAs": "internal-comms",
+      "computedHash": "0bdc8867452b7ab9ef6167f6b0db2025ce5fb03773d3f85efcef2dfeb9d4976d",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "mcp-builder": {
+      "source": "anthropics/skills",
+      "skillPath": "skills/mcp-builder/SKILL.md",
+      "installedAs": "mcp-builder",
+      "computedHash": "826e46adf81e1372282e205c34e1a2ee876e72148007726e4a2512599d2fef7b",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "pdf": {
+      "source": "anthropics/skills",
+      "skillPath": "skills/pdf/SKILL.md",
+      "installedAs": "pdf",
+      "computedHash": "cfbc539377088ca7e44a813b30c306327385bbd973cd7a721e1743f60837dd62",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "pptx": {
+      "source": "anthropics/skills",
+      "skillPath": "skills/pptx/SKILL.md",
+      "installedAs": "pptx",
+      "computedHash": "6b8b859d26f93aa059c9870d1ab76b44ab69e3d6757ce4a03cc94cb760888073",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "skillPath": "skills/skill-creator/SKILL.md",
+      "installedAs": "skill-creator",
+      "computedHash": "5ea13a6d9f0d4bb694405d79acd00cadec0d21bb138c4dd10fcf3c500cb835c2",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "slack-gif-creator": {
+      "source": "anthropics/skills",
+      "skillPath": "skills/slack-gif-creator/SKILL.md",
+      "installedAs": "slack-gif-creator",
+      "computedHash": "fab4fcfcaed371071069d61a3ab94dff15d10d36403ff269d147ea986cd98083",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "theme-factory": {
+      "source": "anthropics/skills",
+      "skillPath": "skills/theme-factory/SKILL.md",
+      "installedAs": "theme-factory",
+      "computedHash": "598ddfa9784ae2a8c55be5dbb047b98564d875dea6f4669168a87ae1ea1a4ed3",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "web-artifacts-builder": {
+      "source": "anthropics/skills",
+      "skillPath": "skills/web-artifacts-builder/SKILL.md",
+      "installedAs": "web-artifacts-builder",
+      "computedHash": "d52d422ead3fa26859a6af129609841a8536b230a2d649f86e61771d063e05e2",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "installedAs": "web-design-guidelines",
+      "computedHash": "a6a44d5498f7e8f68289902f3dedfc6f38ae0cee1e96527c80724cf27f727c2a",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "webapp-testing": {
+      "source": "anthropics/skills",
+      "skillPath": "skills/webapp-testing/SKILL.md",
+      "installedAs": "webapp-testing",
+      "computedHash": "ad5b1fc52807e9afa4635e59218a026b164dc58b6c3f41b0f7c644dcd6ccf572",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    },
+    "xlsx": {
+      "source": "anthropics/skills",
+      "skillPath": "skills/xlsx/SKILL.md",
+      "installedAs": "xlsx",
+      "computedHash": "efd0c8011cf0677d8075cf93867ecec804f9a8754a777e1d2fdb46197e9c247f",
+      "hashMatchesLock": true,
+      "version": "HEAD"
+    }
+  }
+}
