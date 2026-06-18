@@ -13,10 +13,14 @@ Tuniso-Koweïtienne**.
 ## Structure
 
 Cover page → Résumé/Abstract → Remerciements → Sommaire (auto TOC) → Lists →
-Introduction → **Ch.1** Cadre général → **Ch.2** Analyse & spécification des
-besoins → **Ch.3** Conception (incl. volet décisionnel / BI) → **Ch.4**
-Réalisation (incl. Power BI) → Conclusion & perspectives → Bibliographie →
-Annexes.
+Introduction → **Plan du rapport** → **Ch.1** Cadre général → **Ch.2** Analyse &
+spécification des besoins → **Ch.3** Conception (incl. volet décisionnel / BI) →
+**Ch.4** Réalisation (incl. Power BI) → Conclusion & perspectives → Bibliographie
+→ Annexes.
+
+The cover's generic "LOGOTEXT" placeholder is replaced with the BTK logo
+(`btk_logo_cover.png`, fitted to the placeholder box); the Esprit School of
+Business logo on the cover is kept unchanged.
 
 ## Diagrams (`diagrams/`)
 
