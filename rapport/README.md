@@ -20,12 +20,13 @@ Annexes.
 
 ## Diagrams (`diagrams/`)
 
-7 figures are already drawn from the project and **embedded** in the document
-(PlantUML sources + PNGs are kept in `diagrams/`, regenerate with
-`generate_diagrams.py` + `plantuml.jar`):
+8 figures are already **embedded** in the document: the BTK logo plus 7 diagrams
+drawn from the project (PlantUML sources + PNGs kept in `diagrams/`, regenerate
+the diagrams with `generate_diagrams.py` + `plantuml.jar`):
 
-| Fig | Diagram | File |
+| Fig | Figure | File |
 |-----|---------|------|
+| 1  | Logo de la BTK             | `btk_logo.png` |
 | 2  | Cas d'utilisation global   | `usecase.png` |
 | 3  | Architecture en couches    | `architecture.png` |
 | 4  | Diagramme de classes       | `classes.png` |
@@ -34,20 +35,21 @@ Annexes.
 | 7  | Modèle décisionnel (V_BI_*)| `bi.png` |
 | 13 | Diagramme de Gantt         | `gantt.png` |
 
+Section 1.2 (présentation de l'organisme) is filled with a presentation of the
+BTK — fiche signalétique, historique, structure du capital, activités, réseau.
+
 ## How to finalize it in Word
 
 1. **Update the table of contents:** open in Word, press `Ctrl+A` then `F9`
    (choose "Update entire table"). The Sommaire is an auto-generated TOC field.
 2. **Remaining placeholders** — search (`Ctrl+F`) for `[` :
-   - Section 1.2 — BTK details to complete (date de création, effectif, service
-     d'accueil / direction).
+   - Section 1.2.5 — the host service/direction at BTK (`[Préciser le service…]`).
    - Section 4.2.1 — poste de travail (processeur, RAM, OS).
    - Cover page — **Soutenu le** (defense date) and the internship **dates**.
-3. **Remaining figures to add** (search `à insérer`) — these need your own
-   assets: **Fig 1** the official BTK logo, and **Fig 8–12** application
-   screenshots (login, dashboard, management modules, requests, Power BI report).
-   Add each with a Word caption (Références → Insérer une légende) so the "Liste
-   des figures" updates automatically.
+3. **Remaining figures to add** (search `à insérer`) — only the **app
+   screenshots** remain (**Fig 8–12**: login, dashboard, management modules,
+   requests, Power BI report). Add each with a Word caption (Références → Insérer
+   une légende). The BTK logo (Fig 1) and all diagrams are already embedded.
 
 ## Source
 
