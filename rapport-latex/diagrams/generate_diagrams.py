@@ -38,6 +38,8 @@ rectangle "Application de gestion des agences bancaires" {
   usecase "Valider / refuser\\nune demande" as UC7
   usecase "Consulter le\\njournal d'audit" as UC8
   usecase "Recevoir des\\nnotifications" as UC9
+  usecase "Pointer\\n(arrivée/départ)" as UC10
+  usecase "Gérer les\\npointages" as UC11
 }
 ADM --> UC1
 ADM --> UC2
@@ -53,6 +55,10 @@ DIR --> UC9
 USR --> UC1
 USR --> UC6
 USR --> UC9
+ADM --> UC10
+DIR --> UC10
+USR --> UC10
+ADM --> UC11
 UC1 ..> UC0 : <<include>>
 UC2 ..> UC0 : <<include>>
 UC6 ..> UC0 : <<include>>
@@ -137,6 +143,12 @@ class Notification {
   -typeNotif : String
   -lue : String
 }
+class Pointage {
+  -id : Long
+  -datePointage : LocalDate
+  -heureArrivee : LocalDateTime
+  -statut : String
+}
 
 Agence "1" -- "0..*" Utilisateur : SK_AGENCE >
 Agence "1" -- "0..*" Client : SK_AGENCE >
@@ -150,6 +162,7 @@ DemandeAgence "0..*" --> "1" Utilisateur : directeur
 DemandeAgence "0..*" -- "0..*" Utilisateur : utilisateursDemandes
 JournalAction "0..*" --> "1" Utilisateur
 Notification "0..*" --> "1" Utilisateur : destinataire
+Pointage "0..*" --> "1" Utilisateur : employe
 SecurityUser ..> Utilisateur : <<authentifie>>
 @enduml
 """ % STYLE
@@ -394,6 +407,13 @@ entity "JOURNAL_ACTION" as JA {
   ACTION_CODE
   #ID_UTILISATEUR <<FK>>
 }
+entity "POINTAGE" as PT {
+  *ID_POINTAGE <<PK>>
+  --
+  DATE_POINTAGE
+  STATUT
+  #SK_UTILISATEUR <<FK>>
+}
 AGENCE ||--o{ USR
 AGENCE ||--o{ CLI
 AGENCE ||--o{ OBJ
@@ -402,6 +422,7 @@ USR ||--o{ DC
 USR ||--o{ DE
 USR ||--o{ DM
 USR ||--o{ JA
+USR ||--o{ PT
 @enduml
 """ % STYLE
 
@@ -441,12 +462,19 @@ entity "V_BI_EMPLOYES\\n(effectifs)" as F2 {
 entity "V_BI_CLIENTS\\n(portefeuille)" as F3 {
   NOM_COMPLET
 }
+entity "V_BI_POINTAGE\\n(présence)" as F4 {
+  EST_PRESENT
+  EST_RETARD
+  EST_ABSENT
+}
 DA ||--o{ F1
 DG ||--o{ F1
 DP ||--o{ F1
 DA ||--o{ F2
 DA ||--o{ F3
 DCx ||--o{ F3
+DA ||--o{ F4
+DP ||--o{ F4
 @enduml
 """ % STYLE
 

@@ -105,6 +105,26 @@ clients et la production par agence et par période
   \label{fig:ui_powerbi}
 \end{figure}
 
+\section{Module de pointage}
+Le module de pointage assure le suivi de la présence des employés. Chaque employé
+enregistre son arrivée et son départ via un bouton « Pointer » (l'heure est
+relevée sur l'heure système) ; le statut est déterminé automatiquement
+(\texttt{PRESENT}, ou \texttt{RETARD} au-delà de 9h00). L'administrateur peut en
+outre saisir ou corriger manuellement un pointage (\texttt{PRESENT},
+\texttt{RETARD} ou \texttt{ABSENT}). Techniquement, le module repose sur l'entité
+\texttt{Pointage}, le service \texttt{PointageService} (EJB) et le servlet
+\texttt{PointageServlet} (\texttt{/pointage}) ; il alimente la vue décisionnelle
+\texttt{V\_BI\_POINTAGE} (taux de présence, retards, absences par agence et
+période). La figure~\ref{fig:ui_pointage} en présente l'interface.
+
+\begin{figure}[htbp]
+  \centering
+  \fbox{\parbox[c][3.6cm][c]{0.8\textwidth}{\centering\itshape Capture à insérer
+  -- interface de pointage}}
+  \caption{Interface du module de pointage}
+  \label{fig:ui_pointage}
+\end{figure}
+
 \section{Sécurité et gestion des rôles}
 L'accès à l'application est contrôlé par le \texttt{SecurityService}, qui
 authentifie les utilisateurs à partir de la table dédiée et associe à chacun un

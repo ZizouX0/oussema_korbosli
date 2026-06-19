@@ -81,6 +81,12 @@ class Notification {
   -typeNotif : String
   -lue : String
 }
+class Pointage {
+  -id : Long
+  -datePointage : LocalDate
+  -heureArrivee : LocalDateTime
+  -statut : String
+}
 
 Agence "1" -- "0..*" Utilisateur : SK_AGENCE >
 Agence "1" -- "0..*" Client : SK_AGENCE >
@@ -94,5 +100,6 @@ DemandeAgence "0..*" --> "1" Utilisateur : directeur
 DemandeAgence "0..*" -- "0..*" Utilisateur : utilisateursDemandes
 JournalAction "0..*" --> "1" Utilisateur
 Notification "0..*" --> "1" Utilisateur : destinataire
+Pointage "0..*" --> "1" Utilisateur : employe
 SecurityUser ..> Utilisateur : <<authentifie>>
 @enduml

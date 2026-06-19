@@ -81,6 +81,13 @@ entity "JOURNAL_ACTION" as JA {
   ACTION_CODE
   #ID_UTILISATEUR <<FK>>
 }
+entity "POINTAGE" as PT {
+  *ID_POINTAGE <<PK>>
+  --
+  DATE_POINTAGE
+  STATUT
+  #SK_UTILISATEUR <<FK>>
+}
 AGENCE ||--o{ USR
 AGENCE ||--o{ CLI
 AGENCE ||--o{ OBJ
@@ -89,4 +96,5 @@ USR ||--o{ DC
 USR ||--o{ DE
 USR ||--o{ DM
 USR ||--o{ JA
+USR ||--o{ PT
 @enduml

@@ -96,9 +96,9 @@ associations, fidèles au modèle réel, sont les suivantes :
         (\texttt{SK\_UTILISATEUR}) ;
   \item les entités de demande (\texttt{DemandeClient}, \texttt{DemandeEmploye},
         \texttt{DemandeModification}, \texttt{DemandeAgence}), ainsi que
-        \texttt{JournalAction} et \texttt{Notification}, référencent un
-        \texttt{Utilisateur} par une association \texttt{@ManyToOne}
-        ($0..*$ vers $1$) ;
+        \texttt{JournalAction}, \texttt{Notification} et \texttt{Pointage},
+        référencent un \texttt{Utilisateur} par une association
+        \texttt{@ManyToOne} ($0..*$ vers $1$) ;
   \item \texttt{DemandeAgence} possède en outre une association
         \texttt{@ManyToMany} avec \texttt{Utilisateur}
         (\texttt{utilisateursDemandes}) ;
@@ -178,16 +178,16 @@ La figure~\ref{fig:er} présente le \textbf{schéma relationnel} de la base.
 Le schéma s'articule autour des tables \texttt{AGENCE}, \texttt{B\_UTILISATEURS},
 \texttt{CLIENT} et \texttt{B\_OBJECTIF}, complétées par les tables de sécurité
 (\texttt{SECURITY\_USERS}), de demandes (\texttt{DEMANDE\_CLIENT},
-\texttt{DEMANDE\_EMPLOYE}, \texttt{DEMANDES\_MODIFICATION}) et de journalisation
-(\texttt{JOURNAL\_ACTION}). Les clés primaires (\texttt{PK}) et étrangères
+\texttt{DEMANDE\_EMPLOYE}, \texttt{DEMANDES\_MODIFICATION}), de journalisation
+(\texttt{JOURNAL\_ACTION}) et de pointage (\texttt{POINTAGE}). Les clés primaires (\texttt{PK}) et étrangères
 (\texttt{FK}) ainsi que les cardinalités (notation « patte d'oie ») y sont
 explicitées.
 
 \section{Conception du volet décisionnel}
 La couche décisionnelle transforme les données opérationnelles en informations de
-pilotage. Trois vues analytiques jouent le rôle de couche sémantique selon une
+pilotage. Quatre vues analytiques jouent le rôle de couche sémantique selon une
 logique en \textbf{étoile} (figure~\ref{fig:bi}) : autour de tables de faits
-(production, effectifs, clients), des dimensions descriptives (agence,
+(production, effectifs, clients, présence), des dimensions descriptives (agence,
 gestionnaire, période, type de client) permettent l'analyse multidimensionnelle.
 
 \begin{figure}[htbp]
@@ -214,6 +214,7 @@ Portefeuille clients & Clients par type et par agence & \texttt{V\_BI\_CLIENTS}\
 Ouvertures de comptes & Comptes chèques + épargne + courants & \texttt{V\_BI\_OBJECTIFS}\\
 Production de crédits & Conso, immobilier, investissement & \texttt{V\_BI\_OBJECTIFS}\\
 Collecte d'épargne & Épargne additionnelle collectée & \texttt{V\_BI\_OBJECTIFS}\\
+Taux de présence & Présents, retards et absences par agence et période & \texttt{V\_BI\_POINTAGE}\\
 \bottomrule
 \end{tabularx}
 \end{table}

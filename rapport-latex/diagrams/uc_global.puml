@@ -27,6 +27,8 @@ rectangle "Application de gestion des agences bancaires" {
   usecase "Valider / refuser\nune demande" as UC7
   usecase "Consulter le\njournal d'audit" as UC8
   usecase "Recevoir des\nnotifications" as UC9
+  usecase "Pointer\n(arrivée/départ)" as UC10
+  usecase "Gérer les\npointages" as UC11
 }
 ADM --> UC1
 ADM --> UC2
@@ -42,6 +44,10 @@ DIR --> UC9
 USR --> UC1
 USR --> UC6
 USR --> UC9
+ADM --> UC10
+DIR --> UC10
+USR --> UC10
+ADM --> UC11
 UC1 ..> UC0 : <<include>>
 UC2 ..> UC0 : <<include>>
 UC6 ..> UC0 : <<include>>
