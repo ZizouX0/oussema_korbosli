@@ -224,13 +224,14 @@
             series: [{ name: 'Employés', data: topData }],
             chart: { type: 'bar', height: 500, toolbar: { show: false }, background: 'transparent' },
             theme: chartTheme,
-            plotOptions: { 
-                bar: { 
-                    borderRadius: 10, 
-                    columnWidth: '70%',
+            plotOptions: {
+                bar: {
+                    borderRadius: 6,
+                    borderRadiusApplication: 'end',
+                    columnWidth: '55%',
                     distributed: true,
                     dataLabels: { position: 'top' }
-                } 
+                }
             },
             dataLabels: { 
                 enabled: true, 
