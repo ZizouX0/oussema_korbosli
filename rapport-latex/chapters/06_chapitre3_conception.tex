@@ -165,6 +165,45 @@ sa prise en charge, puis atteint un état final \texttt{EFFECTUE} ou
 contrainte de la table des demandes, ce qui garantit la cohérence entre le modèle
 de conception et la base de données.
 
+\subsection{Diagramme de séquence : pointage d'un employé}
+La figure~\ref{fig:seq_pointage} décrit le scénario de \emph{pointage} d'un
+employé.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.95\textwidth]{seq_pointage.png}
+  \caption{Diagramme de séquence -- Pointage d'un employé}
+  \label{fig:seq_pointage}
+\end{figure}
+
+Le \texttt{PointageServlet} transmet l'action au \texttt{PointageService}, qui
+recherche le pointage du jour de l'employé. Le fragment combiné \texttt{alt}
+distingue deux cas : s'il n'existe pas encore de pointage, le service détermine le
+statut (\texttt{PRESENT} ou \texttt{RETARD} au-delà de 9h) puis persiste un nouvel
+enregistrement (\texttt{INSERT}) ; sinon, il met à jour l'enregistrement existant
+(\texttt{UPDATE}). Le résultat est renvoyé à l'employé sous forme de confirmation.
+
+\subsection{Diagramme d'activité : traitement d'une demande}
+Au-delà des échanges entre objets, le \textbf{diagramme d'activité} de la
+figure~\ref{fig:activity_demande} représente le \emph{processus métier} de
+traitement d'une demande, du point de vue du flux de travail.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{activity_demande.png}
+  \caption{Diagramme d'activité -- Traitement d'une demande}
+  \label{fig:activity_demande}
+\end{figure}
+
+Le directeur soumet une demande, enregistrée au statut \texttt{EN\_ATTENTE} et
+notifiée à l'administrateur. Le \textbf{nœud de décision} oriente le flux selon la
+décision : en cas de validation, le statut passe à \texttt{EFFECTUE} et la
+modification est appliquée ; en cas de refus, le statut passe à \texttt{REFUSE}
+avec un commentaire. Les deux branches convergent vers la journalisation de
+l'action et la notification du demandeur. Ce diagramme complète le diagramme
+d'états-transitions en explicitant les \emph{traitements} associés à chaque
+transition.
+
 \section{Conception de la base de données}
 La figure~\ref{fig:er} présente le \textbf{schéma relationnel} de la base.
 

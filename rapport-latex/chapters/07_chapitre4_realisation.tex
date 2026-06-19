@@ -39,14 +39,17 @@ Git & Gestion de versions du code source\\
 \end{table}
 
 \section{Choix technologiques}
-Le choix de \textbf{Jakarta EE 10} se justifie par sa robustesse, sa
-standardisation et son adéquation aux applications d'entreprise : injection de
-dépendances, gestion transactionnelle déclarative (JTA), persistance via JPA et
-sécurité intégrée. La base \textbf{Oracle} a été retenue pour sa fiabilité et sa
-large adoption dans le secteur bancaire. Pour la restitution décisionnelle,
-\textbf{Power BI} offre une connexion directe aux vues Oracle et des capacités de
-visualisation avancées, complétées par un tableau de bord embarqué
-(\textbf{ApexCharts}) pour une consultation immédiate au sein de l'application.
+Le choix de \textbf{Jakarta EE 10}~\cite{jakartaee} se justifie par sa robustesse,
+sa standardisation et son adéquation aux applications d'entreprise : injection de
+dépendances, gestion transactionnelle déclarative (JTA), persistance via JPA
+(\textbf{Hibernate}~\cite{hibernate}) et sécurité intégrée. La base
+\textbf{Oracle}~\cite{oracle} a été retenue pour sa fiabilité et sa large adoption
+dans le secteur bancaire, et l'application est déployée sur
+\textbf{WildFly}~\cite{wildfly}. Pour la restitution décisionnelle,
+\textbf{Power BI}~\cite{powerbi} offre une connexion directe aux vues Oracle et des
+capacités de visualisation avancées, complétées par un tableau de bord embarqué
+(\textbf{ApexCharts}~\cite{apexcharts}) pour une consultation immédiate au sein de
+l'application.
 
 \section{Architecture de déploiement}
 L'application est empaquetée sous forme d'archive WAR (\texttt{gestion-agences})
@@ -70,8 +73,13 @@ La figure~\ref{fig:ui_login} présente la page de connexion.
 \end{figure}
 
 \subsection{Tableau de bord}
-La figure~\ref{fig:ui_dashboard} présente le tableau de bord et ses graphiques
-ApexCharts (effectifs par agence, répartition des rôles).
+La figure~\ref{fig:ui_dashboard} présente le tableau de bord. Il comporte une
+rangée de \textbf{cartes d'indicateurs} (employés, clients, présents du jour, taux
+de présence, demandes en attente) puis des \textbf{graphiques dynamiques}
+ApexCharts : l'\emph{effectif par agence} (histogramme), la \emph{répartition des
+rôles} (anneau) et la \emph{présence du jour} (anneau présents / retards /
+absents). Ces indicateurs offrent aux responsables une vision synthétique et
+immédiate de l'activité.
 \begin{figure}[htbp]
   \centering
   \fbox{\parbox[c][3.6cm][c]{0.8\textwidth}{\centering\itshape Capture à insérer

@@ -501,6 +501,72 @@ Project starts 2026-02-16
 @endgantt
 """ % STYLE
 
+# 11) SEQUENCE - POINTAGE (arrivée) ---------------------------------------
+D["seq_pointage"] = """@startuml
+%s
+skinparam sequence {
+  ArrowColor #14507A
+  LifeLineBorderColor #1B6CA8
+  ParticipantBorderColor #1B6CA8
+  ParticipantBackgroundColor #EAF3FA
+  ActorBorderColor #14507A
+}
+actor "Employé" as EMP
+participant "Navigateur" as NAV
+participant "PointageServlet" as SRV
+participant "PointageService\\n(EJB)" as SVC
+participant "EntityManager" as EM
+database "Oracle" as DB
+EMP -> NAV : clic « Pointer l'arrivée »
+NAV -> SRV : POST /pointage (action=arrivee)
+activate SRV
+SRV -> SVC : pointerArrivee(userId)
+activate SVC
+SVC -> EM : rechercher le pointage du jour
+EM -> DB : SELECT
+alt aucun pointage aujourd'hui
+  SVC -> SVC : statut = PRESENT / RETARD (> 9h)
+  SVC -> EM : persist(Pointage)
+  EM -> DB : INSERT
+else arrivée déjà enregistrée
+  SVC -> EM : merge(Pointage)
+  EM -> DB : UPDATE
+end
+SVC --> SRV : Pointage
+deactivate SVC
+SRV -> NAV : redirection /pointage
+deactivate SRV
+NAV --> EMP : confirmation (heure, statut)
+@enduml
+""" % STYLE
+
+# 12) ACTIVITE - TRAITEMENT D'UNE DEMANDE ---------------------------------
+D["activity_demande"] = """@startuml
+%s
+skinparam activity {
+  BackgroundColor #EAF3FA
+  BorderColor #1B6CA8
+  DiamondBackgroundColor #DCEAF5
+  DiamondBorderColor #14507A
+}
+start
+:Le directeur soumet une demande;
+:Enregistrer la demande (statut EN_ATTENTE);
+:Notifier l'administrateur;
+:L'administrateur consulte la demande;
+if (Décision ?) then (Valider)
+  :Statut = EFFECTUE;
+  :Appliquer la modification en base;
+else (Refuser)
+  :Statut = REFUSE;
+  :Enregistrer le commentaire;
+endif
+:Journaliser l'action (audit);
+:Notifier le demandeur;
+stop
+@enduml
+""" % STYLE
+
 for name, content in D.items():
     open(os.path.join(OUT, name + ".puml"), "w", encoding="utf-8").write(content)
 print("wrote", len(D), "puml files")

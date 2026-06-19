@@ -61,6 +61,9 @@
 % ============================ PAGE DE GARDE ===========================
 \input{chapters/00_page_de_garde}
 
+% ============================ RÉSUMÉ / ABSTRACT =======================
+\input{chapters/00b_resume}
+
 % ============================ FRONT MATTER ============================
 \pagenumbering{roman}
 \setcounter{page}{1}
@@ -92,6 +95,7 @@
 \cleardoublepage
 \renewcommand{\bibname}{Nétographie}
 \addcontentsline{toc}{chapter}{Nétographie}
+\nocite{*}
 \bibliographystyle{ieeetr}
 \bibliography{references}
 

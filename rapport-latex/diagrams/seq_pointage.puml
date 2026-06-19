@@ -1,0 +1,43 @@
+@startuml
+
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+
+skinparam sequence {
+  ArrowColor #14507A
+  LifeLineBorderColor #1B6CA8
+  ParticipantBorderColor #1B6CA8
+  ParticipantBackgroundColor #EAF3FA
+  ActorBorderColor #14507A
+}
+actor "Employé" as EMP
+participant "Navigateur" as NAV
+participant "PointageServlet" as SRV
+participant "PointageService\n(EJB)" as SVC
+participant "EntityManager" as EM
+database "Oracle" as DB
+EMP -> NAV : clic « Pointer l'arrivée »
+NAV -> SRV : POST /pointage (action=arrivee)
+activate SRV
+SRV -> SVC : pointerArrivee(userId)
+activate SVC
+SVC -> EM : rechercher le pointage du jour
+EM -> DB : SELECT
+alt aucun pointage aujourd'hui
+  SVC -> SVC : statut = PRESENT / RETARD (> 9h)
+  SVC -> EM : persist(Pointage)
+  EM -> DB : INSERT
+else arrivée déjà enregistrée
+  SVC -> EM : merge(Pointage)
+  EM -> DB : UPDATE
+end
+SVC --> SRV : Pointage
+deactivate SVC
+SRV -> NAV : redirection /pointage
+deactivate SRV
+NAV --> EMP : confirmation (heure, statut)
+@enduml

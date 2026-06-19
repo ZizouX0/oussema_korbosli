@@ -112,6 +112,15 @@ notifiée à l'administrateur. Ce dernier peut l'approuver ou la refuser en y
 associant un commentaire ; le statut évolue alors vers \texttt{EFFECTUE} ou
 \texttt{REFUSE}, et l'action est journalisée.
 
+\subsection{Cas « Pointer la présence »}
+L'employé enregistre son arrivée et son départ en cliquant sur le bouton
+« Pointer » : le système relève l'heure courante, détermine le statut
+(\texttt{PRESENT}, ou \texttt{RETARD} au-delà de l'heure limite) et enregistre le
+pointage du jour. L'administrateur peut, de son côté, saisir ou corriger
+manuellement un pointage (\texttt{PRESENT}, \texttt{RETARD} ou \texttt{ABSENT}).
+Les pointages alimentent ensuite les indicateurs de présence du tableau de bord
+et du volet décisionnel.
+
 \section*{Conclusion}
 Les besoins étant spécifiés et illustrés, le chapitre suivant présente la
 conception de l'application et de son volet décisionnel.

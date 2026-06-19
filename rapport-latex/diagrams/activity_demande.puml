@@ -1,0 +1,31 @@
+@startuml
+
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+
+skinparam activity {
+  BackgroundColor #EAF3FA
+  BorderColor #1B6CA8
+  DiamondBackgroundColor #DCEAF5
+  DiamondBorderColor #14507A
+}
+start
+:Le directeur soumet une demande;
+:Enregistrer la demande (statut EN_ATTENTE);
+:Notifier l'administrateur;
+:L'administrateur consulte la demande;
+if (Décision ?) then (Valider)
+  :Statut = EFFECTUE;
+  :Appliquer la modification en base;
+else (Refuser)
+  :Statut = REFUSE;
+  :Enregistrer le commentaire;
+endif
+:Journaliser l'action (audit);
+:Notifier le demandeur;
+stop
+@enduml
