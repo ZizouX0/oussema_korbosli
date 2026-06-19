@@ -1,0 +1,98 @@
+@startuml
+
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+
+skinparam classBackgroundColor #EAF3FA
+skinparam classBorderColor #1B6CA8
+skinparam classArrowColor #14507A
+hide empty members
+
+class Agence {
+  -id : Long
+  -nom : String
+  -adresse : String
+  -district : String
+}
+class Utilisateur {
+  -id : Long
+  -libelleUtilisateur : String
+  -emailUtilisateur : String
+  -estGestionnaire : Double
+  -estSuspendu : Integer
+  +getRoleLabel() : String
+}
+class Client {
+  -id : Long
+  -nomClient : String
+  -typeClient : String
+  -secteurActivite : String
+  -statutClient : String
+}
+class Gestionnaire {
+  -id : Long
+  -nomComplet : String
+  -email : String
+}
+class Objectif {
+  -id : Long
+  -anneeMois : String
+  -productionCreditsConso : Double
+  -souscriptionCompteCheques : Double
+}
+class SecurityUser {
+  -id : Long
+  -username : String
+  -password : String
+  -role : String
+}
+class DemandeClient {
+  -id : Long
+  -statut : String
+  -dateCreation : Instant
+}
+class DemandeEmploye {
+  -id : Long
+  -nom : String
+  -statut : String
+}
+class DemandeModification {
+  -id : Long
+  -champ : String
+  -nouvelleVal : String
+  -statut : String
+}
+class DemandeAgence {
+  -id : Long
+  -typeDemande : String
+  -statut : String
+}
+class JournalAction {
+  -id : Long
+  -actionCode : String
+  -dateAction : Instant
+}
+class Notification {
+  -id : Long
+  -typeNotif : String
+  -lue : String
+}
+
+Agence "1" -- "0..*" Utilisateur : SK_AGENCE >
+Agence "1" -- "0..*" Client : SK_AGENCE >
+Agence "1" -- "0..*" Objectif : SK_AGENCE >
+Gestionnaire "1" -- "0..*" Client : SK_GESTIONNAIRE >
+Utilisateur "1" -- "0..*" Objectif : SK_UTILISATEUR >
+DemandeClient "0..*" --> "1" Utilisateur : directeur
+DemandeEmploye "0..*" --> "1" Utilisateur : directeur
+DemandeModification "0..*" --> "1" Utilisateur : utilisateur
+DemandeAgence "0..*" --> "1" Utilisateur : directeur
+DemandeAgence "0..*" -- "0..*" Utilisateur : utilisateursDemandes
+JournalAction "0..*" --> "1" Utilisateur
+Notification "0..*" --> "1" Utilisateur : destinataire
+SecurityUser ..> Utilisateur : <<authentifie>>
+@enduml

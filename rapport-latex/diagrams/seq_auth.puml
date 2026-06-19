@@ -1,0 +1,45 @@
+@startuml
+
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+
+skinparam sequence {
+  ArrowColor #14507A
+  LifeLineBorderColor #1B6CA8
+  ParticipantBorderColor #1B6CA8
+  ParticipantBackgroundColor #EAF3FA
+  ActorBorderColor #14507A
+}
+actor "Utilisateur" as U
+participant "Navigateur" as NAV
+participant "LoginServlet" as SRV
+participant "SecurityService\n(EJB)" as SEC
+participant "UtilisateurService\n(EJB)" as US
+participant "EntityManager" as EM
+database "Oracle" as DB
+U -> NAV : saisir identifiant / mot de passe
+NAV -> SRV : POST /login
+activate SRV
+SRV -> SEC : authenticate(username, password)
+activate SEC
+SEC -> EM : query SECURITY_USERS
+EM -> DB : SELECT
+DB --> EM : SecurityUser | null
+SEC --> SRV : SecurityUser
+deactivate SEC
+alt authentification réussie
+  SRV -> US : findOrCreate(username, role)
+  US -> EM : find / persist Utilisateur
+  EM -> DB : SELECT / INSERT
+  SRV -> NAV : créer session + redirection /home
+  NAV --> U : tableau de bord
+else échec
+  SRV -> NAV : message d'erreur
+  NAV --> U : page de connexion
+end
+deactivate SRV
+@enduml

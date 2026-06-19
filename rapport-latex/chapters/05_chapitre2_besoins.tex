@@ -1,0 +1,114 @@
+% ============================ CHAPITRE 2 ==============================
+\chapter{Analyse et spécification des besoins}
+
+\section*{Introduction}
+Ce chapitre identifie les acteurs du système, spécifie les besoins fonctionnels
+et non fonctionnels, puis les illustre au moyen du diagramme de cas
+d'utilisation et de la description de quelques cas représentatifs.
+
+\section{Identification des acteurs}
+Trois profils interagissent avec l'application, conformément aux rôles gérés par
+le module de sécurité (table \texttt{SECURITY\_USERS}). Le
+tableau~\ref{tab:acteurs} en précise les responsabilités.
+
+\begin{table}[htbp]
+\centering
+\caption{Identification des acteurs}
+\label{tab:acteurs}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{4cm}X}
+\toprule
+\textmd{\textbf{Acteur}} & \textbf{Responsabilités}\\
+\midrule
+Administrateur (\texttt{ADMIN}) & Gère les agences, les employés et les clients ;
+valide les demandes de création de clients et d'employés ; consulte le journal
+d'audit.\\
+Directeur commercial (\texttt{DIRECTEUR\_COMMERCIAL}) & Soumet les demandes de
+création (clients, employés) ; valide les demandes de modification des données
+des employés ; consulte les objectifs.\\
+Utilisateur (\texttt{USER}) & Consulte les données autorisées et soumet des
+demandes de modification de ses propres informations.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Besoins fonctionnels}
+Le système doit permettre :
+\begin{itemize}[noitemsep]
+  \item l'authentification sécurisée et la gestion des rôles et des droits d'accès ;
+  \item la gestion (CRUD) des agences, des employés et des clients ;
+  \item le rattachement des employés et des clients à leur agence et à leur
+        gestionnaire ;
+  \item la consultation des objectifs commerciaux et le suivi de la production ;
+  \item la soumission et la validation des demandes (clients, employés,
+        modifications) selon le cycle \texttt{EN\_ATTENTE} $\rightarrow$
+        \texttt{EN\_COURS} $\rightarrow$ \texttt{EFFECTUE}/\texttt{REFUSE} ;
+  \item la notification des demandes en attente selon le rôle ;
+  \item la journalisation des actions (audit) et l'affichage de l'activité
+        récente ;
+  \item la restitution d'indicateurs via un tableau de bord et via Power BI.
+\end{itemize}
+
+\section{Besoins non fonctionnels}
+Le tableau~\ref{tab:bnf} récapitule les besoins non fonctionnels.
+
+\begin{table}[htbp]
+\centering
+\caption{Besoins non fonctionnels}
+\label{tab:bnf}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3.4cm}X}
+\toprule
+\textmd{\textbf{Besoin}} & \textbf{Description}\\
+\midrule
+Sécurité & Authentification, gestion des rôles et protection des opérations
+sensibles par des workflows de validation.\\
+Fiabilité & Intégrité des données garantie par le SGBD et les transactions JTA.\\
+Performance & Temps de réponse acceptable sur les volumes manipulés.\\
+Ergonomie & Interface claire et cohérente, navigation par menu latéral.\\
+Maintenabilité & Architecture en couches, code modulaire et faiblement couplé.\\
+Portabilité & Application Jakarta EE standard, déployable sur serveur compatible.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Diagramme de cas d'utilisation global}
+La figure~\ref{fig:uc_global} présente le \textbf{diagramme de cas d'utilisation
+global}. Ce diagramme UML a pour objectif de représenter, d'un point de vue
+fonctionnel, les interactions entre les acteurs et les services offerts par le
+système.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.95\textwidth]{uc_global.png}
+  \caption{Diagramme de cas d'utilisation global}
+  \label{fig:uc_global}
+\end{figure}
+
+On y distingue les trois acteurs identifiés et leurs cas d'utilisation
+respectifs. Le cas \emph{S'authentifier} est commun à tous les acteurs ; il est
+relié aux autres cas par une relation \texttt{\guillemotleft include\guillemotright}
+traduisant le fait que l'accès aux fonctionnalités exige une authentification
+préalable. L'\textbf{administrateur} concentre les cas de gestion (agences,
+employés, clients), la validation des demandes et la consultation du journal ; le
+\textbf{directeur commercial} soumet les demandes et valide les modifications ;
+l'\textbf{utilisateur} se limite à la consultation et à la soumission de demandes
+le concernant.
+
+\section{Description de quelques cas d'utilisation}
+\subsection{Cas « S'authentifier »}
+L'utilisateur saisit son identifiant et son mot de passe. Le système vérifie ces
+informations auprès de la table de sécurité dédiée ; en cas de succès, une
+session est ouverte et l'utilisateur est redirigé vers le tableau de bord
+correspondant à son rôle ; sinon, un message d'erreur est affiché.
+
+\subsection{Cas « Soumettre / valider une demande »}
+Le directeur commercial soumet une demande (création d'un client, d'un employé ou
+modification de données), enregistrée avec le statut \texttt{EN\_ATTENTE} et
+notifiée à l'administrateur. Ce dernier peut l'approuver ou la refuser en y
+associant un commentaire ; le statut évolue alors vers \texttt{EFFECTUE} ou
+\texttt{REFUSE}, et l'action est journalisée.
+
+\section*{Conclusion}
+Les besoins étant spécifiés et illustrés, le chapitre suivant présente la
+conception de l'application et de son volet décisionnel.

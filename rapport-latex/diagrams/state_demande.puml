@@ -1,0 +1,23 @@
+@startuml
+
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+
+skinparam state {
+  BackgroundColor #EAF3FA
+  BorderColor #1B6CA8
+}
+[*] --> EN_ATTENTE : création (directeur)
+EN_ATTENTE --> EN_COURS : prise en charge (admin)
+EN_ATTENTE --> REFUSE : refus
+EN_COURS --> EFFECTUE : validation
+EN_COURS --> REFUSE : refus
+EFFECTUE --> [*]
+REFUSE --> [*]
+note right of EN_ATTENTE : statut initial\n(table DEMANDES_*)
+note right of EFFECTUE : action appliquée\n+ journalisée
+@enduml

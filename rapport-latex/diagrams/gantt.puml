@@ -1,0 +1,27 @@
+@startgantt
+
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+
+printscale weekly
+Project starts 2026-02-16
+[Sprint 0 : cadrage et étude] as [S0] lasts 2 weeks
+[S0] is colored in #1B6CA8/#EAF3FA
+[Sprint 1 : authentification et sécurité] as [S1] lasts 2 weeks
+[S1] starts at [S0]'s end
+[Sprint 2 : gestion des agences et employés] as [S2] lasts 3 weeks
+[S2] starts at [S1]'s end
+[Sprint 3 : clients et objectifs] as [S3] lasts 3 weeks
+[S3] starts at [S2]'s end
+[Sprint 4 : workflow de demandes] as [S4] lasts 3 weeks
+[S4] starts at [S3]'s end
+[Sprint 5 : volet décisionnel (Power BI)] as [S5] lasts 2 weeks
+[S5] starts at [S4]'s end
+[S5] is colored in #C8861A/#FFF3DC
+[Tests et rédaction] as [S6] lasts 2 weeks
+[S6] starts at [S5]'s end
+@endgantt

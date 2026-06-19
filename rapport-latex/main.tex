@@ -1,0 +1,103 @@
+% =====================================================================
+%  Rapport de stage PFE — Gestion des agences bancaires (BTK)
+%  Esprit School of Business — Licence Business Computing / BI
+%  Compilation : pdflatex main ; bibtex main ; pdflatex main ; pdflatex main
+% =====================================================================
+\documentclass[a4paper,12pt,oneside]{report}
+
+% ---- Encodage & langue ----
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{newtxtext,newtxmath}     % Times New Roman (corps + maths)
+\usepackage[french]{babel}
+\usepackage{csquotes}
+
+% ---- Mise en page (charte : marges 2,5 cm, interligne 1,15) ----
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{setspace}
+\setstretch{1.15}
+\usepackage{microtype}
+
+% ---- Graphiques, couleurs, tableaux ----
+\usepackage{graphicx}
+\graphicspath{{images/}{diagrams/}}
+\usepackage{xcolor}
+\definecolor{btkblue}{HTML}{14507A}
+\definecolor{btklight}{HTML}{1B6CA8}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{enumitem}
+
+% ---- Légendes : « Figure 1.1 – ... » (numérotation par chapitre native) ----
+\usepackage{caption}
+\captionsetup{labelsep=endash,font=small,labelfont=bf}
+
+% ---- En-têtes / pieds : numéro de page en bas à droite ----
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}}
+
+% ---- Style des titres de chapitre ----
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{btkblue}}
+  {\chaptertitlename\ \thechapter}{16pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{0pt}{24pt}
+
+% ---- Liens & références croisées ----
+\usepackage[hidelinks]{hyperref}
+\usepackage{cleveref}
+
+\begin{document}
+
+% ============================ PAGE DE GARDE ===========================
+\input{chapters/00_page_de_garde}
+
+% ============================ FRONT MATTER ============================
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+\input{chapters/01_remerciements}
+
+\cleardoublepage
+\tableofcontents
+\cleardoublepage
+\listoffigures
+\cleardoublepage
+\listoftables
+\cleardoublepage
+\input{chapters/02_acronymes}
+
+% ============================ CORPS ===================================
+\cleardoublepage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{chapters/03_introduction}
+\input{chapters/04_chapitre1_cadre}
+\input{chapters/05_chapitre2_besoins}
+\input{chapters/06_chapitre3_conception}
+\input{chapters/07_chapitre4_realisation}
+\input{chapters/08_conclusion}
+
+% ============================ NÉTOGRAPHIE =============================
+\cleardoublepage
+\renewcommand{\bibname}{Nétographie}
+\addcontentsline{toc}{chapter}{Nétographie}
+\bibliographystyle{ieeetr}
+\bibliography{references}
+
+% ============================ ANNEXES =================================
+\cleardoublepage
+\appendix
+\input{annexes/annexes}
+
+\end{document}

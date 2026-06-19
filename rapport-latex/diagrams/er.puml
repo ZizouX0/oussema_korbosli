@@ -1,0 +1,92 @@
+@startuml
+
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor #EAF3FA
+  BorderColor #1B6CA8
+}
+hide circle
+hide methods
+entity "AGENCE" as AGENCE {
+  *SK_AGENCE <<PK>>
+  --
+  LIBELLE_AGENCE
+  ADRESSE_AGENCE
+  DISTRICT
+}
+entity "B_UTILISATEURS" as USR {
+  *SK_UTILISATEUR <<PK>>
+  --
+  LIBELLE_UTILISATEUR
+  EMAIL_UTILISATEUR
+  EST_GESTIONNAIRE
+  EST_SUSPENDU
+  #SK_AGENCE <<FK>>
+}
+entity "CLIENT" as CLI {
+  *SK_CLIENT <<PK>>
+  --
+  NOM_CLIENT
+  TYPE_CLIENT
+  STATUT_CLIENT
+  #SK_AGENCE <<FK>>
+  #SK_GESTIONNAIRE <<FK>>
+}
+entity "B_OBJECTIF" as OBJ {
+  *ID_OBJECTIF <<PK>>
+  --
+  ANNEE_MOIS
+  #SK_AGENCE <<FK>>
+  #SK_UTILISATEUR <<FK>>
+}
+entity "SECURITY_USERS" as SEC {
+  *ID <<PK>>
+  --
+  USERNAME
+  PASSWORD
+  ROLE
+}
+entity "DEMANDE_CLIENT" as DC {
+  *ID_DEMANDE <<PK>>
+  --
+  NOM_CLIENT
+  STATUT
+  #ID_DIRECTEUR <<FK>>
+}
+entity "DEMANDE_EMPLOYE" as DE {
+  *ID_DEMANDE <<PK>>
+  --
+  NOM
+  STATUT
+  #ID_DIRECTEUR <<FK>>
+}
+entity "DEMANDES_MODIFICATION" as DM {
+  *ID <<PK>>
+  --
+  CHAMP
+  NOUVELLE_VAL
+  STATUT
+  #ID_USER <<FK>>
+}
+entity "JOURNAL_ACTION" as JA {
+  *ID_JOURNAL <<PK>>
+  --
+  ACTION_CODE
+  #ID_UTILISATEUR <<FK>>
+}
+AGENCE ||--o{ USR
+AGENCE ||--o{ CLI
+AGENCE ||--o{ OBJ
+USR ||--o{ OBJ
+USR ||--o{ DC
+USR ||--o{ DE
+USR ||--o{ DM
+USR ||--o{ JA
+@enduml

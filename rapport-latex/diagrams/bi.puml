@@ -1,0 +1,49 @@
+@startuml
+
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor #FFF3DC
+  BorderColor #C8861A
+}
+hide circle
+hide methods
+entity "DIM_AGENCE" as DA #EAF3FA {
+  LIBELLE_AGENCE
+  DISTRICT
+}
+entity "DIM_GESTIONNAIRE" as DG #EAF3FA {
+  NOM_GESTIONNAIRE
+}
+entity "DIM_PERIODE" as DP #EAF3FA {
+  ANNEE_MOIS
+}
+entity "DIM_CLIENT" as DCx #EAF3FA {
+  TYPE_CLIENT
+  STATUT
+}
+entity "V_BI_OBJECTIFS\n(production)" as F1 {
+  TOTAL_OUVERTURE_COMPTES
+  CREDITS_CONSO / IMMO / INVEST
+  COLLECTE_EPARGNE
+}
+entity "V_BI_EMPLOYES\n(effectifs)" as F2 {
+  ROLE_LABEL
+  STATUT
+}
+entity "V_BI_CLIENTS\n(portefeuille)" as F3 {
+  NOM_COMPLET
+}
+DA ||--o{ F1
+DG ||--o{ F1
+DP ||--o{ F1
+DA ||--o{ F2
+DA ||--o{ F3
+DCx ||--o{ F3
+@enduml

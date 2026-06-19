@@ -1,0 +1,31 @@
+@startuml
+
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+
+skinparam node {
+  BorderColor #1B6CA8
+  BackgroundColor #EAF3FA
+}
+skinparam databaseBackgroundColor #DCEAF5
+skinparam databaseBorderColor #14507A
+node "Poste client" as C {
+  [Navigateur web]
+}
+node "Poste décisionnel" as P {
+  [Power BI Desktop]
+}
+node "Serveur d'applications\nWildFly / JBoss" as S {
+  artifact "gestion-agences.war"
+}
+node "Serveur de base de données" as DBS {
+  database "Oracle\n(FREEPDB1)" as DB
+}
+C --> S : HTTP / HTTPS
+S --> DBS : JDBC (datasource JTA OracleDS)
+P --> DBS : connexion Oracle (vues V_BI_*)
+@enduml

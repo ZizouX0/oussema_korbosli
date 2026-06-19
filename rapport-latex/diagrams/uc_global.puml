@@ -1,0 +1,49 @@
+@startuml
+
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecaseBackgroundColor #EAF3FA
+skinparam usecaseBorderColor #1B6CA8
+skinparam actorBorderColor #14507A
+actor "Administrateur" as ADM
+actor "Directeur commercial" as DIR
+actor "Utilisateur" as USR
+rectangle "Application de gestion des agences bancaires" {
+  usecase "S'authentifier" as UC0
+  usecase "Consulter le\ntableau de bord" as UC1
+  usecase "Gérer les agences" as UC2
+  usecase "Gérer les employés" as UC3
+  usecase "Gérer les clients" as UC4
+  usecase "Consulter les\nobjectifs" as UC5
+  usecase "Soumettre une\ndemande" as UC6
+  usecase "Valider / refuser\nune demande" as UC7
+  usecase "Consulter le\njournal d'audit" as UC8
+  usecase "Recevoir des\nnotifications" as UC9
+}
+ADM --> UC1
+ADM --> UC2
+ADM --> UC3
+ADM --> UC4
+ADM --> UC7
+ADM --> UC8
+ADM --> UC9
+DIR --> UC1
+DIR --> UC5
+DIR --> UC6
+DIR --> UC9
+USR --> UC1
+USR --> UC6
+USR --> UC9
+UC1 ..> UC0 : <<include>>
+UC2 ..> UC0 : <<include>>
+UC6 ..> UC0 : <<include>>
+UC7 ..> UC0 : <<include>>
+@enduml
