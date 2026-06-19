@@ -24,6 +24,7 @@
         <class>entity.DemandeEmploye</class>
         <class>entity.DemandeClient</class>
         <class>entity.SecurityUser</class>
+        <class>entity.Pointage</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="oracle.jdbc.OracleDriver"/>

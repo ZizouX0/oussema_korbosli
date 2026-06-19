@@ -20,6 +20,10 @@
             <i data-lucide="users"></i>
             <span>Employés</span>
         </a>
+        <a href="${pageContext.request.contextPath}/pointage" class="nav-item ${activePage == 'pointage' ? 'active' : ''}">
+            <i data-lucide="clock"></i>
+            <span>Pointage</span>
+        </a>
         <c:if test="${sessionScope.role == 'ADMIN' || sessionScope.role == 'DIRECTEUR_COMMERCIAL'}">
             <a href="${pageContext.request.contextPath}/clients-btk" class="nav-item ${activePage == 'clients' ? 'active' : ''}">
                 <i data-lucide="user-check"></i>
