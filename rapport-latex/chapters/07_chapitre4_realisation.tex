@@ -2,41 +2,9 @@
 \chapter{Réalisation}
 
 \section*{Introduction}
-Ce chapitre présente l'environnement de travail, les choix technologiques, puis
-les principales interfaces de l'application et la réalisation du volet
-décisionnel.
-
-\section{Environnement de travail}
-\subsection{Environnement matériel}
-Le développement a été réalisé sur un poste de travail standard
-[\textit{à compléter : processeur, mémoire vive, système d'exploitation}].
-
-\subsection{Environnement logiciel}
-Le tableau~\ref{tab:envlog} récapitule les principaux outils et technologies
-employés.
-
-\begin{table}[htbp]
-\centering
-\caption{Environnement logiciel}
-\label{tab:envlog}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabularx}{\textwidth}{>{\bfseries}p{4cm}X}
-\toprule
-\textmd{\textbf{Outil / Technologie}} & \textbf{Rôle}\\
-\midrule
-JDK 21 & Plateforme d'exécution et de compilation Java\\
-Jakarta EE 10 & Spécifications d'entreprise (Servlets, JSP, EJB, JPA)\\
-Hibernate & Implémentation JPA (mapping objet-relationnel)\\
-Oracle Database & Système de gestion de base de données\\
-WildFly / JBoss & Serveur d'applications (déploiement du WAR)\\
-Apache Maven & Gestion des dépendances et automatisation du build\\
-IntelliJ IDEA & Environnement de développement intégré\\
-ApexCharts & Graphiques du tableau de bord embarqué\\
-Microsoft Power BI & Restitution et reporting décisionnel\\
-Git & Gestion de versions du code source\\
-\bottomrule
-\end{tabularx}
-\end{table}
+Ce chapitre présente les choix technologiques et l'architecture de déploiement,
+puis les principales interfaces de l'application, le module de pointage et la
+réalisation du volet décisionnel.
 
 \section{Choix technologiques}
 Le choix de \textbf{Jakarta EE 10}~\cite{jakartaee} se justifie par sa robustesse,

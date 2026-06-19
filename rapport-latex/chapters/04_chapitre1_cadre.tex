@@ -1,20 +1,22 @@
 % ============================ CHAPITRE 1 ==============================
-\chapter{Cadre général du projet}
+\chapter{Contexte Général}
 
 \section*{Introduction}
-Ce premier chapitre situe le projet dans son contexte. Il présente l'organisme
-d'accueil, analyse la situation existante, dégage la problématique, expose la
-solution retenue et précise la méthodologie de travail adoptée durant le stage.
+Ce premier chapitre situe le projet dans son contexte global. Il présente
+l'organisme d'accueil et ses missions, délimite le cadre du projet à travers
+l'étude de l'existant et la problématique, formalise le cahier des charges,
+justifie la méthodologie de gestion de projet retenue, détaille sa mise en œuvre
+selon le cadre Scrum, et décrit enfin l'environnement de travail.
 
+% ----------------------------------------------------------------------
 \section{Présentation de l'organisme d'accueil}
 La \textbf{Banque Tuniso-Koweïtienne} (BTK Bank) est une banque universelle de
 droit tunisien, créée le 25 février 1981 dans le cadre d'une convention de
 coopération bilatérale entre la Tunisie et le Koweït. Constituée en société
 anonyme et régie par la loi bancaire n\textsuperscript{o}~2016-48, elle dispose
 d'un capital social de 200~millions de dinars et a son siège social à Tunis. À
-travers un réseau d'agences couvrant l'ensemble du territoire tunisien, la BTK
-accompagne aussi bien les particuliers que les entreprises au moyen d'une offre
-complète de produits de financement, d'épargne et de services internationaux.
+travers un réseau d'agences couvrant l'ensemble du territoire tunisien, elle
+accompagne aussi bien les particuliers que les entreprises.
 
 \begin{figure}[htbp]
   \centering
@@ -23,14 +25,13 @@ complète de produits de financement, d'épargne et de services internationaux.
   \label{fig:logo_btk}
 \end{figure}
 
-La figure~\ref{fig:logo_btk} présente le logo de l'institution. Le
-tableau~\ref{tab:fiche_btk} en synthétise la fiche signalétique.
+Le tableau~\ref{tab:fiche_btk} en résume la fiche signalétique.
 
 \begin{table}[htbp]
 \centering
 \caption{Fiche signalétique de la BTK}
 \label{tab:fiche_btk}
-\renewcommand{\arraystretch}{1.25}
+\renewcommand{\arraystretch}{1.2}
 \begin{tabularx}{\textwidth}{>{\bfseries}p{4.2cm}X}
 \toprule
 \textmd{\textbf{Élément}} & \textbf{Renseignement}\\
@@ -38,115 +39,260 @@ tableau~\ref{tab:fiche_btk} en synthétise la fiche signalétique.
 Dénomination sociale & Banque Tuniso-Koweïtienne (BTK Bank)\\
 Forme juridique & Société Anonyme (S.A.)\\
 Date de création & 25 février 1981\\
-Capital social & 200\,000\,000 DT (2\,000\,000 actions de 100 DT)\\
+Capital social & 200\,000\,000 DT\\
 Siège social & 10 bis, Avenue Mohamed V, 1001 Tunis\\
 Secteur d'activité & Banque universelle\\
 Actionnaire de référence & Groupe Elloumi (60 \%)\\
 Réseau & 5 directions régionales, 6 succursales, 45 agences\\
 Effectif (2024) & $\approx$ 400 collaborateurs\\
-Site web & www.btknet.com\\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection{Aperçu historique}
-Issue de la convention bilatérale signée en 1980 entre la Tunisie et le Koweït,
-la BTK voit le jour en 1981 avec une vocation initiale de financement des projets
-d'investissement à forte valeur ajoutée. Elle obtient en 2004 son agrément de
-banque universelle, élargissant son activité à la banque de détail, au
-financement des entreprises et aux opérations de marché. Son actionnariat connaît
-ensuite plusieurs évolutions : l'entrée du groupe français BPCE en 2008, le
-doublement de son capital en 2017, puis l'acquisition de la participation de
-référence par le Groupe Elloumi en 2021. La banque conduit depuis un plan de
-transformation axé sur la consolidation financière et la digitalisation de ses
-services.
+\subsection{Missions}
+En tant que banque universelle, la BTK assure un ensemble de missions couvrant
+les principaux métiers bancaires :
+\begin{itemize}[noitemsep]
+  \item \textbf{Banque de détail} : comptes, cartes, crédits à la consommation et
+        immobiliers, épargne et banque digitale destinés aux particuliers ;
+  \item \textbf{Banque des entreprises} : financement de l'investissement et du
+        fonctionnement, financement du commerce extérieur et gestion de
+        trésorerie ;
+  \item \textbf{Opérations internationales et de marché} : change, couverture du
+        risque de change et placements ;
+  \item \textbf{Innovation et digitalisation} : modernisation des services et
+        offre en ligne.
+\end{itemize}
 
-\subsection{Structure et évolution du capital}
-Depuis sa création, le capital de la BTK a connu plusieurs évolutions, résumées
-dans le tableau~\ref{tab:capital}. Au 30 septembre 2025, il est réparti entre le
-\textbf{Groupe Elloumi} (60~\%, actionnaire de référence depuis 2021), l'\textbf{État
-tunisien} (20~\%) et la \textbf{Kuwait Investment Authority} (20~\%), cofondateur
-historique de l'institution.
+\subsection{Objectifs}
+À travers ces missions, la BTK poursuit plusieurs objectifs stratégiques :
+\begin{itemize}[noitemsep]
+  \item soutenir le tissu économique en finançant les entreprises et les projets
+        d'investissement ;
+  \item proposer des solutions financières adaptées aux ménages ;
+  \item contribuer à la création d'emplois et à la dynamique de croissance
+        nationale ;
+  \item consolider sa solidité financière et accélérer sa transformation
+        digitale.
+\end{itemize}
 
-\begin{table}[htbp]
-\centering
-\caption{Évolution de la structure du capital de la BTK}
-\label{tab:capital}
-\renewcommand{\arraystretch}{1.25}
-\begin{tabularx}{\textwidth}{p{1.4cm}p{4.4cm}p{1.7cm}X}
-\toprule
-\textbf{Année} & \textbf{Événement} & \textbf{Capital (MDT)} & \textbf{Actionnariat principal}\\
-\midrule
-1981 & Création de la BTK (ex-BTKD) & 100 & État tunisien (50~\%) -- État du Koweït (50~\%)\\
-2008 & Entrée du groupe BPCE International & 100 & BPCE (60~\%) -- État (20~\%) -- Koweït (20~\%)\\
-2017 & Augmentation du capital & 200 & BPCE (60~\%) -- État (20~\%) -- Koweït (20~\%)\\
-2021 & Acquisition par le Groupe Elloumi & 200 & Groupe Elloumi (60~\%) -- État (20~\%) -- KIA (20~\%)\\
-\bottomrule
-\end{tabularx}
-\end{table}
+% ----------------------------------------------------------------------
+\section{Cadre du projet}
+Le projet s'inscrit dans la gestion du réseau d'agences de la banque. Il a été
+réalisé durant le stage de fin d'études, du \textbf{16 février au 16 juin 2026}.
 
-\subsection{Activités et services}
-En tant que banque universelle, la BTK propose une gamme étendue de produits et
-de services : la \textbf{banque de détail} (comptes, cartes, crédits à la
-consommation et immobiliers, banque digitale via BTKNet), la \textbf{banque des
-entreprises} (crédits d'investissement et de fonctionnement, financement du
-commerce extérieur, gestion de trésorerie), les \textbf{opérations
-internationales et de marché}, ainsi que des \textbf{services spécialisés}
-(banque d'affaires, banque privée, bancassurance, intermédiation boursière).
+\subsection{Analyse de la situation existante}
+La gestion actuelle du réseau repose en grande partie sur des traitements manuels
+et des fichiers bureautiques non centralisés. Les informations relatives aux
+agences, aux employés et aux clients sont saisies et conservées de manière
+hétérogène ; les demandes de création ou de modification circulent par des canaux
+informels ; et la présence des employés n'est suivie par aucun dispositif
+formalisé.
 
-\section{Cadre et contexte du stage}
-Le stage s'est déroulé du \textbf{16 février 2026 au 16 juin 2026} au sein de la
-BTK, dans le cadre du projet de fin d'études. Le réseau d'agences de la banque
-génère un volume important d'informations relatives aux agences, aux
-collaborateurs, aux clients et aux objectifs commerciaux. La gestion de ces
-informations à l'aide d'outils bureautiques dispersés atteint rapidement ses
-limites en matière de cohérence, de traçabilité et de restitution.
-
-\section{Étude de l'existant}
-\subsection{Description de l'existant}
-La gestion actuelle repose en grande partie sur des traitements manuels et des
-fichiers non centralisés. Les données relatives aux agences, aux employés et aux
-clients sont saisies et conservées de manière hétérogène, et les demandes de
-création ou de modification circulent par des canaux informels.
-
-\subsection{Critique de l'existant}
+\subsection{Critique de la situation existante}
 Cette organisation présente plusieurs limites :
 \begin{itemize}[noitemsep]
   \item dispersion et redondance des données, sources d'incohérences ;
   \item absence de circuit de validation formalisé pour les opérations sensibles ;
+  \item absence de suivi de présence (pointage) des employés ;
   \item faible traçabilité des actions et des décisions ;
   \item difficulté à produire des indicateurs consolidés pour le pilotage ;
   \item gestion des droits d'accès insuffisamment maîtrisée.
 \end{itemize}
 
-\section{Problématique}
-Comment centraliser et fiabiliser la gestion du réseau d'agences bancaires, tout
-en encadrant les opérations sensibles par des circuits de validation, et comment
-exploiter les données ainsi structurées pour fournir aux responsables des
-indicateurs d'aide à la décision ?
+\subsection{Problématique}
+Comment \textbf{centraliser et fiabiliser} la gestion du réseau d'agences
+bancaires, \textbf{encadrer} les opérations sensibles par des circuits de
+validation, \textbf{assurer le suivi de présence} des employés, et \textbf{exploiter}
+les données ainsi structurées pour fournir aux responsables des indicateurs
+d'aide à la décision ?
 
-\section{Solution proposée}
-La solution consiste en une application web centralisée, structurée autour d'une
-base de données relationnelle Oracle, qui couvre la gestion des agences, des
-employés, des clients et des objectifs, et qui formalise les demandes de création
-et de modification au moyen de workflows de validation. Un volet décisionnel
-complète le dispositif : des vues analytiques alimentent Microsoft Power BI, et un
-tableau de bord embarqué restitue les indicateurs clés directement dans
+\subsection{Solutions proposées}
+La solution retenue consiste en une application web centralisée, structurée autour
+d'une base de données Oracle, qui couvre la gestion des agences, des employés, des
+clients et des objectifs, gère les rôles et la sécurité des accès, assure le
+\textbf{pointage} de présence des employés, et formalise les demandes de création
+et de modification au moyen de workflows de validation. Un \textbf{volet
+décisionnel} complète le dispositif : des vues analytiques alimentent Microsoft
+Power BI, et un tableau de bord embarqué restitue les indicateurs clés au sein de
 l'application.
 
-\section{Méthodologie de travail}
-La conduite du projet a suivi la méthodologie agile \textbf{Scrum}, fondée sur un
-développement itératif et incrémental. Le travail a été découpé en
-\textbf{sprints} successifs, chacun livrant un incrément fonctionnel : un
-\emph{product backlog} regroupe les fonctionnalités à réaliser, décomposées en
-\emph{sprint backlogs} ; chaque sprint se conclut par une revue et une
-rétrospective permettant d'ajuster la suite des travaux. Le
-tableau~\ref{tab:sprints} et la figure~\ref{fig:gantt} présentent le découpage en
-sprints et la planification correspondante.
+% ----------------------------------------------------------------------
+\section{Cahier des charges}
+Le cahier des charges formalise les besoins auxquels la solution doit répondre.
+
+\subsection{Besoins fonctionnels}
+Le système doit permettre :
+\begin{itemize}[noitemsep]
+  \item l'authentification sécurisée et la gestion des rôles et des droits
+        d'accès (ADMIN, DIRECTEUR\_COMMERCIAL, USER) ;
+  \item la gestion (CRUD) des agences, des employés et des clients ;
+  \item la consultation des objectifs commerciaux et le suivi de la production ;
+  \item le \textbf{pointage (présence) des employés} : saisie de l'heure d'arrivée
+        et de départ, statut (présent / retard / absent), en mode automatique
+        (bouton) ou manuel (administrateur) ;
+  \item la soumission et la validation des demandes (clients, employés,
+        modifications) selon le cycle \texttt{EN\_ATTENTE} $\rightarrow$
+        \texttt{EN\_COURS} $\rightarrow$ \texttt{EFFECTUE}/\texttt{REFUSE} ;
+  \item la notification des demandes en attente et la journalisation des actions ;
+  \item la restitution d'indicateurs via un tableau de bord et via Power BI.
+\end{itemize}
+
+\subsection{Besoins non fonctionnels}
+Le tableau~\ref{tab:bnf} récapitule les besoins non fonctionnels.
 
 \begin{table}[htbp]
 \centering
-\caption{Découpage du projet en sprints Scrum}
+\caption{Besoins non fonctionnels}
+\label{tab:bnf}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3.4cm}X}
+\toprule
+\textmd{\textbf{Besoin}} & \textbf{Description}\\
+\midrule
+Sécurité & Authentification, gestion des rôles et protection des opérations
+sensibles par des workflows de validation.\\
+Fiabilité & Intégrité des données garantie par le SGBD et les transactions JTA.\\
+Performance & Temps de réponse acceptable sur les volumes manipulés.\\
+Ergonomie & Interface claire et cohérente, navigation par menu latéral.\\
+Maintenabilité & Architecture en couches, code modulaire et faiblement couplé.\\
+Portabilité & Application Jakarta EE standard, déployable sur serveur compatible.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% ----------------------------------------------------------------------
+\section{Méthodologie de gestion de projet}
+
+\subsection{Comparaison entre les méthodes agiles et traditionnelles}
+Le tableau~\ref{tab:agile_vs_trad} oppose les deux grandes familles de méthodes de
+conduite de projet.
+
+\begin{table}[htbp]
+\centering
+\caption{Méthodes traditionnelles vs méthodes agiles}
+\label{tab:agile_vs_trad}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{2.8cm}XX}
+\toprule
+\textmd{\textbf{Critère}} & \textbf{Méthodes traditionnelles} & \textbf{Méthodes agiles}\\
+\midrule
+Approche & Séquentielle et planifiée (cascade, cycle en V) & Itérative et incrémentale\\
+Flexibilité & Faible : les changements sont coûteux & Élevée : adaptation continue\\
+Livraison & En fin de projet & Par incréments fréquents\\
+Implication du client & Au début et à la fin & Tout au long du projet\\
+Documentation & Abondante et préalable & Allégée, au juste nécessaire\\
+Détection des risques & Tardive & Précoce\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Choix de l'approche}
+Le périmètre du projet a évolué au fil des échanges avec l'organisme d'accueil et
+les besoins ont été précisés progressivement. Une \textbf{approche agile} a donc
+été privilégiée : elle permet de livrer la solution par incréments, d'intégrer les
+retours au fur et à mesure et de maîtriser les risques plus tôt, contrairement à
+une approche traditionnelle rigide.
+
+\subsection{Comparaison entre méthodes agiles}
+Parmi les cadres agiles, deux sont particulièrement répandus : Kanban et Scrum.
+
+\subsubsection{Modèle Kanban}
+Kanban repose sur la \textbf{visualisation d'un flux continu} de tâches au moyen
+d'un tableau organisé en colonnes (à faire, en cours, terminé) et sur la
+limitation du travail en cours. Il n'impose ni rôles ni itérations de durée fixe
+et convient particulièrement aux activités de flux continu et de maintenance.
+
+\subsubsection{Modèle Scrum}
+Scrum organise le travail en \textbf{itérations de durée fixe} (les
+\emph{sprints}), s'appuie sur des \textbf{rôles} définis (Product Owner, Scrum
+Master, équipe de développement), des \textbf{artefacts} (\emph{product backlog},
+\emph{sprint backlog}) et des \textbf{cérémonies} (planification, mêlée
+quotidienne, revue, rétrospective). Le tableau~\ref{tab:kanban_vs_scrum} compare
+les deux cadres.
+
+\begin{table}[htbp]
+\centering
+\caption{Kanban vs Scrum}
+\label{tab:kanban_vs_scrum}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{2.8cm}XX}
+\toprule
+\textmd{\textbf{Critère}} & \textbf{Kanban} & \textbf{Scrum}\\
+\midrule
+Cadence & Flux continu & Sprints de durée fixe\\
+Rôles & Non imposés & Product Owner, Scrum Master, équipe\\
+Cérémonies & Optionnelles & Planning, mêlée, revue, rétrospective\\
+Gestion du travail & Tableau Kanban, limite du WIP & Sprint backlog\\
+Changements & À tout moment & Figés pendant le sprint\\
+Adapté à & Maintenance, flux continu & Projets à fonctionnalités planifiées\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{Choix de la méthodologie}
+Le projet visant à développer un ensemble de fonctionnalités planifiées et
+livrables par incréments, le cadre \textbf{Scrum} a été retenu : ses sprints, ses
+rôles et ses cérémonies offrent une structure adaptée au suivi régulier de
+l'avancement et à la validation progressive des incréments avec l'organisme
+d'accueil.
+
+% ----------------------------------------------------------------------
+\section{Mise en œuvre du projet avec Scrum}
+
+\subsection{Rôles Scrum}
+Le tableau~\ref{tab:roles_scrum} présente la répartition des rôles Scrum adoptée
+durant le projet.
+
+\begin{table}[htbp]
+\centering
+\caption{Répartition des rôles Scrum}
+\label{tab:roles_scrum}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3.6cm}p{3.6cm}X}
+\toprule
+\textmd{\textbf{Rôle}} & \textbf{Assuré par} & \textbf{Responsabilité}\\
+\midrule
+Product Owner & Maître de stage (BTK) & Exprime et priorise les besoins (backlog).\\
+Scrum Master & Encadrant / étudiant & Veille au bon déroulement de la démarche.\\
+Équipe de développement & Étudiant & Conçoit, développe et teste les incréments.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Backlog produit}
+Le \emph{product backlog} regroupe les fonctionnalités à réaliser, exprimées sous
+forme de \emph{user stories} et priorisées (tableau~\ref{tab:backlog}).
+
+\begin{table}[htbp]
+\centering
+\caption{Extrait du backlog produit}
+\label{tab:backlog}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{1.2cm}Xp{1.8cm}}
+\toprule
+\textmd{\textbf{ID}} & \textbf{User story} & \textbf{Priorité}\\
+\midrule
+US1 & S'authentifier et gérer les rôles et les droits d'accès & Haute\\
+US2 & Gérer les agences (créer, consulter, modifier, supprimer) & Haute\\
+US3 & Gérer les employés et leur rattachement aux agences & Haute\\
+US4 & Gérer les clients et le portefeuille & Moyenne\\
+US5 & Suivre les objectifs commerciaux & Moyenne\\
+US6 & Pointer la présence (arrivée / départ) des employés & Haute\\
+US7 & Soumettre et valider des demandes (workflow) & Moyenne\\
+US8 & Consulter le tableau de bord décisionnel & Haute\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Plan des Sprints Agile Scrum}
+Le projet a été découpé en sprints successifs, chacun livrant un incrément
+fonctionnel (tableau~\ref{tab:sprints}). La figure~\ref{fig:gantt} présente la
+planification correspondante.
+
+\begin{table}[htbp]
+\centering
+\caption{Plan des sprints}
 \label{tab:sprints}
 \renewcommand{\arraystretch}{1.2}
 \begin{tabularx}{\textwidth}{>{\bfseries}p{2.2cm}X}
@@ -157,7 +303,7 @@ Sprint 0 & Cadrage, étude de l'existant et spécification des besoins\\
 Sprint 1 & Authentification et gestion des rôles\\
 Sprint 2 & Gestion des agences et des employés\\
 Sprint 3 & Gestion des clients et des objectifs\\
-Sprint 4 & Workflows de demandes (clients, employés, modifications)\\
+Sprint 4 & Pointage et workflows de demandes\\
 Sprint 5 & Volet décisionnel (vues BI et Power BI)\\
 Sprint 6 & Tests, consolidation et rédaction\\
 \bottomrule
@@ -171,7 +317,43 @@ Sprint 6 & Tests, consolidation et rédaction\\
   \label{fig:gantt}
 \end{figure}
 
+% ----------------------------------------------------------------------
+\section{Environnement de travail et ressources}
+
+\subsection{Environnement matériel}
+Le développement a été réalisé sur un poste de travail standard
+[\textit{à compléter : processeur, mémoire vive, système d'exploitation}].
+
+\subsection{Environnement logiciel et outils}
+Le tableau~\ref{tab:envlog} récapitule les principaux outils et technologies
+employés.
+
+\begin{table}[htbp]
+\centering
+\caption{Environnement logiciel et outils}
+\label{tab:envlog}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{4cm}X}
+\toprule
+\textmd{\textbf{Outil / Technologie}} & \textbf{Rôle}\\
+\midrule
+JDK 21 & Plateforme d'exécution et de compilation Java\\
+Jakarta EE 10 & Spécifications d'entreprise (Servlets, JSP, EJB, JPA)\\
+Hibernate & Implémentation JPA (mapping objet-relationnel)\\
+Oracle Database & Système de gestion de base de données\\
+WildFly / JBoss & Serveur d'applications (déploiement du WAR)\\
+Apache Maven & Gestion des dépendances et automatisation du build\\
+IntelliJ IDEA & Environnement de développement intégré\\
+ApexCharts & Graphiques du tableau de bord embarqué\\
+Microsoft Power BI & Restitution et reporting décisionnel\\
+Git / GitHub & Gestion de versions du code source\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \section*{Conclusion}
-Après avoir situé le projet, présenté l'organisme d'accueil et dégagé la
-problématique, le chapitre suivant formalise les besoins fonctionnels et non
-fonctionnels de la solution.
+Ce chapitre a posé le contexte du projet : l'organisme d'accueil et ses missions,
+l'étude de l'existant et la problématique, le cahier des charges, le choix et la
+mise en œuvre de la méthodologie Scrum, ainsi que l'environnement de travail. Le
+chapitre suivant est consacré à l'analyse et à la spécification des besoins à
+travers la modélisation des cas d'utilisation.

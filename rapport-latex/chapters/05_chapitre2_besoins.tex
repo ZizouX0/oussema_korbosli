@@ -2,9 +2,10 @@
 \chapter{Analyse et spécification des besoins}
 
 \section*{Introduction}
-Ce chapitre identifie les acteurs du système, spécifie les besoins fonctionnels
-et non fonctionnels, puis les illustre au moyen du diagramme de cas
-d'utilisation et de la description de quelques cas représentatifs.
+Le cahier des charges (besoins fonctionnels et non fonctionnels) ayant été établi
+au chapitre précédent, ce chapitre approfondit l'analyse par la modélisation des
+cas d'utilisation : identification des acteurs, diagramme de cas d'utilisation
+global et description de quelques cas représentatifs.
 
 \section{Identification des acteurs}
 Trois profils interagissent avec l'application, conformément aux rôles gérés par
@@ -28,49 +29,6 @@ création (clients, employés) ; valide les demandes de modification des donnée
 des employés ; consulte les objectifs.\\
 Utilisateur (\texttt{USER}) & Consulte les données autorisées et soumet des
 demandes de modification de ses propres informations.\\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\section{Besoins fonctionnels}
-Le système doit permettre :
-\begin{itemize}[noitemsep]
-  \item l'authentification sécurisée et la gestion des rôles et des droits d'accès ;
-  \item la gestion (CRUD) des agences, des employés et des clients ;
-  \item le rattachement des employés et des clients à leur agence et à leur
-        gestionnaire ;
-  \item la consultation des objectifs commerciaux et le suivi de la production ;
-  \item le \textbf{pointage (présence) des employés} : saisie de l'heure d'arrivée
-        et de départ et détermination du statut (présent / retard / absent),
-        avec saisie automatique (bouton) ou manuelle (administrateur) ;
-  \item la soumission et la validation des demandes (clients, employés,
-        modifications) selon le cycle \texttt{EN\_ATTENTE} $\rightarrow$
-        \texttt{EN\_COURS} $\rightarrow$ \texttt{EFFECTUE}/\texttt{REFUSE} ;
-  \item la notification des demandes en attente selon le rôle ;
-  \item la journalisation des actions (audit) et l'affichage de l'activité
-        récente ;
-  \item la restitution d'indicateurs via un tableau de bord et via Power BI.
-\end{itemize}
-
-\section{Besoins non fonctionnels}
-Le tableau~\ref{tab:bnf} récapitule les besoins non fonctionnels.
-
-\begin{table}[htbp]
-\centering
-\caption{Besoins non fonctionnels}
-\label{tab:bnf}
-\renewcommand{\arraystretch}{1.25}
-\begin{tabularx}{\textwidth}{>{\bfseries}p{3.4cm}X}
-\toprule
-\textmd{\textbf{Besoin}} & \textbf{Description}\\
-\midrule
-Sécurité & Authentification, gestion des rôles et protection des opérations
-sensibles par des workflows de validation.\\
-Fiabilité & Intégrité des données garantie par le SGBD et les transactions JTA.\\
-Performance & Temps de réponse acceptable sur les volumes manipulés.\\
-Ergonomie & Interface claire et cohérente, navigation par menu latéral.\\
-Maintenabilité & Architecture en couches, code modulaire et faiblement couplé.\\
-Portabilité & Application Jakarta EE standard, déployable sur serveur compatible.\\
 \bottomrule
 \end{tabularx}
 \end{table}
