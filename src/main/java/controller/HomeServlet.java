@@ -31,6 +31,9 @@ public class HomeServlet extends HttpServlet {
     @EJB
     private service.DemandeModificationService demandeModificationService;
 
+    @EJB
+    private service.PointageService pointageService;
+
     @Override
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response)
@@ -59,6 +62,21 @@ public class HomeServlet extends HttpServlet {
         request.setAttribute("pendingEmployeDemandes", demandeEmployeService.countEnAttente());
         request.setAttribute("pendingModifs", demandeModificationService.countPending());
         request.setAttribute("approvedModifs", demandeModificationService.countInCours());
+
+        // Pointage Stats (présence du jour)
+        java.time.LocalDate today = java.time.LocalDate.now();
+        long presentsStricts = pointageService.countByStatutBetween("PRESENT", today, today);
+        long retards = pointageService.countByStatutBetween("RETARD", today, today);
+        long absents = pointageService.countByStatutBetween("ABSENT", today, today);
+        long presentsTotal = presentsStricts + retards;
+        long totalEmp = utilisateurService.countTotal();
+        long tauxPresence = totalEmp > 0 ? Math.round(presentsTotal * 100.0 / totalEmp) : 0;
+        request.setAttribute("presentsAujourdhui", presentsTotal);
+        request.setAttribute("retardsAujourdhui", retards);
+        request.setAttribute("absentsAujourdhui", absents);
+        request.setAttribute("tauxPresence", tauxPresence);
+        request.setAttribute("chartPointageLabels", "'Présents','Retards','Absents'");
+        request.setAttribute("chartPointageData", presentsStricts + "," + retards + "," + absents);
 
         // Recent Activity Feed
         List<JournalAction> recentActions = journalService.findRecent(5);

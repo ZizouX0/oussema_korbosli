@@ -27,6 +27,30 @@
 
             <c:choose>
                 <c:when test="${sessionScope.role == 'ADMIN' || sessionScope.role == 'DIRECTEUR_COMMERCIAL'}">
+                    <!-- KPI ROW -->
+                    <div class="fade-up" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr)); gap:1.25rem; margin-bottom:2rem;">
+                        <div class="card" style="display:flex; align-items:center; gap:1rem; padding:1.35rem;">
+                            <div style="width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:var(--btk-accent-soft);color:var(--btk-accent);"><i data-lucide="users"></i></div>
+                            <div><div style="font-size:1.8rem;font-weight:800;color:var(--white);line-height:1;">${totalEmployes}</div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:5px;">Employés</div></div>
+                        </div>
+                        <div class="card" style="display:flex; align-items:center; gap:1rem; padding:1.35rem;">
+                            <div style="width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(26,111,212,0.15);color:#1a6fd4;"><i data-lucide="briefcase"></i></div>
+                            <div><div style="font-size:1.8rem;font-weight:800;color:var(--white);line-height:1;">${totalClients}</div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:5px;">Clients</div></div>
+                        </div>
+                        <div class="card" style="display:flex; align-items:center; gap:1rem; padding:1.35rem;">
+                            <div style="width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(0,210,173,0.15);color:var(--success);"><i data-lucide="user-check"></i></div>
+                            <div><div style="font-size:1.8rem;font-weight:800;color:var(--white);line-height:1;">${presentsAujourdhui}</div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:5px;">Présents aujourd'hui</div></div>
+                        </div>
+                        <div class="card" style="display:flex; align-items:center; gap:1rem; padding:1.35rem;">
+                            <div style="width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(0,174,239,0.12);color:var(--btk-accent);"><i data-lucide="activity"></i></div>
+                            <div><div style="font-size:1.8rem;font-weight:800;color:var(--white);line-height:1;">${tauxPresence}%</div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:5px;">Taux de présence</div></div>
+                        </div>
+                        <div class="card" style="display:flex; align-items:center; gap:1rem; padding:1.35rem;">
+                            <div style="width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(255,188,75,0.15);color:var(--warning);"><i data-lucide="clock"></i></div>
+                            <div><div style="font-size:1.8rem;font-weight:800;color:var(--white);line-height:1;"><c:choose><c:when test="${sessionScope.role == 'ADMIN'}">${pendingClientDemandes + pendingEmployeDemandes}</c:when><c:otherwise>${pendingModifs}</c:otherwise></c:choose></div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:5px;">Demandes en attente</div></div>
+                        </div>
+                    </div>
+
                     <!-- ADMINISTRATIVE ALERTS -->
                     <c:if test="${(sessionScope.role == 'ADMIN' && (pendingClientDemandes > 0 || pendingEmployeDemandes > 0 || approvedModifs > 0)) || (sessionScope.role == 'DIRECTEUR_COMMERCIAL' && pendingModifs > 0)}">
                         <div class="section-label-accent fade-up" style="margin-top: 2rem; color: var(--warning);">Actions Requises</div>
@@ -107,6 +131,24 @@
                                 Répartition des rôles
                             </div>
                             <div id="roleChart" style="min-height: 400px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- POINTAGE ROW -->
+                    <div class="charts-grid fade-up" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                        <div class="card" style="padding: 1.5rem;">
+                            <div style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i data-lucide="clock" style="width: 18px; height: 18px; color: var(--btk-accent);"></i>
+                                Présence du jour
+                            </div>
+                            <div id="pointageChart" style="min-height: 320px;"></div>
+                        </div>
+                        <div class="card" style="padding: 1.5rem; display:flex; flex-direction:column; justify-content:center; gap:0.75rem;">
+                            <div style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 0.5rem;">Synthèse présence</div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:0.7rem 0; border-bottom:1px solid var(--glass-border);"><span style="color:var(--text-muted);"><i data-lucide="user-check" style="width:16px; vertical-align:middle; color:var(--success);"></i> Présents</span><strong style="color:var(--success); font-size:1.2rem;">${presentsAujourdhui}</strong></div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:0.7rem 0; border-bottom:1px solid var(--glass-border);"><span style="color:var(--text-muted);"><i data-lucide="alarm-clock" style="width:16px; vertical-align:middle; color:var(--warning);"></i> Retards</span><strong style="color:var(--warning); font-size:1.2rem;">${retardsAujourdhui}</strong></div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:0.7rem 0;"><span style="color:var(--text-muted);"><i data-lucide="user-x" style="width:16px; vertical-align:middle; color:var(--danger);"></i> Absents</span><strong style="color:var(--danger); font-size:1.2rem;">${absentsAujourdhui}</strong></div>
+                            <a href="${pageContext.request.contextPath}/pointage" class="btn btn-outline" style="margin-top:0.75rem; border-color:var(--btk-accent); color:var(--btk-accent); padding:0.6rem 1.5rem; border-radius:30px; text-decoration:none; text-align:center;">Gérer le pointage</a>
                         </div>
                     </div>
                 </c:when>
@@ -217,6 +259,20 @@
             colors: ['#00AEEF', '#00d2ad', '#ffbc4b'],
             stroke: { show: false },
             legend: { position: 'bottom' }
+        }).render();
+    }
+
+    // Pointage Chart (Donut) — présence du jour
+    if (document.querySelector("#pointageChart")) {
+        new ApexCharts(document.querySelector("#pointageChart"), {
+            series: [${chartPointageData}],
+            chart: { type: 'donut', height: 320, background: 'transparent' },
+            theme: chartTheme,
+            labels: [${chartPointageLabels}],
+            colors: ['#00d2ad', '#ffbc4b', '#ff5e57'],
+            stroke: { show: false },
+            legend: { position: 'bottom' },
+            plotOptions: { pie: { donut: { labels: { show: true, total: { show: true, label: 'Total' } } } } }
         }).render();
     }
 </script>
