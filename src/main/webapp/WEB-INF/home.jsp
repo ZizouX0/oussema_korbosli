@@ -222,31 +222,49 @@
 
         new ApexCharts(document.querySelector("#agencyChart"), {
             series: [{ name: 'Employés', data: topData }],
-            chart: { type: 'bar', height: 500, toolbar: { show: false }, background: 'transparent' },
+            chart: {
+                type: 'bar', height: 460, toolbar: { show: false },
+                background: 'transparent', fontFamily: 'inherit',
+                animations: { easing: 'easeinout', speed: 700 }
+            },
             theme: chartTheme,
             plotOptions: {
                 bar: {
                     borderRadius: 6,
                     borderRadiusApplication: 'end',
                     columnWidth: '55%',
-                    distributed: true,
+                    distributed: false,
                     dataLabels: { position: 'top' }
                 }
             },
-            dataLabels: { 
-                enabled: true, 
-                offsetY: -25, 
-                style: { fontSize: '14px', fontWeight: 'bold', colors: ['#fff'] } 
+            colors: ['#00AEEF'],
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shade: 'dark', type: 'vertical', shadeIntensity: 0.35,
+                    gradientToColors: ['#0057B8'], inverseColors: false,
+                    opacityFrom: 1, opacityTo: 0.9, stops: [0, 100]
+                }
             },
-            xaxis: { 
-                categories: topLabels, 
-                labels: { style: { fontSize: '12px', fontWeight: 600 } } 
+            dataLabels: {
+                enabled: true, offsetY: -22,
+                style: { fontSize: '12px', fontWeight: 700, colors: ['#cfe0f2'] }
             },
-            yaxis: {
-                labels: { style: { fontSize: '12px' } }
+            xaxis: {
+                categories: topLabels,
+                labels: {
+                    rotate: -45, rotateAlways: true, hideOverlappingLabels: false,
+                    style: { colors: '#8eaecf', fontSize: '11px', fontWeight: 600 }
+                },
+                axisBorder: { show: false }, axisTicks: { show: false }
             },
-            colors: ['#00AEEF', '#0057B8', '#003F88', '#1a6fd4', '#00d2ad', '#ffbc4b', '#ff5e57', '#a29bfe', '#6c5ce7', '#00cec9'],
-            grid: { borderColor: 'rgba(255,255,255,0.05)' }
+            yaxis: { labels: { style: { colors: '#8eaecf', fontSize: '12px' } } },
+            grid: {
+                borderColor: 'rgba(255,255,255,0.06)', strokeDashArray: 4,
+                yaxis: { lines: { show: true } }, xaxis: { lines: { show: false } }
+            },
+            states: { hover: { filter: { type: 'lighten', value: 0.12 } } },
+            tooltip: { theme: 'dark', y: { formatter: function (v) { return v + ' employés'; } } }
         }).render();
     }
 
@@ -254,12 +272,40 @@
     if (document.querySelector("#roleChart")) {
         new ApexCharts(document.querySelector("#roleChart"), {
             series: [${chartRoleData}],
-            chart: { type: 'donut', height: 350, background: 'transparent' },
+            chart: {
+                type: 'donut', height: 380, background: 'transparent',
+                fontFamily: 'inherit', animations: { easing: 'easeinout', speed: 700 }
+            },
             theme: chartTheme,
             labels: [${chartRoleLabels}],
             colors: ['#00AEEF', '#00d2ad', '#ffbc4b'],
-            stroke: { show: false },
-            legend: { position: 'bottom' }
+            stroke: { width: 0 },
+            fill: { type: 'gradient', gradient: { shade: 'dark', shadeIntensity: 0.35 } },
+            dataLabels: {
+                enabled: true,
+                formatter: function (val) { return Math.round(val) + '%'; },
+                style: { fontSize: '12px', fontWeight: 700, colors: ['#01122b'] },
+                dropShadow: { enabled: false }
+            },
+            plotOptions: {
+                pie: { donut: { size: '70%', labels: {
+                    show: true,
+                    name: { show: true, fontSize: '13px', color: '#8eaecf' },
+                    value: { show: true, fontSize: '26px', fontWeight: 800, color: '#ffffff', offsetY: 4 },
+                    total: {
+                        show: true, label: 'Total effectif', fontSize: '12px', color: '#8eaecf',
+                        formatter: function (w) {
+                            return w.globals.seriesTotals.reduce(function (a, b) { return a + b; }, 0);
+                        }
+                    }
+                } } }
+            },
+            legend: {
+                position: 'bottom', labels: { colors: '#cfe0f2' }, fontSize: '13px',
+                markers: { width: 11, height: 11, radius: 12 }, itemMargin: { horizontal: 8 }
+            },
+            states: { hover: { filter: { type: 'lighten', value: 0.08 } } },
+            tooltip: { theme: 'dark', y: { formatter: function (v) { return v + ' employés'; } } }
         }).render();
     }
 
