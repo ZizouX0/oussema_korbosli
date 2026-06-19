@@ -8,6 +8,9 @@ target/
 # Compiled class files (e.g. TestDB.class at project root)
 *.class
 
+# Generated deliverable archive (regenerable from rapport-latex/)
+/Rapport_PFE_gestion-agences_LaTeX.zip
+
 # ===== IntelliJ IDEA =====
 .idea/
 *.iws
