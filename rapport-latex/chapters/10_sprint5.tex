@@ -1,0 +1,194 @@
+% ===================== CHAPITRE 7 — SPRINT 5 =========================
+\chapter{Sprint 5 : Chaîne ETL et volet décisionnel}
+
+\section*{Introduction}
+Ce sprint réalise le \textbf{volet décisionnel} de la solution. Il met en place
+une chaîne \textbf{ETL} qui consolide les données opérationnelles dans un
+\textbf{datamart}, puis restitue les indicateurs au moyen d'un tableau de bord
+embarqué et de rapports Power BI.
+
+\section{Objectifs du Sprint}
+L'objectif est de \textbf{consolider} les données dispersées (employés, clients,
+objectifs, pointage) en un datamart agrégé par agence, et de \textbf{restituer}
+les indicateurs de pilotage aux responsables.
+
+\section{Spécification des besoins}
+
+\subsection{Diagramme de cas d'utilisation du Sprint 5}
+La figure~\ref{fig:uc_s5} présente les cas d'utilisation du sprint.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.86\textwidth]{uc_sprint5.png}
+  \caption{Diagramme de cas d'utilisation du Sprint 5}
+  \label{fig:uc_s5}
+\end{figure}
+
+\subsection{Sprint Backlog du sprint 5}
+Le tableau~\ref{tab:bl_s5} détaille les user stories et les tâches techniques.
+
+\begin{table}[htbp]
+\centering
+\caption{Sprint Backlog du sprint 5}
+\label{tab:bl_s5}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{1cm}p{5cm}X}
+\toprule
+\textmd{\textbf{US}} & \textbf{User story} & \textbf{Tâches techniques}\\
+\midrule
+US14 & Alimenter le datamart via la chaîne ETL. &
+Développer le script Python \texttt{etl\_agences.py} (pandas) ; étapes
+\emph{Extract / Transform / Load} ; agréger les indicateurs par agence ; produire
+le datamart en étoile (\texttt{dim\_agence}, \texttt{fait\_agence}).\\
+\midrule
+US15 & Consulter le tableau de bord décisionnel. &
+Enrichir le \texttt{HomeServlet} avec les statistiques ; réaliser le tableau de
+bord \texttt{home.jsp} (cartes d'indicateurs et graphiques ApexCharts).\\
+\midrule
+US16 & Consulter les rapports Power BI. &
+Créer les vues analytiques \texttt{V\_BI\_EMPLOYES}, \texttt{V\_BI\_CLIENTS},
+\texttt{V\_BI\_OBJECTIFS}, \texttt{V\_BI\_POINTAGE} ; les connecter à Power BI.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Analyse des besoins}
+
+\subsection{Description textuelle des cas d'utilisation}
+
+\cudesc{tab:cu_etl}{Alimenter le datamart (ETL)}
+{Consolider les données opérationnelles en un datamart agrégé par agence.}
+{Processus ETL / Administrateur}
+{Les données sources (agences, employés, clients, objectifs, pointage) doivent
+être disponibles.}
+{Le datamart en étoile est produit et mis à la disposition de la restitution et de
+la segmentation.}
+{(1) L'étape \emph{Extract} lit les données sources ; (2) l'étape \emph{Transform}
+les nettoie et les agrège par agence ; (3) l'étape \emph{Load} écrit le datamart
+(\texttt{dim\_agence}, \texttt{fait\_agence}).}
+
+\cudesc{tab:cu_dashboard}{Consulter le tableau de bord}
+{Restituer aux responsables une vision synthétique de l'activité.}
+{Administrateur / Directeur commercial}
+{L'acteur doit être authentifié.}
+{Les indicateurs clés (effectifs, présence, production) sont affichés.}
+{(1) L'acteur se connecte ; (2) le \texttt{HomeServlet} calcule les statistiques ;
+(3) la page \texttt{home.jsp} affiche les cartes d'indicateurs et les graphiques
+ApexCharts.}
+
+\section{Conception}
+
+\subsection{Chaîne décisionnelle et processus ETL}
+Les données nécessaires au pilotage sont dispersées dans les tables opérationnelles
+et exprimées à des grains hétérogènes. Le processus \textbf{ETL} (\emph{Extract --
+Transform -- Load}) les consolide en un datamart agrégé par agence. La
+figure~\ref{fig:etl_chaine} présente cette chaîne décisionnelle.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{etl_chaine.png}
+  \caption{Chaîne décisionnelle : du système opérationnel au datamart et à sa restitution}
+  \label{fig:etl_chaine}
+\end{figure}
+
+Trois étapes s'enchaînent : \textbf{Extract} (lecture des sources
+\texttt{AGENCE}, \texttt{B\_UTILISATEURS}, \texttt{CLIENT}, \texttt{B\_OBJECTIF},
+\texttt{POINTAGE}), \textbf{Transform} (nettoyage, typage et agrégation par agence)
+et \textbf{Load} (chargement du datamart en étoile). Ce datamart constitue une
+\textbf{source unique consolidée}, partagée par la restitution (tableau de bord et
+Power BI) et par la segmentation des agences (chapitre~\ref{chap:segmentation}).
+
+\subsection{Modèle en étoile de l'entrepôt}
+L'entrepôt est organisé selon une logique en \textbf{étoile}
+(figure~\ref{fig:bi}) : autour de tables de faits (production, effectifs, clients,
+présence), des dimensions descriptives (agence, gestionnaire, période, type de
+client) permettent l'analyse multidimensionnelle. Les vues \texttt{V\_BI\_*}
+matérialisent cette couche sémantique pour l'outil de restitution.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.95\textwidth]{bi.png}
+  \caption{Modèle décisionnel en étoile (vues \texttt{V\_BI\_*})}
+  \label{fig:bi}
+\end{figure}
+
+Le tableau~\ref{tab:kpi} récapitule les principaux indicateurs (KPI) retenus.
+
+\begin{table}[htbp]
+\centering
+\caption{Indicateurs de performance (KPI) du volet décisionnel}
+\label{tab:kpi}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{4.2cm}Xp{2.6cm}}
+\toprule
+\textmd{\textbf{Indicateur}} & \textbf{Description} & \textbf{Source}\\
+\midrule
+Effectifs par agence & Nombre d'employés par agence & \texttt{V\_BI\_EMPLOYES}\\
+Répartition des rôles & Gestionnaires / conseillers / hors commercial & \texttt{V\_BI\_EMPLOYES}\\
+Portefeuille clients & Clients par type et par agence & \texttt{V\_BI\_CLIENTS}\\
+Ouvertures de comptes & Comptes chèques + épargne + courants & \texttt{V\_BI\_OBJECTIFS}\\
+Production de crédits & Conso, immobilier, investissement & \texttt{V\_BI\_OBJECTIFS}\\
+Collecte d'épargne & Épargne additionnelle collectée & \texttt{V\_BI\_OBJECTIFS}\\
+Taux de présence & Présents, retards et absences par agence et période & \texttt{V\_BI\_POINTAGE}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Réalisation}
+
+\subsection{Mise en œuvre de la chaîne ETL en Python}
+La chaîne ETL est implémentée en \textbf{Python} (script \texttt{etl\_agences.py})
+à l'aide de la bibliothèque \textbf{pandas}~\cite{pandas}. Elle est organisée en
+trois fonctions : \texttt{extract()} lit les données sources (connexion Oracle via
+le connecteur \texttt{oracledb} ou, à défaut, export CSV) ; \texttt{transform()}
+nettoie et \textbf{agrège les données par agence} pour produire les sept
+indicateurs de pilotage ; \texttt{load()} écrit le datamart en étoile
+(\texttt{dim\_agence}, \texttt{fait\_agence}) et le fichier réutilisé par la
+segmentation. L'extrait~\ref{lst:etl_transform} illustre le cœur de l'agrégation.
+
+\begin{lstlisting}[style=pycode,caption={Agrégation des indicateurs par agence (étape Transform)},label={lst:etl_transform}]
+# effectif et nombre de gestionnaires par agence
+eff = employes.groupby("SK_AGENCE").agg(
+    effectif=("SK_UTILISATEUR", "count"),
+    nb_gestionnaires=("EST_GESTIONNAIRE", "sum")).reset_index()
+# portefeuille clients
+cli = clients.groupby("SK_AGENCE").size().reset_index(name="nb_clients")
+# production (comptes, credits, epargne)
+obj = objectifs.groupby("SK_AGENCE").agg(
+    total_comptes=("COMPTES", "sum"),
+    production_credits=("CREDITS", "sum"),
+    collecte_epargne=("EPARGNE", "sum")).reset_index()
+# taux de presence issu du pointage
+poi = pointages.assign(
+        present=pointages["STATUT"].isin(["PRESENT", "RETARD"]).astype(int)) \
+    .groupby("SK_AGENCE").agg(taux_presence=("present", "mean")).reset_index()
+\end{lstlisting}
+
+L'exécution du script produit le datamart sous \texttt{etl/entrepot/}
+(\texttt{dim\_agence.csv}, \texttt{fait\_agence.csv}) ainsi que le fichier
+consolidé \texttt{clustering/data/agences.csv}. Le pipeline est \textbf{rejouable}
+et journalise le nombre d'enregistrements traités à chaque étape.
+
+\subsection{Tableau de bord et restitution Power BI}
+Le tableau de bord embarqué (\texttt{home.jsp}, alimenté par le
+\texttt{HomeServlet}) comporte une rangée de \textbf{cartes d'indicateurs}
+(employés, clients, présents du jour, taux de présence, demandes en attente) puis
+des \textbf{graphiques} ApexCharts (effectif par agence, répartition des rôles,
+présence du jour). En complément, les vues \texttt{V\_BI\_*} sont connectées à
+\textbf{Power BI} pour des rapports interactifs. La figure~\ref{fig:ui_dashboard}
+en présente les interfaces. \emph{Les captures d'écran réelles seront insérées à
+cet emplacement.}
+
+\begin{figure}[htbp]
+  \centering
+  \fbox{\parbox[c][3.6cm][c]{0.8\textwidth}{\centering\itshape Capture à insérer
+  -- tableau de bord et rapport Power BI}}
+  \caption{Tableau de bord embarqué et rapport Power BI}
+  \label{fig:ui_dashboard}
+\end{figure}
+
+\section*{Conclusion}
+Ce sprint a doté la solution d'un volet décisionnel complet : une chaîne ETL
+alimente un datamart consolidé, restitué par un tableau de bord et par Power BI.
+Le datamart ainsi produit constitue l'entrée du dernier sprint, consacré à la
+segmentation des agences par apprentissage automatique.

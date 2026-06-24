@@ -17,6 +17,10 @@
 \usepackage{setspace}
 \setstretch{1.15}
 \usepackage{microtype}
+% Tolérance de césure : évite les débordements dans la marge dus aux longs
+% identifiants de code (\texttt) non sécables, en autorisant un léger relâchement.
+\tolerance=2000
+\emergencystretch=3em
 
 % ---- Graphiques, couleurs, tableaux ----
 \usepackage{graphicx}
@@ -30,6 +34,10 @@
 \usepackage{tabularx}
 \usepackage{multirow}
 \usepackage{enumitem}
+\usepackage{ragged2e}
+% Colonnes X en alignement « ragged right » : évite l'étirement et les
+% débordements dus aux identifiants de code (\texttt) dans les tableaux.
+\renewcommand{\tabularxcolumn}[1]{>{\RaggedRight\arraybackslash}p{#1}}
 
 % ---- Légendes : « Figure 1.1 – ... » (numérotation par chapitre native) ----
 \usepackage{caption}
@@ -56,6 +64,40 @@
   {\chaptertitlename\ \thechapter}{16pt}{\Huge}
 \titlespacing*{\chapter}{0pt}{0pt}{24pt}
 
+% ---- Listings (extraits de code Python de la chaîne ETL) ----
+\usepackage{listings}
+\lstdefinestyle{pycode}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{btkblue}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{btklight},
+  numbers=left, numberstyle=\tiny\color{gray}, numbersep=8pt,
+  frame=single, rulecolor=\color{btkblue!40},
+  backgroundcolor=\color{btkblue!4},
+  breaklines=true, showstringspaces=false, columns=fullflexible,
+  literate={é}{{\'e}}1 {è}{{\`e}}1 {à}{{\`a}}1 {ê}{{\^e}}1 {î}{{\^\i}}1 {ç}{{\c c}}1
+}
+
+% ---- Fiche de description textuelle d'un cas d'utilisation ----
+% #1 label, #2 titre, #3 objectif, #4 acteur, #5 pré-condition, #6 post-condition, #7 scénario
+\newcommand{\cudesc}[7]{%
+\begin{table}[htbp]\centering
+\caption{Description textuelle du cas d'utilisation « #2 »}\label{#1}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3.2cm}X}
+\toprule
+\textmd{\textbf{Titre}} & #2\\
+\midrule
+Objectif & #3\\
+Acteur & #4\\
+Pré-condition & #5\\
+Post-condition & #6\\
+Scénario nominal & #7\\
+\bottomrule
+\end{tabularx}
+\end{table}}
+
 % ---- Liens & références croisées ----
 \usepackage[hidelinks]{hyperref}
 \usepackage{cleveref}
@@ -72,6 +114,7 @@
 \pagenumbering{roman}
 \setcounter{page}{1}
 
+\input{chapters/00c_dedicaces}
 \input{chapters/01_remerciements}
 
 \cleardoublepage
@@ -89,12 +132,15 @@
 \setcounter{page}{1}
 
 \input{chapters/03_introduction}
-\input{chapters/04_chapitre1_cadre}
-\input{chapters/05_chapitre2_besoins}
-\input{chapters/06_chapitre3_conception}
-\input{chapters/07_chapitre4_realisation}
-\input{chapters/07b_chapitre5_segmentation}
-\input{chapters/08_conclusion}
+\input{chapters/04_chapitre1_cadre}     % Ch.1 — Cadre général du projet
+\input{chapters/05_chapitre2_sprint0}   % Ch.2 — Sprint 0 : Analyse et spécification
+\input{chapters/06_sprint1}             % Ch.3 — Sprint 1 : Authentification
+\input{chapters/07_sprint2}             % Ch.4 — Sprint 2 : Agences et employés
+\input{chapters/08_sprint3}             % Ch.5 — Sprint 3 : Clients et objectifs
+\input{chapters/09_sprint4}             % Ch.6 — Sprint 4 : Pointage et demandes
+\input{chapters/10_sprint5}             % Ch.7 — Sprint 5 : ETL et décisionnel
+\input{chapters/11_sprint6}             % Ch.8 — Sprint 6 : Segmentation
+\input{chapters/12_conclusion}          % Conclusion générale
 
 % ============================ NÉTOGRAPHIE =============================
 \cleardoublepage

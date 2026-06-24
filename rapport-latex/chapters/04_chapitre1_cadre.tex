@@ -1,12 +1,22 @@
 % ============================ CHAPITRE 1 ==============================
-\chapter{Contexte Général}
+\chapter{Cadre général du projet}
 
 \section*{Introduction}
-Ce premier chapitre situe le projet dans son contexte global. Il présente
-l'organisme d'accueil et ses missions, délimite le cadre du projet à travers
-l'étude de l'existant et la problématique, formalise le cahier des charges,
-justifie la méthodologie de gestion de projet retenue, détaille sa mise en œuvre
-selon le cadre Scrum, et décrit enfin l'environnement de travail.
+Ce premier chapitre situe le projet dans son contexte. Il délimite d'abord le
+cadre du projet, présente ensuite l'organisme d'accueil et ses missions, puis
+analyse la situation existante afin d'en dégager la problématique et la solution
+proposée. Il se termine par la présentation de la méthodologie de gestion de
+projet retenue, le cadre agile \textbf{Scrum}.
+
+% ----------------------------------------------------------------------
+\section{Cadre du projet}
+Le présent travail constitue un \textbf{projet de fin d'études} réalisé en vue de
+l'obtention de la Licence en Business Computing, parcours Business Intelligence, à
+l'\textbf{Esprit School of Business}. Il s'est déroulé dans le cadre d'un stage au
+sein de la \textbf{BTK -- Banque Tuniso-Koweïtienne}, du \textbf{16 février au
+16 juin 2026}. Le projet porte sur la conception et le développement d'une
+application web de gestion du réseau d'agences bancaires, adossée à un volet
+décisionnel d'aide à la décision.
 
 % ----------------------------------------------------------------------
 \section{Présentation de l'organisme d'accueil}
@@ -77,11 +87,9 @@ les principaux métiers bancaires :
 \end{itemize}
 
 % ----------------------------------------------------------------------
-\section{Cadre du projet}
-Le projet s'inscrit dans la gestion du réseau d'agences de la banque. Il a été
-réalisé durant le stage de fin d'études, du \textbf{16 février au 16 juin 2026}.
+\section{Étude de l'existant}
 
-\subsection{Analyse de la situation existante}
+\subsection{Description de la situation existante}
 La gestion actuelle du réseau repose en grande partie sur des traitements manuels
 et des fichiers bureautiques non centralisés. Les informations relatives aux
 agences, aux employés et aux clients sont saisies et conservées de manière
@@ -101,72 +109,48 @@ Cette organisation présente plusieurs limites :
 \end{itemize}
 
 \subsection{Problématique}
-Comment \textbf{centraliser et fiabiliser} la gestion du réseau d'agences
-bancaires, \textbf{encadrer} les opérations sensibles par des circuits de
-validation, \textbf{assurer le suivi de présence} des employés, et \textbf{exploiter}
-les données ainsi structurées pour fournir aux responsables des indicateurs
-d'aide à la décision ?
+La principale problématique qui se pose est la suivante : comment
+\textbf{centraliser et fiabiliser} la gestion du réseau d'agences bancaires,
+\textbf{encadrer} les opérations sensibles par des circuits de validation,
+\textbf{assurer le suivi de présence} des employés, et \textbf{exploiter} les
+données ainsi structurées pour fournir aux responsables des indicateurs d'aide à
+la décision ?
 
-\subsection{Solutions proposées}
-La solution retenue consiste en une application web centralisée, structurée autour
-d'une base de données Oracle, qui couvre la gestion des agences, des employés, des
-clients et des objectifs, gère les rôles et la sécurité des accès, assure le
-\textbf{pointage} de présence des employés, et formalise les demandes de création
-et de modification au moyen de workflows de validation. Un \textbf{volet
-décisionnel} complète le dispositif : des vues analytiques alimentent Microsoft
-Power BI, et un tableau de bord embarqué restitue les indicateurs clés au sein de
-l'application.
+\subsection{Solution proposée}
+La solution retenue consiste en une \textbf{application web centralisée},
+structurée autour d'une base de données Oracle, qui couvre la gestion des agences,
+des employés, des clients et des objectifs, gère les rôles et la sécurité des
+accès, assure le \textbf{pointage} de présence des employés, et formalise les
+demandes de création et de modification au moyen de \textbf{workflows de
+validation}. Un \textbf{volet décisionnel} complète le dispositif : une chaîne ETL
+consolide les données dans un datamart qui alimente à la fois Microsoft Power BI,
+un tableau de bord embarqué et une \textbf{segmentation des agences} par
+apprentissage automatique.
 
-% ----------------------------------------------------------------------
-\section{Cahier des charges}
-Le cahier des charges formalise les besoins auxquels la solution doit répondre.
-
-\subsection{Besoins fonctionnels}
-Le système doit permettre :
-\begin{itemize}[noitemsep]
-  \item l'authentification sécurisée et la gestion des rôles et des droits
-        d'accès (ADMIN, DIRECTEUR\_COMMERCIAL, USER) ;
-  \item la gestion (CRUD) des agences, des employés et des clients ;
-  \item la consultation des objectifs commerciaux et le suivi de la production ;
-  \item le \textbf{pointage (présence) des employés} : saisie de l'heure d'arrivée
-        et de départ, statut (présent / retard / absent), en mode automatique
-        (bouton) ou manuel (administrateur) ;
-  \item la soumission et la validation des demandes (clients, employés,
-        modifications) selon le cycle \texttt{EN\_ATTENTE} $\rightarrow$
-        \texttt{EN\_COURS} $\rightarrow$ \texttt{EFFECTUE}/\texttt{REFUSE} ;
-  \item la notification des demandes en attente et la journalisation des actions ;
-  \item la restitution d'indicateurs via un tableau de bord et via Power BI.
-\end{itemize}
-
-\subsection{Besoins non fonctionnels}
-Le tableau~\ref{tab:bnf} récapitule les besoins non fonctionnels.
-
-\begin{table}[htbp]
-\centering
-\caption{Besoins non fonctionnels}
-\label{tab:bnf}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabularx}{\textwidth}{>{\bfseries}p{3.4cm}X}
-\toprule
-\textmd{\textbf{Besoin}} & \textbf{Description}\\
-\midrule
-Sécurité & Authentification, gestion des rôles et protection des opérations
-sensibles par des workflows de validation.\\
-Fiabilité & Intégrité des données garantie par le SGBD et les transactions JTA.\\
-Performance & Temps de réponse acceptable sur les volumes manipulés.\\
-Ergonomie & Interface claire et cohérente, navigation par menu latéral.\\
-Maintenabilité & Architecture en couches, code modulaire et faiblement couplé.\\
-Portabilité & Application Jakarta EE standard, déployable sur serveur compatible.\\
-\bottomrule
-\end{tabularx}
-\end{table}
+\subsection{Justification du choix de la solution}
+Le choix d'une application web centralisée se justifie par plusieurs facteurs :
+l'\textbf{accessibilité} (un simple navigateur suffit, sans installation sur les
+postes), la \textbf{centralisation} des données dans une base unique garantissant
+leur cohérence, la \textbf{sécurité} offerte par une gestion fine des rôles et des
+workflows de validation, et l'\textbf{ouverture décisionnelle} permise par
+l'exposition des données à des outils d'analyse et de \emph{reporting}.
 
 % ----------------------------------------------------------------------
-\section{Méthodologie de gestion de projet}
+\section{Méthodologie adoptée}
 
-\subsection{Comparaison entre les méthodes agiles et traditionnelles}
-Le tableau~\ref{tab:agile_vs_trad} oppose les deux grandes familles de méthodes de
-conduite de projet.
+\subsection{Méthodes traditionnelles et leurs limites}
+Les méthodes classiques (cycle en cascade, cycle en V) reposent sur un
+enchaînement \textbf{séquentiel} de phases (analyse, conception, développement,
+tests) planifiées dès le départ. Elles conviennent aux projets dont les besoins
+sont stables et parfaitement connus à l'avance, mais montrent vite leurs limites
+dès que le périmètre évolue : faible flexibilité, coût élevé des changements,
+livraison tardive et détection des risques en fin de cycle.
+
+\subsection{Origines et apport des méthodes agiles}
+En réponse à ces limites, les \textbf{méthodes agiles} privilégient une approche
+\textbf{itérative et incrémentale}, fondée sur la collaboration continue avec le
+client, l'adaptation au changement et la livraison fréquente d'incréments
+fonctionnels. Le tableau~\ref{tab:agile_vs_trad} oppose les deux familles.
 
 \begin{table}[htbp]
 \centering
@@ -187,29 +171,13 @@ Détection des risques & Tardive & Précoce\\
 \end{tabularx}
 \end{table}
 
-\subsection{Choix de l'approche}
-Le périmètre du projet a évolué au fil des échanges avec l'organisme d'accueil et
-les besoins ont été précisés progressivement. Une \textbf{approche agile} a donc
-été privilégiée : elle permet de livrer la solution par incréments, d'intégrer les
-retours au fur et à mesure et de maîtriser les risques plus tôt, contrairement à
-une approche traditionnelle rigide.
-
-\subsection{Comparaison entre méthodes agiles}
-Parmi les cadres agiles, deux sont particulièrement répandus : Kanban et Scrum.
-
-\subsubsection{Modèle Kanban}
-Kanban repose sur la \textbf{visualisation d'un flux continu} de tâches au moyen
-d'un tableau organisé en colonnes (à faire, en cours, terminé) et sur la
-limitation du travail en cours. Il n'impose ni rôles ni itérations de durée fixe
-et convient particulièrement aux activités de flux continu et de maintenance.
-
-\subsubsection{Modèle Scrum}
-Scrum organise le travail en \textbf{itérations de durée fixe} (les
-\emph{sprints}), s'appuie sur des \textbf{rôles} définis (Product Owner, Scrum
-Master, équipe de développement), des \textbf{artefacts} (\emph{product backlog},
-\emph{sprint backlog}) et des \textbf{cérémonies} (planification, mêlée
-quotidienne, revue, rétrospective). Le tableau~\ref{tab:kanban_vs_scrum} compare
-les deux cadres.
+\subsection{Comparaison des cadres agiles : Kanban et Scrum}
+Parmi les cadres agiles, deux sont particulièrement répandus. \textbf{Kanban}
+repose sur la visualisation d'un \emph{flux continu} de tâches et la limitation du
+travail en cours, sans rôles ni itérations imposés ; il convient surtout aux
+activités de maintenance. \textbf{Scrum} organise le travail en \emph{itérations
+de durée fixe} (les sprints), avec des rôles, des artefacts et des cérémonies
+définis. Le tableau~\ref{tab:kanban_vs_scrum} les compare.
 
 \begin{table}[htbp]
 \centering
@@ -230,130 +198,35 @@ Adapté à & Maintenance, flux continu & Projets à fonctionnalités planifiées
 \end{tabularx}
 \end{table}
 
-\subsubsection{Choix de la méthodologie}
+\subsection{Choix de la méthodologie : Scrum}
 Le projet visant à développer un ensemble de fonctionnalités planifiées et
-livrables par incréments, le cadre \textbf{Scrum} a été retenu : ses sprints, ses
-rôles et ses cérémonies offrent une structure adaptée au suivi régulier de
-l'avancement et à la validation progressive des incréments avec l'organisme
-d'accueil.
+livrables par incréments, le cadre \textbf{Scrum} a été retenu. Le périmètre ayant
+été précisé progressivement au fil des échanges avec l'organisme d'accueil, ses
+sprints, ses rôles et ses cérémonies offrent une structure adaptée au suivi
+régulier de l'avancement et à la validation progressive des incréments.
 
-% ----------------------------------------------------------------------
-\section{Mise en œuvre du projet avec Scrum}
-
-\subsection{Rôles Scrum}
-Le tableau~\ref{tab:roles_scrum} présente la répartition des rôles Scrum adoptée
-durant le projet.
-
-\begin{table}[htbp]
-\centering
-\caption{Répartition des rôles Scrum}
-\label{tab:roles_scrum}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabularx}{\textwidth}{>{\bfseries}p{3.6cm}p{3.6cm}X}
-\toprule
-\textmd{\textbf{Rôle}} & \textbf{Assuré par} & \textbf{Responsabilité}\\
-\midrule
-Product Owner & Maître de stage (BTK) & Exprime et priorise les besoins (backlog).\\
-Scrum Master & Encadrant / étudiant & Veille au bon déroulement de la démarche.\\
-Équipe de développement & Étudiant & Conçoit, développe et teste les incréments.\\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\subsection{Backlog produit}
-Le \emph{product backlog} regroupe les fonctionnalités à réaliser, exprimées sous
-forme de \emph{user stories} et priorisées (tableau~\ref{tab:backlog}).
-
-\begin{table}[htbp]
-\centering
-\caption{Extrait du backlog produit}
-\label{tab:backlog}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabularx}{\textwidth}{>{\bfseries}p{1.2cm}Xp{1.8cm}}
-\toprule
-\textmd{\textbf{ID}} & \textbf{User story} & \textbf{Priorité}\\
-\midrule
-US1 & S'authentifier et gérer les rôles et les droits d'accès & Haute\\
-US2 & Gérer les agences (créer, consulter, modifier, supprimer) & Haute\\
-US3 & Gérer les employés et leur rattachement aux agences & Haute\\
-US4 & Gérer les clients et le portefeuille & Moyenne\\
-US5 & Suivre les objectifs commerciaux & Moyenne\\
-US6 & Pointer la présence (arrivée / départ) des employés & Haute\\
-US7 & Soumettre et valider des demandes (workflow) & Moyenne\\
-US8 & Consulter le tableau de bord décisionnel & Haute\\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\subsection{Plan des Sprints Agile Scrum}
-Le projet a été découpé en sprints successifs, chacun livrant un incrément
-fonctionnel (tableau~\ref{tab:sprints}). La figure~\ref{fig:gantt} présente la
-planification correspondante.
-
-\begin{table}[htbp]
-\centering
-\caption{Plan des sprints}
-\label{tab:sprints}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabularx}{\textwidth}{>{\bfseries}p{2.2cm}X}
-\toprule
-\textmd{\textbf{Sprint}} & \textbf{Objectif principal}\\
-\midrule
-Sprint 0 & Cadrage, étude de l'existant et spécification des besoins\\
-Sprint 1 & Authentification et gestion des rôles\\
-Sprint 2 & Gestion des agences et des employés\\
-Sprint 3 & Gestion des clients et des objectifs\\
-Sprint 4 & Pointage et workflows de demandes\\
-Sprint 5 & Volet décisionnel (vues BI et Power BI)\\
-Sprint 6 & Tests, consolidation et rédaction\\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{gantt.png}
-  \caption{Planification du projet (diagramme de Gantt des sprints)}
-  \label{fig:gantt}
-\end{figure}
-
-% ----------------------------------------------------------------------
-\section{Environnement de travail et ressources}
-
-\subsection{Environnement matériel}
-Le développement a été réalisé sur un poste de travail standard
-[\textit{à compléter : processeur, mémoire vive, système d'exploitation}].
-
-\subsection{Environnement logiciel et outils}
-Le tableau~\ref{tab:envlog} récapitule les principaux outils et technologies
-employés.
-
-\begin{table}[htbp]
-\centering
-\caption{Environnement logiciel et outils}
-\label{tab:envlog}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabularx}{\textwidth}{>{\bfseries}p{4cm}X}
-\toprule
-\textmd{\textbf{Outil / Technologie}} & \textbf{Rôle}\\
-\midrule
-JDK 21 & Plateforme d'exécution et de compilation Java\\
-Jakarta EE 10 & Spécifications d'entreprise (Servlets, JSP, EJB, JPA)\\
-Hibernate & Implémentation JPA (mapping objet-relationnel)\\
-Oracle Database & Système de gestion de base de données\\
-WildFly / JBoss & Serveur d'applications (déploiement du WAR)\\
-Apache Maven & Gestion des dépendances et automatisation du build\\
-IntelliJ IDEA & Environnement de développement intégré\\
-ApexCharts & Graphiques du tableau de bord embarqué\\
-Microsoft Power BI & Restitution et reporting décisionnel\\
-Git / GitHub & Gestion de versions du code source\\
-\bottomrule
-\end{tabularx}
-\end{table}
+\subsection{Présentation de Scrum}
+Scrum est un cadre de travail agile reposant sur trois \textbf{rôles}, des
+\textbf{artefacts} et des \textbf{cérémonies} :
+\begin{itemize}[noitemsep]
+  \item \textbf{Rôles} : le \emph{Product Owner} porte la vision produit et
+        priorise le backlog ; le \emph{Scrum Master} veille au respect de la
+        démarche ; l'\emph{équipe de développement} réalise les incréments ;
+  \item \textbf{Artefacts} : le \emph{product backlog} (liste priorisée des
+        besoins), le \emph{sprint backlog} (besoins sélectionnés pour le sprint)
+        et l'\emph{incrément} (le produit potentiellement livrable) ;
+  \item \textbf{Cérémonies} : la planification du sprint (\emph{sprint planning}),
+        la mêlée quotidienne (\emph{daily scrum}), la revue de sprint
+        (\emph{sprint review}) et la rétrospective.
+\end{itemize}
+Chaque \textbf{sprint} est une itération de durée fixe au terme de laquelle un
+incrément fonctionnel est livré, puis évalué avec le Product Owner avant
+d'enchaîner sur le sprint suivant.
 
 \section*{Conclusion}
-Ce chapitre a posé le contexte du projet : l'organisme d'accueil et ses missions,
-l'étude de l'existant et la problématique, le cahier des charges, le choix et la
-mise en œuvre de la méthodologie Scrum, ainsi que l'environnement de travail. Le
-chapitre suivant est consacré à l'analyse et à la spécification des besoins à
-travers la modélisation des cas d'utilisation.
+Ce chapitre a posé le cadre du projet : l'organisme d'accueil et ses missions,
+l'étude de l'existant qui a mis en évidence la problématique, la solution
+proposée et la méthodologie Scrum retenue. Le chapitre suivant, consacré au
+\emph{Sprint~0}, détaille l'analyse et la spécification des besoins, la
+planification des sprints, l'environnement de développement et l'architecture du
+système.

@@ -1,0 +1,116 @@
+% ===================== CHAPITRE 5 — SPRINT 3 =========================
+\chapter{Sprint 3 : Gestion des clients et des objectifs}
+
+\section*{Introduction}
+Ce sprint complète le référentiel commercial : la gestion du portefeuille clients,
+leur affectation aux gestionnaires et le suivi des objectifs commerciaux.
+
+\section{Objectifs du Sprint}
+L'objectif est de permettre la \textbf{gestion des clients} (portefeuille), leur
+\textbf{affectation à un gestionnaire} et le \textbf{suivi des objectifs
+commerciaux} (ouvertures de comptes, crédits, épargne) par agence.
+
+\section{Spécification des besoins}
+
+\subsection{Diagramme de cas d'utilisation du Sprint 3}
+La figure~\ref{fig:uc_s3} présente les cas d'utilisation du sprint.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.82\textwidth]{uc_sprint3.png}
+  \caption{Diagramme de cas d'utilisation du Sprint 3}
+  \label{fig:uc_s3}
+\end{figure}
+
+\subsection{Sprint Backlog du sprint 3}
+Le tableau~\ref{tab:bl_s3} détaille les user stories et les tâches techniques.
+
+\begin{table}[htbp]
+\centering
+\caption{Sprint Backlog du sprint 3}
+\label{tab:bl_s3}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{1cm}p{5.2cm}X}
+\toprule
+\textmd{\textbf{US}} & \textbf{User story} & \textbf{Tâches techniques}\\
+\midrule
+US6 & Gérer les clients (portefeuille). &
+Développer le \texttt{ClientServlet} et le \texttt{ClientService} sur l'entité
+\texttt{Client} ; page \texttt{client.jsp} ; gérer les clients BTK
+(\texttt{BClientServlet}, \texttt{clients-btk.jsp}).\\
+\midrule
+US7 & Affecter un client à un gestionnaire. &
+Associer chaque \texttt{Client} à un \texttt{Gestionnaire}
+(\texttt{SK\_GESTIONNAIRE}) ; mettre à jour le portefeuille du gestionnaire.\\
+\midrule
+US8 & Suivre les objectifs commerciaux et la production. &
+Développer l'\texttt{ObjectifServlet} et l'\texttt{ObjectifService} sur l'entité
+\texttt{Objectif} ; pages \texttt{objectifs.jsp} et \texttt{objectifs-btk.jsp} ;
+restituer comptes, crédits et épargne par agence.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Analyse des besoins}
+
+\subsection{Description textuelle des cas d'utilisation}
+
+\cudesc{tab:cu_client}{Gérer les clients}
+{Permettre à l'administrateur de gérer le portefeuille clients et d'affecter
+chaque client à un gestionnaire.}
+{Administrateur}
+{L'administrateur doit être authentifié et le gestionnaire de rattachement doit
+exister.}
+{Le client est enregistré et associé à son gestionnaire dans la base.}
+{(1) L'administrateur accède à l'interface de gestion des clients ; (2) il saisit
+ou met à jour les informations du client ; (3) il sélectionne le gestionnaire
+responsable ; (4) le \texttt{ClientService} enregistre le client et met à jour le
+portefeuille.}
+
+\cudesc{tab:cu_objectif}{Suivre les objectifs commerciaux}
+{Permettre au directeur commercial de consulter les objectifs et la production par
+agence.}
+{Directeur commercial / Administrateur}
+{L'acteur doit être authentifié et des objectifs doivent être renseignés pour la
+période.}
+{Les indicateurs de production (comptes, crédits, épargne) sont restitués par
+agence.}
+{(1) L'acteur accède à l'interface des objectifs ; (2) il sélectionne une agence
+et une période ; (3) l'\texttt{ObjectifService} agrège la production ; (4) les
+indicateurs sont affichés.}
+
+\section{Conception}
+
+\subsection{Diagramme de séquence : « Gérer un client »}
+La figure~\ref{fig:seq_client} décrit l'enregistrement et l'affectation d'un
+client.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{seq_client.png}
+  \caption{Diagramme de séquence -- Gestion d'un client}
+  \label{fig:seq_client}
+\end{figure}
+
+Le \texttt{ClientServlet} transmet la demande au \texttt{ClientService}, qui
+recherche le \texttt{Gestionnaire} concerné, associe le \texttt{Client} à ce
+dernier, puis le persiste via l'\texttt{EntityManager}. Le portefeuille mis à jour
+est renvoyé à la page \texttt{client.jsp}.
+
+\section{Réalisation : interfaces utilisateur}
+La figure~\ref{fig:ui_clients} illustre les interfaces de gestion des clients et
+de suivi des objectifs. \emph{Les captures d'écran réelles seront insérées à cet
+emplacement.}
+
+\begin{figure}[htbp]
+  \centering
+  \fbox{\parbox[c][3.6cm][c]{0.8\textwidth}{\centering\itshape Capture à insérer
+  -- gestion des clients et suivi des objectifs}}
+  \caption{Interfaces de gestion des clients et des objectifs}
+  \label{fig:ui_clients}
+\end{figure}
+
+\section*{Conclusion}
+Ce sprint a complété la gestion commerciale (clients et objectifs). Le sprint
+suivant aborde le pointage des employés, les workflows de demandes et les
+notifications.

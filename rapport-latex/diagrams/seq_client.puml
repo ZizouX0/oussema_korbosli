@@ -1,0 +1,36 @@
+@startuml
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+skinparam sequence {
+  ArrowColor #14507A
+  LifeLineBorderColor #1B6CA8
+  ParticipantBorderColor #1B6CA8
+  ParticipantBackgroundColor #EAF3FA
+  ActorBorderColor #14507A
+}
+actor "Administrateur" as ADM
+participant "Navigateur" as NAV
+participant "ClientServlet" as SRV
+participant "ClientService\n(EJB)" as SVC
+participant "EntityManager" as EM
+database "Oracle" as DB
+ADM -> NAV : saisir / affecter un client
+NAV -> SRV : POST /client (action=save)
+activate SRV
+SRV -> SVC : enregistrerClient(client, gestionnaireId)
+activate SVC
+SVC -> EM : find(Gestionnaire, id)
+EM -> DB : SELECT
+SVC -> SVC : associer le client au gestionnaire
+SVC -> EM : persist / merge(Client)
+EM -> DB : INSERT / UPDATE
+SVC --> SRV : Client enregistre
+deactivate SVC
+SRV -> NAV : client.jsp (portefeuille mis a jour)
+deactivate SRV
+NAV --> ADM : confirmation
+@enduml

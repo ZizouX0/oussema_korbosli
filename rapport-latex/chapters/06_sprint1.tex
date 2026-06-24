@@ -1,0 +1,118 @@
+% ===================== CHAPITRE 3 — SPRINT 1 =========================
+\chapter{Sprint 1 : Authentification et gestion des rôles}
+
+\section*{Introduction}
+Ce chapitre couvre le premier sprint de réalisation, consacré à la sécurité
+d'accès. Après un rappel des objectifs, il présente le diagramme de cas
+d'utilisation et le \emph{sprint backlog}, l'analyse des besoins, la conception
+au moyen d'un diagramme de séquence, puis les interfaces réalisées.
+
+\section{Objectifs du Sprint}
+L'objectif de ce sprint est de mettre en place l'\textbf{authentification} des
+utilisateurs et la \textbf{gestion des rôles et des droits d'accès}
+(\texttt{ADMIN}, \texttt{DIRECTEUR\_COMMERCIAL}, \texttt{USER}), socle de sécurité
+de toute l'application.
+
+\section{Spécification des besoins}
+
+\subsection{Diagramme de cas d'utilisation du Sprint 1}
+La figure~\ref{fig:uc_s1} présente les cas d'utilisation du sprint.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.82\textwidth]{uc_sprint1.png}
+  \caption{Diagramme de cas d'utilisation du Sprint 1}
+  \label{fig:uc_s1}
+\end{figure}
+
+\subsection{Sprint Backlog du sprint 1}
+Le tableau~\ref{tab:bl_s1} détaille les user stories du sprint et les tâches
+techniques associées.
+
+\begin{table}[htbp]
+\centering
+\caption{Sprint Backlog du sprint 1}
+\label{tab:bl_s1}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{1cm}p{5.2cm}X}
+\toprule
+\textmd{\textbf{US}} & \textbf{User story} & \textbf{Tâches techniques}\\
+\midrule
+US1 & S'authentifier avec identifiant et mot de passe. &
+Créer le \texttt{LoginServlet} (\texttt{POST /login}) ; vérifier les identifiants
+via le \texttt{SecurityService} sur la table \texttt{SECURITY\_USERS} ; ouvrir une
+\texttt{HttpSession} ; créer le \texttt{LogoutServlet}.\\
+\midrule
+US2 & Gérer les rôles et les droits d'accès. &
+Associer un rôle (\texttt{ADMIN}, \texttt{DIRECTEUR\_COMMERCIAL}, \texttt{USER}) à
+chaque utilisateur ; restreindre l'accès aux fonctionnalités selon le rôle ;
+gérer la réinitialisation du mot de passe (\texttt{ForgotPasswordServlet}).\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Analyse des besoins}
+
+\subsection{Description textuelle des cas d'utilisation}
+Les tableaux~\ref{tab:cu_auth} et~\ref{tab:cu_roles} décrivent les cas
+d'utilisation principaux du sprint.
+
+\cudesc{tab:cu_auth}{S'authentifier}
+{Permettre à l'utilisateur de se connecter à l'application avec son identifiant et
+son mot de passe.}
+{Administrateur / Directeur commercial / Utilisateur}
+{L'utilisateur doit disposer d'un compte actif dans la table \texttt{SECURITY\_USERS}.}
+{Une session est ouverte et l'utilisateur est redirigé vers le tableau de bord
+correspondant à son rôle.}
+{(1) L'utilisateur saisit son identifiant et son mot de passe ; (2) le
+\texttt{SecurityService} vérifie les informations sur la table de sécurité ; (3) en
+cas de succès, une session est ouverte et l'utilisateur est redirigé ; (4) sinon,
+un message d'erreur est affiché.}
+
+\cudesc{tab:cu_roles}{Gérer les rôles et les droits d'accès}
+{Permettre à l'administrateur d'attribuer un rôle à chaque utilisateur afin de
+contrôler l'accès aux fonctionnalités.}
+{Administrateur}
+{L'administrateur doit être authentifié avec le rôle \texttt{ADMIN}.}
+{Le rôle est enregistré et les droits d'accès de l'utilisateur sont mis à jour.}
+{(1) L'administrateur consulte la liste des utilisateurs ; (2) il sélectionne un
+utilisateur ; (3) il lui attribue un rôle (\texttt{ADMIN},
+\texttt{DIRECTEUR\_COMMERCIAL} ou \texttt{USER}) ; (4) le système applique le
+contrôle d'accès correspondant.}
+
+\section{Conception}
+
+\subsection{Diagramme de séquence : « S'authentifier »}
+La figure~\ref{fig:seq_auth} décrit le déroulement dynamique de l'authentification.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{seq_auth.png}
+  \caption{Diagramme de séquence -- Authentification}
+  \label{fig:seq_auth}
+\end{figure}
+
+Le \texttt{LoginServlet} reçoit la requête \texttt{POST /login} et délègue la
+vérification au \texttt{SecurityService}, qui interroge la table
+\texttt{SECURITY\_USERS} via l'\texttt{EntityManager}. Le fragment combiné
+\texttt{alt} distingue les deux issues : en cas de succès, l'\texttt{Utilisateur}
+métier est associé (ou créé), une session est ouverte et l'utilisateur est
+redirigé vers le tableau de bord ; en cas d'échec, un message d'erreur est
+renvoyé.
+
+\section{Réalisation : interfaces utilisateur}
+La figure~\ref{fig:ui_login} présente la page d'authentification réalisée.
+\emph{Les captures d'écran réelles seront insérées à cet emplacement.}
+
+\begin{figure}[htbp]
+  \centering
+  \fbox{\parbox[c][3.6cm][c]{0.8\textwidth}{\centering\itshape Capture à insérer
+  -- page d'authentification}}
+  \caption{Interface d'authentification}
+  \label{fig:ui_login}
+\end{figure}
+
+\section*{Conclusion}
+Ce sprint a mis en place le socle de sécurité de l'application :
+l'authentification et la gestion des rôles. Le sprint suivant aborde la gestion
+des agences et des employés.

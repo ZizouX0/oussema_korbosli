@@ -487,17 +487,20 @@ Project starts 2026-02-16
 [S0] is colored in #1B6CA8/#EAF3FA
 [Sprint 1 : authentification et sécurité] as [S1] lasts 2 weeks
 [S1] starts at [S0]'s end
-[Sprint 2 : gestion des agences et employés] as [S2] lasts 3 weeks
+[Sprint 2 : gestion des agences et employés] as [S2] lasts 2 weeks
 [S2] starts at [S1]'s end
-[Sprint 3 : clients et objectifs] as [S3] lasts 3 weeks
+[Sprint 3 : clients et objectifs] as [S3] lasts 2 weeks
 [S3] starts at [S2]'s end
-[Sprint 4 : workflow de demandes] as [S4] lasts 3 weeks
+[Sprint 4 : pointage et workflow de demandes] as [S4] lasts 2 weeks
 [S4] starts at [S3]'s end
-[Sprint 5 : volet décisionnel (Power BI)] as [S5] lasts 2 weeks
+[Sprint 5 : chaîne ETL et volet décisionnel] as [S5] lasts 3 weeks
 [S5] starts at [S4]'s end
 [S5] is colored in #C8861A/#FFF3DC
-[Tests et rédaction] as [S6] lasts 2 weeks
+[Sprint 6 : segmentation (clustering)] as [S6] lasts 2 weeks
 [S6] starts at [S5]'s end
+[S6] is colored in #2E7D32/#E8F5E9
+[Tests et rédaction] as [S7] lasts 2 weeks
+[S7] starts at [S6]'s end
 @endgantt
 """ % STYLE
 
@@ -564,6 +567,40 @@ endif
 :Journaliser l'action (audit);
 :Notifier le demandeur;
 stop
+@enduml
+""" % STYLE
+
+# 13) CHAINE DECISIONNELLE / ETL ------------------------------------------
+D["etl_chaine"] = """@startuml
+%s
+skinparam componentStyle rectangle
+left to right direction
+skinparam package {
+  BorderColor #1B6CA8
+  FontColor #14507A
+  FontStyle bold
+}
+package "Sources operationnelles (Oracle)" as SRC #EAF3FA {
+  database "AGENCE\\nB_UTILISATEURS\\nCLIENT\\nB_OBJECTIF\\nPOINTAGE" as DB
+}
+package "ETL  -  Python / pandas\\n(etl_agences.py)" as ETL #FFF3DC {
+  component "Extract\\nlecture des sources" as E
+  component "Transform\\nnettoyage, typage,\\nagregation par agence" as T
+  component "Load\\necriture du datamart" as L
+  E -down-> T
+  T -down-> L
+}
+package "Entrepot / datamart\\n(schema en etoile)" as DWH #EAF3FA {
+  database "dim_agence\\nfait_agence\\n(7 indicateurs / agence)" as DM
+}
+package "Restitution & analyse" as REST #E8F5E9 {
+  component "Power BI +\\ntableau de bord\\n(ApexCharts)" as PBI
+  component "Segmentation\\nclustering\\n(scikit-learn)" as CLU
+}
+DB -right-> E
+L -right-> DM
+DM -right-> PBI
+DM -right-> CLU
 @enduml
 """ % STYLE
 

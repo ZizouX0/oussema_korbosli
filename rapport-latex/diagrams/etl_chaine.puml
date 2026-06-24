@@ -1,0 +1,42 @@
+@startuml
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+skinparam componentStyle rectangle
+left to right direction
+
+skinparam package {
+  BorderColor #1B6CA8
+  FontColor #14507A
+  FontStyle bold
+}
+
+package "Sources operationnelles (Oracle)" as SRC #EAF3FA {
+  database "AGENCE\nB_UTILISATEURS\nCLIENT\nB_OBJECTIF\nPOINTAGE" as DB
+}
+
+package "ETL  -  Python / pandas\n(etl_agences.py)" as ETL #FFF3DC {
+  component "Extract\nlecture des sources" as E
+  component "Transform\nnettoyage, typage,\nagregation par agence" as T
+  component "Load\necriture du datamart" as L
+  E -down-> T
+  T -down-> L
+}
+
+package "Entrepot / datamart\n(schema en etoile)" as DWH #EAF3FA {
+  database "dim_agence\nfait_agence\n(7 indicateurs / agence)" as DM
+}
+
+package "Restitution & analyse" as REST #E8F5E9 {
+  component "Power BI +\ntableau de bord\n(ApexCharts)" as PBI
+  component "Segmentation\nclustering\n(scikit-learn)" as CLU
+}
+
+DB -right-> E
+L -right-> DM
+DM -right-> PBI
+DM -right-> CLU
+@enduml

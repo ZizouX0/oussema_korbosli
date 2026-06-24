@@ -13,15 +13,17 @@ rôles et la sécurité des accès, assure le \textbf{pointage (présence) des
 employés}, et formalise les opérations sensibles au moyen de circuits de
 validation. Développée avec la plateforme \textbf{Jakarta EE 10} (Servlets, JSP,
 EJB, JPA/Hibernate) au-dessus d'une base \textbf{Oracle}, elle est complétée par
-un volet décisionnel : des vues analytiques exposées à \textbf{Microsoft Power BI}
-et un tableau de bord embarqué restituant les indicateurs clés (effectifs,
-présence, production). La solution améliore la centralisation des données, la
-traçabilité des opérations et l'aide à la décision.
+un volet décisionnel : une chaîne \textbf{ETL} (Python) consolide les données dans
+un datamart qui alimente des vues exposées à \textbf{Microsoft Power BI}, un
+tableau de bord embarqué (effectifs, présence, production) et une
+\textbf{segmentation des agences} par apprentissage non supervisé (clustering).
+La solution améliore la centralisation des données, la traçabilité des opérations
+et l'aide à la décision.
 
 \vspace{0.4cm}
 \noindent\textbf{Mots-clés :} gestion des rôles, pointage des employés, Business
-Intelligence, aide à la décision, Jakarta EE, JPA, Oracle, Power BI, tableau de
-bord.
+Intelligence, ETL, aide à la décision, apprentissage automatique, clustering,
+Jakarta EE, Oracle, Power BI.
 
 \vspace{1.1cm}
 
@@ -35,13 +37,16 @@ branches, employees, customers and commercial objectives, handles roles and
 access security, records \textbf{employee attendance (clock-in/clock-out)}, and
 formalizes sensitive operations through approval workflows. Built on the
 \textbf{Jakarta EE 10} platform (Servlets, JSP, EJB, JPA/Hibernate) over an
-\textbf{Oracle} database, it is complemented by a decision-support layer:
-analytical views exposed to \textbf{Microsoft Power BI} and an embedded dashboard
-displaying key indicators (headcount, attendance, production). The solution
-improves data centralization, operation traceability and decision-making.
+\textbf{Oracle} database, it is complemented by a decision-support layer: a Python
+\textbf{ETL} pipeline consolidates data into a datamart that feeds analytical views
+exposed to \textbf{Microsoft Power BI}, an embedded dashboard (headcount,
+attendance, production) and a \textbf{branch segmentation} based on unsupervised
+machine learning (clustering). The solution improves data centralization,
+operation traceability and decision-making.
 
 \vspace{0.4cm}
 \noindent\textbf{Key words:} role management, employee time-tracking, Business
-Intelligence, decision support, Jakarta EE, JPA, Oracle, Power BI, dashboard.
+Intelligence, ETL, decision support, machine learning, clustering, Jakarta EE,
+Oracle, Power BI.
 
 \clearpage

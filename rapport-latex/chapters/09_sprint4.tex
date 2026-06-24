@@ -1,0 +1,171 @@
+% ===================== CHAPITRE 6 — SPRINT 4 =========================
+\chapter{Sprint 4 : Pointage, demandes et notifications}
+
+\section*{Introduction}
+Ce sprint regroupe trois mécanismes transverses : le \textbf{pointage} de présence
+des employés, les \textbf{workflows de demandes} (création et modification) et le
+dispositif de \textbf{notifications} et de \textbf{journalisation} des actions.
+
+\section{Objectifs du Sprint}
+L'objectif est d'assurer le \textbf{suivi de présence} des employés, d'\textbf{encadrer}
+les opérations sensibles par des circuits de validation et de garantir la
+\textbf{traçabilité} des actions par la journalisation et les notifications.
+
+\section{Spécification des besoins}
+
+\subsection{Diagramme de cas d'utilisation du Sprint 4}
+La figure~\ref{fig:uc_s4} présente les cas d'utilisation du sprint.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{uc_sprint4.png}
+  \caption{Diagramme de cas d'utilisation du Sprint 4}
+  \label{fig:uc_s4}
+\end{figure}
+
+\subsection{Sprint Backlog du sprint 4}
+Le tableau~\ref{tab:bl_s4} détaille les user stories et les tâches techniques.
+
+\begin{table}[htbp]
+\centering
+\caption{Sprint Backlog du sprint 4}
+\label{tab:bl_s4}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{1cm}p{5cm}X}
+\toprule
+\textmd{\textbf{US}} & \textbf{User story} & \textbf{Tâches techniques}\\
+\midrule
+US9 & Pointer la présence (arrivée / départ). &
+Développer l'entité \texttt{Pointage}, le \texttt{PointageService} (EJB) et le
+\texttt{PointageServlet} (\texttt{/pointage}) ; déterminer le statut
+(\texttt{PRESENT} / \texttt{RETARD} au-delà de 9h) ; page \texttt{pointage.jsp}.\\
+\midrule
+US10 & Saisir ou corriger un pointage manuel. &
+Permettre à l'administrateur de saisir un pointage (\texttt{PRESENT},
+\texttt{RETARD}, \texttt{ABSENT}) via \texttt{PointageService.saveManuel}.\\
+\midrule
+US11 & Soumettre une demande (client, employé, modification). &
+Développer les entités \texttt{DemandeClient}, \texttt{DemandeEmploye},
+\texttt{DemandeModification}, \texttt{DemandeAgence} et les servlets
+\texttt{DemandeAgenceServlet} / \texttt{MesDemandesServlet} ; statut
+\texttt{EN\_ATTENTE}.\\
+\midrule
+US12 & Valider ou refuser une demande. &
+Développer le \texttt{GestionModificationsServlet} et le
+\texttt{DemandeAgenceAdminServlet} ; faire évoluer le statut vers
+\texttt{EFFECTUE} / \texttt{REFUSE} ; pages \texttt{gestion-demandes.jsp},
+\texttt{demandes-admin.jsp}.\\
+\midrule
+US13 & Recevoir des notifications et consulter le journal d'audit. &
+Développer le \texttt{NotificationService}, l'entité \texttt{Notification} et le
+\texttt{NotificationFilter} ; journaliser les actions via le
+\texttt{JournalService} (\texttt{JournalAction}).\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Analyse des besoins}
+
+\subsection{Description textuelle des cas d'utilisation}
+
+\cudesc{tab:cu_pointage}{Pointer la présence}
+{Permettre à l'employé d'enregistrer son arrivée et son départ, avec
+détermination automatique du statut.}
+{Utilisateur (employé)}
+{L'employé doit être authentifié.}
+{Le pointage du jour est enregistré avec son statut (\texttt{PRESENT} ou
+\texttt{RETARD}).}
+{(1) L'employé clique sur « Pointer » ; (2) le \texttt{PointageService} relève
+l'heure courante et recherche le pointage du jour ; (3) s'il n'existe pas, il
+détermine le statut (\texttt{RETARD} au-delà de 9h) et l'enregistre ; (4) sinon,
+il met à jour l'enregistrement existant.}
+
+\cudesc{tab:cu_demande}{Valider une demande}
+{Permettre à l'administrateur d'approuver ou de refuser une demande soumise.}
+{Administrateur}
+{Une demande au statut \texttt{EN\_ATTENTE} doit exister.}
+{Le statut de la demande évolue vers \texttt{EFFECTUE} ou \texttt{REFUSE} et
+l'action est journalisée.}
+{(1) L'administrateur consulte les demandes en attente ; (2) il sélectionne une
+demande ; (3) il l'approuve ou la refuse avec un commentaire ; (4) le service met
+à jour le statut, applique la modification le cas échéant et journalise l'action.}
+
+\section{Conception}
+
+\subsection{Diagramme de séquence : « Pointer un employé »}
+La figure~\ref{fig:seq_pointage} décrit le scénario de pointage.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.95\textwidth]{seq_pointage.png}
+  \caption{Diagramme de séquence -- Pointage d'un employé}
+  \label{fig:seq_pointage}
+\end{figure}
+
+Le \texttt{PointageServlet} transmet l'action au \texttt{PointageService}, qui
+recherche le pointage du jour. Le fragment \texttt{alt} distingue l'\texttt{INSERT}
+(premier pointage, statut \texttt{PRESENT}/\texttt{RETARD} au-delà de 9h) de
+l'\texttt{UPDATE} (pointage déjà existant).
+
+\subsection{Diagramme de séquence : « Valider une demande »}
+La figure~\ref{fig:seq_demande} détaille le traitement d'une demande par
+l'administrateur.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{seq_demande.png}
+  \caption{Diagramme de séquence -- Validation d'une demande}
+  \label{fig:seq_demande}
+\end{figure}
+
+Le \texttt{GestionModificationsServlet} transmet la décision au service métier,
+qui charge la demande, met à jour son statut, persiste la modification puis
+journalise l'action via le \texttt{JournalService}.
+
+\subsection{Diagramme d'états-transitions : cycle de vie d'une demande}
+La figure~\ref{fig:state_demande} modélise le cycle de vie d'une demande.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{state_demande.png}
+  \caption{Diagramme d'états-transitions -- Cycle de vie d'une demande}
+  \label{fig:state_demande}
+\end{figure}
+
+Une demande naît à l'état \texttt{EN\_ATTENTE}, passe en \texttt{EN\_COURS} lors de
+sa prise en charge, puis atteint un état final \texttt{EFFECTUE} ou
+\texttt{REFUSE}, en cohérence avec la contrainte de la table des demandes.
+
+\subsection{Diagramme d'activité : traitement d'une demande}
+La figure~\ref{fig:activity_demande} représente le processus métier de traitement
+d'une demande.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{activity_demande.png}
+  \caption{Diagramme d'activité -- Traitement d'une demande}
+  \label{fig:activity_demande}
+\end{figure}
+
+Le directeur soumet une demande, notifiée à l'administrateur. Le nœud de décision
+oriente le flux : en cas de validation, le statut passe à \texttt{EFFECTUE} et la
+modification est appliquée ; en cas de refus, le statut passe à \texttt{REFUSE}
+avec un commentaire. Les deux branches convergent vers la journalisation et la
+notification du demandeur.
+
+\section{Réalisation : interfaces utilisateur}
+La figure~\ref{fig:ui_pointage} présente les interfaces de pointage et de gestion
+des demandes. \emph{Les captures d'écran réelles seront insérées à cet emplacement.}
+
+\begin{figure}[htbp]
+  \centering
+  \fbox{\parbox[c][3.6cm][c]{0.8\textwidth}{\centering\itshape Capture à insérer
+  -- pointage et workflows de demandes}}
+  \caption{Interfaces du pointage et des demandes}
+  \label{fig:ui_pointage}
+\end{figure}
+
+\section*{Conclusion}
+Ce sprint a doté l'application du suivi de présence, des circuits de validation et
+de la traçabilité des actions. Le sprint suivant met en place la chaîne ETL et le
+volet décisionnel.

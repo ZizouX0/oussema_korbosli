@@ -1,0 +1,29 @@
+@startuml
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecaseBackgroundColor #EAF3FA
+skinparam usecaseBorderColor #1B6CA8
+skinparam actorBorderColor #14507A
+actor "Administrateur" as ADM
+actor "Directeur commercial" as DIR
+actor "Processus ETL" as ETL
+rectangle "Sprint 5 — Chaine ETL et volet decisionnel" {
+  usecase "Alimenter le datamart\n(executer l'ETL)" as E1
+  usecase "Consulter le\ntableau de bord" as E2
+  usecase "Analyser les KPI\n(effectifs, production...)" as E3
+  usecase "Consulter les\nrapports Power BI" as E4
+}
+ETL --> E1
+ADM --> E2
+DIR --> E2
+ADM --> E3
+DIR --> E4
+E2 ..> E3 : <<include>>
+@enduml

@@ -1,0 +1,45 @@
+@startuml
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+skinparam componentStyle rectangle
+skinparam node {
+  BorderColor #1B6CA8
+  BackgroundColor #EAF3FA
+}
+skinparam package {
+  BorderColor #C8861A
+  BackgroundColor #FFF3DC
+}
+
+node "Poste client" as PC {
+  [Navigateur web] as NAV
+}
+node "Serveur d'application WildFly / JBoss" as WF {
+  package "gestion-agences.war" {
+    [Presentation\nJSP / JSTL / ApexCharts] as PRES
+    [Controle\nServlets] as CTRL
+    [Metier\nEJB] as METIER
+    [Persistance\nJPA / Hibernate] as PERS
+    PRES -down-> CTRL
+    CTRL -down-> METIER
+    METIER -down-> PERS
+  }
+}
+database "Oracle Database" as ORA
+node "Chaine decisionnelle (Python)" as DEC {
+  [ETL\n(pandas)] as ETL
+  [Segmentation\n(scikit-learn)] as CLU
+  ETL -down-> CLU
+}
+node "Poste decisionnel" as PD {
+  [Power BI] as PBI
+}
+NAV -right-> PRES : HTTP/HTTPS
+PERS -down-> ORA : JDBC (OracleDS)
+ORA -right-> ETL : extraction
+ORA -down-> PBI : vues V_BI_*
+@enduml

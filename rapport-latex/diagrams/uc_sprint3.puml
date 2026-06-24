@@ -1,0 +1,27 @@
+@startuml
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecaseBackgroundColor #EAF3FA
+skinparam usecaseBorderColor #1B6CA8
+skinparam actorBorderColor #14507A
+actor "Administrateur" as ADM
+actor "Directeur commercial" as DIR
+rectangle "Sprint 3 — Gestion des clients et des objectifs" {
+  usecase "Gerer les clients\n(portefeuille)" as C1
+  usecase "Affecter un client\na un gestionnaire" as C2
+  usecase "Consulter les\nobjectifs commerciaux" as C3
+  usecase "Suivre la production\npar agence" as C4
+}
+ADM --> C1
+C1 ..> C2 : <<include>>
+DIR --> C3
+DIR --> C4
+ADM --> C3
+@enduml

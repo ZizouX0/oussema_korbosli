@@ -1,0 +1,27 @@
+@startuml
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecaseBackgroundColor #EAF3FA
+skinparam usecaseBorderColor #1B6CA8
+skinparam actorBorderColor #14507A
+actor "Administrateur" as ADM
+rectangle "Sprint 2 — Gestion des agences et des employes" {
+  usecase "Creer une agence" as B1
+  usecase "Consulter / rechercher\nles agences" as B2
+  usecase "Modifier / supprimer\nune agence" as B3
+  usecase "Gerer les employes" as B4
+  usecase "Rattacher un employe\na une agence" as B5
+}
+ADM --> B1
+ADM --> B2
+ADM --> B3
+ADM --> B4
+B4 ..> B5 : <<include>>
+@enduml

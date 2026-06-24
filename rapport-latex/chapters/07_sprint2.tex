@@ -1,0 +1,113 @@
+% ===================== CHAPITRE 4 — SPRINT 2 =========================
+\chapter{Sprint 2 : Gestion des agences et des employés}
+
+\section*{Introduction}
+Ce sprint met en place les fonctionnalités de gestion du référentiel : les
+agences, les employés et leur rattachement. Il suit la même démarche : objectifs,
+spécification (cas d'utilisation et backlog), analyse, conception et réalisation.
+
+\section{Objectifs du Sprint}
+L'objectif est d'offrir la \textbf{gestion complète (CRUD)} des agences et des
+employés, ainsi que le \textbf{rattachement} de chaque employé à son agence et la
+gestion des gestionnaires.
+
+\section{Spécification des besoins}
+
+\subsection{Diagramme de cas d'utilisation du Sprint 2}
+La figure~\ref{fig:uc_s2} présente les cas d'utilisation du sprint.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.82\textwidth]{uc_sprint2.png}
+  \caption{Diagramme de cas d'utilisation du Sprint 2}
+  \label{fig:uc_s2}
+\end{figure}
+
+\subsection{Sprint Backlog du sprint 2}
+Le tableau~\ref{tab:bl_s2} détaille les user stories et les tâches techniques.
+
+\begin{table}[htbp]
+\centering
+\caption{Sprint Backlog du sprint 2}
+\label{tab:bl_s2}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{1cm}p{5.2cm}X}
+\toprule
+\textmd{\textbf{US}} & \textbf{User story} & \textbf{Tâches techniques}\\
+\midrule
+US3 & Gérer les agences (créer, consulter, modifier, supprimer). &
+Développer l'\texttt{AgenceServlet} et l'\texttt{AgenceService} (EJB) sur l'entité
+\texttt{Agence} ; réaliser la page \texttt{agences.jsp} avec les actions CRUD.\\
+\midrule
+US4 & Gérer les employés et leur rattachement aux agences. &
+Développer l'\texttt{AjouterEmployeServlet} et le \texttt{BUtilisateurServlet} ;
+gérer les employés via l'\texttt{UtilisateurService} ; associer chaque employé à
+une \texttt{Agence} (\texttt{SK\_AGENCE}) ; pages \texttt{employes.jsp} et
+\texttt{add-effectif.jsp}.\\
+\midrule
+US5 & Gérer les gestionnaires et leurs portefeuilles. &
+Développer le \texttt{GestionnaireServlet} et le \texttt{GestionnaireService} sur
+l'entité \texttt{Gestionnaire} ; page \texttt{gestionnaire.jsp}.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Analyse des besoins}
+
+\subsection{Description textuelle des cas d'utilisation}
+
+\cudesc{tab:cu_agence}{Gérer les agences}
+{Permettre à l'administrateur de créer, consulter, modifier et supprimer les
+agences du réseau.}
+{Administrateur}
+{L'administrateur doit être authentifié avec le rôle \texttt{ADMIN}.}
+{L'agence créée ou modifiée est enregistrée dans la base et la liste est mise à
+jour.}
+{(1) L'administrateur accède à l'interface de gestion des agences ; (2) il
+sélectionne une action (créer, modifier, supprimer) ; (3) il saisit ou met à jour
+les informations de l'agence ; (4) l'\texttt{AgenceService} persiste la
+modification et la liste est rafraîchie.}
+
+\cudesc{tab:cu_employe}{Gérer les employés}
+{Permettre à l'administrateur de gérer les employés et de les rattacher à leur
+agence.}
+{Administrateur}
+{L'administrateur doit être authentifié et l'agence de rattachement doit exister.}
+{L'employé est enregistré et rattaché à son agence.}
+{(1) L'administrateur accède à l'interface de gestion des employés ; (2) il saisit
+les informations de l'employé ; (3) il sélectionne l'agence de rattachement ; (4)
+l'\texttt{UtilisateurService} enregistre l'employé associé à l'agence.}
+
+\section{Conception}
+
+\subsection{Diagramme de séquence : « Créer une agence »}
+La figure~\ref{fig:seq_agence} décrit le scénario de création d'une agence.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{seq_agence.png}
+  \caption{Diagramme de séquence -- Création d'une agence}
+  \label{fig:seq_agence}
+\end{figure}
+
+L'\texttt{AgenceServlet} reçoit la requête de création et délègue à
+l'\texttt{AgenceService}, qui persiste la nouvelle \texttt{Agence} via
+l'\texttt{EntityManager} (\texttt{INSERT}), puis recharge la liste des agences
+renvoyée à la page \texttt{agences.jsp}. Le même schéma s'applique aux opérations
+de modification et de suppression.
+
+\section{Réalisation : interfaces utilisateur}
+La figure~\ref{fig:ui_agences} illustre les interfaces de gestion des agences et
+des employés. \emph{Les captures d'écran réelles seront insérées à cet emplacement.}
+
+\begin{figure}[htbp]
+  \centering
+  \fbox{\parbox[c][3.6cm][c]{0.8\textwidth}{\centering\itshape Capture à insérer
+  -- gestion des agences et des employés}}
+  \caption{Interfaces de gestion des agences et des employés}
+  \label{fig:ui_agences}
+\end{figure}
+
+\section*{Conclusion}
+Ce sprint a doté l'application de la gestion du référentiel des agences et des
+employés. Le sprint suivant traite des clients et des objectifs commerciaux.

@@ -1,0 +1,39 @@
+@startuml
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+skinparam sequence {
+  ArrowColor #14507A
+  LifeLineBorderColor #1B6CA8
+  ParticipantBorderColor #1B6CA8
+  ParticipantBackgroundColor #EAF3FA
+  ActorBorderColor #14507A
+}
+actor "Administrateur" as ADM
+participant "Navigateur" as NAV
+participant "AgenceServlet" as SRV
+participant "AgenceService\n(EJB)" as SVC
+participant "EntityManager" as EM
+database "Oracle" as DB
+ADM -> NAV : saisir le formulaire d'agence
+NAV -> SRV : POST /agences (action=create)
+activate SRV
+SRV -> SVC : ajouterAgence(agence)
+activate SVC
+SVC -> EM : persist(Agence)
+EM -> DB : INSERT
+SVC --> SRV : Agence enregistree
+deactivate SVC
+SRV -> SVC : listerAgences()
+activate SVC
+SVC -> EM : createQuery(...)
+EM -> DB : SELECT
+SVC --> SRV : List<Agence>
+deactivate SVC
+SRV -> NAV : agences.jsp (liste mise a jour)
+deactivate SRV
+NAV --> ADM : confirmation de la creation
+@enduml

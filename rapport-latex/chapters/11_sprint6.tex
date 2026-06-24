@@ -1,0 +1,205 @@
+% ===================== CHAPITRE 8 — SPRINT 6 =========================
+\chapter{Sprint 6 : Segmentation des agences par apprentissage non supervisé}
+\label{chap:segmentation}
+
+\section*{Introduction}
+Ce dernier sprint introduit une brique d'\textbf{intelligence artificielle} : la
+segmentation des agences par \textbf{apprentissage non supervisé}
+(\emph{clustering}). À partir du datamart produit par la chaîne ETL, il regroupe
+automatiquement les agences en profils homogènes afin d'éclairer les décisions de
+pilotage.
+
+\section{Objectifs du Sprint}
+L'objectif est de \textbf{segmenter les agences} présentant des caractéristiques
+d'activité similaires, sans étiquette préalable, afin d'appuyer le ciblage,
+l'allocation des ressources et la définition d'objectifs différenciés.
+
+\section{Spécification des besoins}
+
+\subsection{Diagramme de cas d'utilisation du Sprint 6}
+La figure~\ref{fig:uc_s6} présente les cas d'utilisation du sprint.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.82\textwidth]{uc_sprint6.png}
+  \caption{Diagramme de cas d'utilisation du Sprint 6}
+  \label{fig:uc_s6}
+\end{figure}
+
+\subsection{Sprint Backlog du sprint 6}
+Le tableau~\ref{tab:bl_s6} détaille la user story et les tâches techniques.
+
+\begin{table}[htbp]
+\centering
+\caption{Sprint Backlog du sprint 6}
+\label{tab:bl_s6}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{1cm}p{4.4cm}X}
+\toprule
+\textmd{\textbf{US}} & \textbf{User story} & \textbf{Tâches techniques}\\
+\midrule
+US17 & Segmenter les agences par apprentissage non supervisé. &
+Développer le script \texttt{segmentation\_agences.py} (scikit-learn) ; charger le
+datamart et \textbf{standardiser} les variables ; déterminer le \textbf{nombre de
+clusters} (coude + silhouette) ; \textbf{comparer} plusieurs modèles ; projeter en
+\textbf{PCA} et \textbf{profiler} les segments.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Analyse des besoins}
+
+\subsection{Description textuelle du cas d'utilisation}
+
+\cudesc{tab:cu_clustering}{Segmenter les agences}
+{Regrouper automatiquement les agences en profils homogènes à partir de leurs
+indicateurs d'activité.}
+{Analyste décisionnel / Administrateur}
+{Le datamart agrégé par agence (\texttt{fait\_agence}) doit être disponible.}
+{Les agences sont réparties en segments cohérents, caractérisés et exploitables
+pour la décision.}
+{(1) L'analyste lance la segmentation ; (2) le script standardise les variables ;
+(3) il détermine le nombre de clusters puis compare les modèles ; (4) il retient
+le meilleur modèle, projette en PCA et restitue le profil de chaque segment.}
+
+\section{Conception : démarche de clustering}
+
+\subsection{Données et variables}
+Les données ne sont pas extraites directement de la base opérationnelle : elles
+proviennent du \textbf{datamart} produit par la chaîne ETL (table de faits
+\texttt{fait\_agence}). Chaque agence y est décrite par sept indicateurs agrégés
+(tableau~\ref{tab:variables_clustering}), ce qui garantit la cohérence entre le
+tableau de bord, Power BI et l'analyse non supervisée.
+
+\begin{table}[htbp]
+\centering
+\caption{Variables de segmentation (par agence)}
+\label{tab:variables_clustering}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{4cm}X}
+\toprule
+\textmd{\textbf{Variable}} & \textbf{Description}\\
+\midrule
+effectif & Nombre d'employés de l'agence\\
+nb\_gestionnaires & Nombre de gestionnaires\\
+nb\_clients & Taille du portefeuille clients\\
+total\_comptes & Total des ouvertures de comptes\\
+production\_credits & Production de crédits\\
+collecte\_epargne & Collecte d'épargne\\
+taux\_presence & Taux de présence (issu du pointage)\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Prétraitement}
+Les variables étant exprimées dans des ordres de grandeur très différents (un
+effectif de quelques dizaines face à des milliers de comptes), une
+\textbf{standardisation} (centrage-réduction, \texttt{StandardScaler}) est
+appliquée. Sans elle, les variables de forte amplitude domineraient le calcul des
+distances et fausseraient le regroupement.
+
+\subsection{Détermination du nombre de clusters}
+Le nombre de clusters $k$ étant inconnu a priori, il est déterminé en combinant la
+\textbf{méthode du coude} (inertie intra-cluster) et le \textbf{score de
+silhouette} (figure~\ref{fig:choix_k}).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{clustering_choix_k.png}
+  \caption{Choix du nombre de clusters : méthode du coude et score de silhouette}
+  \label{fig:choix_k}
+\end{figure}
+
+Les deux indicateurs concordent : l'inertie présente un \textbf{coude marqué à
+$k=3$} et le score de silhouette y atteint son \textbf{maximum}
+($\approx 0{,}74$). La segmentation en \textbf{trois clusters} est donc retenue.
+
+\subsection{Comparaison des modèles de clustering}
+Quatre algorithmes ont été comparés : \textbf{K-Means}, \textbf{classification
+ascendante hiérarchique} (agglomératif), \textbf{modèle de mélange gaussien} (GMM)
+et \textbf{DBSCAN}, à l'aide de trois indices internes
+(tableau~\ref{tab:comparaison_clustering}, figure~\ref{fig:comparaison_clustering}).
+
+\begin{table}[htbp]
+\centering
+\caption{Comparaison des modèles de clustering}
+\label{tab:comparaison_clustering}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries}lcccc}
+\toprule
+\textmd{\textbf{Modèle}} & \textbf{Nb clusters} & \textbf{Silhouette $\uparrow$} &
+\textbf{Davies-Bouldin $\downarrow$} & \textbf{Calinski-Harabasz $\uparrow$}\\
+\midrule
+K-Means        & 3 & \textbf{0,736} & \textbf{0,350} & \textbf{391}\\
+Agglomératif   & 3 & 0,736 & 0,350 & 391\\
+GMM            & 3 & 0,736 & 0,350 & 391\\
+DBSCAN         & 3 & 0,736 & 0,350 & 391\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{clustering_comparaison.png}
+  \caption{Comparaison des modèles selon le score de silhouette}
+  \label{fig:comparaison_clustering}
+\end{figure}
+
+Les quatre algorithmes \textbf{convergent vers la même segmentation} : ils
+identifient les trois mêmes clusters et obtiennent des indices identiques
+(silhouette $0{,}736$, Davies-Bouldin $0{,}350$, Calinski-Harabasz $391$). Cette
+concordance, y compris pour des approches de nature différente (partitionnement,
+hiérarchique, probabiliste et à base de densité), confirme la \textbf{robustesse}
+des trois segments. Le \textbf{K-Means} est retenu : il atteint le meilleur score
+tout en restant simple et interprétable.
+
+\section{Réalisation : résultats et interprétation}
+La figure~\ref{fig:clusters_pca} projette les agences dans le plan des deux
+premières composantes principales (PCA), colorées selon leur cluster ; la première
+composante, qui résume la \emph{taille} de l'agence, explique l'essentiel de la
+variance. Les trois segments sont nettement séparés.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.78\textwidth]{clustering_pca.png}
+  \caption{Segmentation des agences (K-Means) projetée par PCA}
+  \label{fig:clusters_pca}
+\end{figure}
+
+Le profil moyen de chaque segment (tableau~\ref{tab:profils_clusters}) permet de
+les caractériser.
+
+\begin{table}[htbp]
+\centering
+\caption{Profil moyen des segments d'agences}
+\label{tab:profils_clusters}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries}Xcccccc}
+\toprule
+\textmd{\textbf{Segment}} & \textbf{Nb} & \textbf{Effectif} & \textbf{Clients} &
+\textbf{Comptes} & \textbf{Prod. crédits} & \textbf{Présence}\\
+\midrule
+Grandes agences   & 7  & 116 & 908 & 2333 & 1734 & 0,98\\
+Moyennes agences  & 16 & 54  & 438 & 1076 & 823  & 0,94\\
+Petites agences   & 22 & 21  & 160 & 431  & 321  & 0,87\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+On distingue ainsi un segment de \textbf{grandes agences} (pôles majeurs à fort
+effectif et forte production), un segment d'\textbf{agences moyennes} (activité
+intermédiaire) et un segment de \textbf{petites agences} (effectif et activité
+réduits, taux de présence plus faible).
+
+\subsection{Apport décisionnel}
+Cette segmentation constitue un outil d'\textbf{aide à la décision} : elle permet
+d'adapter les actions à chaque profil --- allouer les ressources selon la taille,
+fixer des objectifs différenciés, accompagner spécifiquement les petites agences
+ou capitaliser sur les grandes. Elle prolonge le volet décisionnel et illustre
+l'apport de l'\textbf{intelligence artificielle} au pilotage du réseau.
+
+\section*{Conclusion}
+Ce sprint a enrichi la solution d'une dimension analytique avancée. Après
+détermination du nombre optimal de clusters et comparaison de plusieurs modèles,
+le K-Means a fait émerger trois segments d'agences cohérents et exploitables pour
+la décision.

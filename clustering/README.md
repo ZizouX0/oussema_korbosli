@@ -19,20 +19,21 @@ python3 segmentation_agences.py
 Sorties : `figures/` (choix de k, comparaison, projection PCA) et
 `resultats_segmentation.csv`, `comparaison_modeles.csv`, `profils_clusters.csv`.
 
-## Utiliser VOS données réelles
-Exportez vos vues `V_BI_*` agrégées **par agence** dans **`data/agences.csv`**
-avec les colonnes :
+## Source des données : la chaîne ETL
+Le fichier **`data/agences.csv`** est produit automatiquement par la chaîne
+**ETL** (`../etl/etl_agences.py`), qui agrège les données par agence. Il suffit
+donc d'exécuter l'ETL avant la segmentation pour travailler sur des données
+cohérentes avec le tableau de bord et Power BI. Colonnes attendues :
 ```
 agence, effectif, nb_gestionnaires, nb_clients, total_comptes,
 production_credits, collecte_epargne, taux_presence
 ```
-Le script les utilisera automatiquement à la place du jeu de démonstration.
+> Pour des données réelles : alimentez l'ETL depuis Oracle (ou un export CSV des
+> vues `V_BI_*`), voir `../etl/README.md`. Le script de segmentation utilise
+> automatiquement `data/agences.csv` s'il est présent.
 
-> Exemple de requête SQL (à adapter) : agréger `V_BI_EMPLOYES` (effectif,
-> gestionnaires), `V_BI_CLIENTS` (clients), `V_BI_OBJECTIFS` (comptes, crédits,
-> épargne) et `V_BI_POINTAGE` (taux de présence) par `NOM_AGENCE`.
-
-## Résultat de démonstration
-3 segments (k=3, silhouette ≈ 0,71) : **grandes**, **moyennes** et **petites**
-agences. Le détail et l'interprétation figurent au chapitre « Segmentation des
-agences » du rapport.
+## Résultat
+3 segments (k=3, silhouette ≈ 0,74) : **grandes**, **moyennes** et **petites**
+agences ; les quatre modèles testés convergent vers la même partition. Le détail
+et l'interprétation figurent au chapitre « Sprint 6 : Segmentation des agences »
+du rapport.

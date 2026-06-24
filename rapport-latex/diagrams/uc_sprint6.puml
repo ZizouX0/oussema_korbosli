@@ -1,0 +1,27 @@
+@startuml
+skinparam dpi 150
+skinparam shadowing false
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam ArrowColor #14507A
+skinparam roundCorner 6
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecaseBackgroundColor #EAF3FA
+skinparam usecaseBorderColor #1B6CA8
+skinparam actorBorderColor #14507A
+actor "Administrateur" as ADM
+actor "Analyste decisionnel" as ANA
+rectangle "Sprint 6 — Segmentation des agences (clustering)" {
+  usecase "Lancer la\nsegmentation" as F1
+  usecase "Determiner le\nnombre de clusters" as F2
+  usecase "Comparer les\nmodeles" as F3
+  usecase "Interpreter et exploiter\nles segments" as F4
+}
+ANA --> F1
+F1 ..> F2 : <<include>>
+F1 ..> F3 : <<include>>
+ANA --> F4
+ADM --> F4
+@enduml
