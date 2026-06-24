@@ -1,0 +1,161 @@
+% ============================ CHAPITRE 5 ==============================
+\chapter{Segmentation des agences par apprentissage non supervisé}
+
+\section*{Introduction}
+Au-delà de la restitution descriptive offerte par le volet décisionnel, ce
+chapitre introduit une brique d'\textbf{intelligence artificielle} : la
+segmentation des agences par \textbf{apprentissage non supervisé} (\emph{clustering}).
+L'objectif est de regrouper automatiquement les agences en profils homogènes,
+sans étiquette préalable, afin d'éclairer les décisions (ciblage, allocation des
+ressources, objectifs différenciés).
+
+\section{Objectif et démarche}
+La segmentation vise à \textbf{regrouper les agences} présentant des
+caractéristiques d'activité similaires. La démarche suivie est la suivante :
+préparation et \textbf{standardisation} des données, \textbf{détermination du
+nombre de clusters} (méthode du coude et score de silhouette), \textbf{comparaison
+de plusieurs modèles} de clustering, puis \textbf{interprétation} des segments
+obtenus. L'implémentation s'appuie sur Python et la bibliothèque
+\texttt{scikit-learn}.
+
+\section{Données et variables}
+Les données proviennent de l'agrégation, par agence, des vues décisionnelles
+\texttt{V\_BI\_*}. Chaque agence est décrite par les variables du
+tableau~\ref{tab:variables_clustering}.
+
+\begin{table}[htbp]
+\centering
+\caption{Variables de segmentation (par agence)}
+\label{tab:variables_clustering}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{4cm}X}
+\toprule
+\textmd{\textbf{Variable}} & \textbf{Description}\\
+\midrule
+effectif & Nombre d'employés de l'agence\\
+nb\_gestionnaires & Nombre de gestionnaires\\
+nb\_clients & Taille du portefeuille clients\\
+total\_comptes & Total des ouvertures de comptes\\
+production\_credits & Production de crédits\\
+collecte\_epargne & Collecte d'épargne\\
+taux\_presence & Taux de présence (issu du pointage)\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Prétraitement}
+Les variables étant exprimées dans des unités et des ordres de grandeur très
+différents (un effectif de quelques dizaines face à des milliers de comptes), une
+\textbf{standardisation} (centrage-réduction, \texttt{StandardScaler}) est
+appliquée. Sans cette étape, les variables de forte amplitude domineraient le
+calcul des distances et fausseraient le regroupement.
+
+\section{Détermination du nombre de clusters}
+Le nombre de clusters $k$ n'étant pas connu a priori, il est déterminé en
+combinant deux approches (figure~\ref{fig:choix_k}) : la \textbf{méthode du
+coude}, qui repère le $k$ au-delà duquel l'inertie intra-cluster décroît peu, et
+le \textbf{score de silhouette}, qui mesure la qualité de séparation des clusters.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{clustering_choix_k.png}
+  \caption{Choix du nombre de clusters : méthode du coude et score de silhouette}
+  \label{fig:choix_k}
+\end{figure}
+
+Les deux indicateurs concordent : l'inertie présente un \textbf{coude marqué à
+$k=3$} et le score de silhouette y atteint son \textbf{maximum} ($\approx 0{,}71$).
+La segmentation en \textbf{trois clusters} est donc retenue.
+
+\section{Comparaison des modèles de clustering}
+Quatre algorithmes ont été testés et comparés : \textbf{K-Means},
+\textbf{classification ascendante hiérarchique} (agglomératif), \textbf{modèle de
+mélange gaussien} (GMM) et \textbf{DBSCAN}. La comparaison s'appuie sur trois
+indices internes : le \emph{score de silhouette} (plus il est élevé, mieux c'est),
+l'indice de \emph{Davies-Bouldin} (plus il est faible, mieux c'est) et l'indice de
+\emph{Calinski-Harabasz} (plus il est élevé, mieux c'est). Les résultats figurent
+dans le tableau~\ref{tab:comparaison_clustering} et la
+figure~\ref{fig:comparaison_clustering}.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparaison des modèles de clustering}
+\label{tab:comparaison_clustering}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries}lcccc}
+\toprule
+\textmd{\textbf{Modèle}} & \textbf{Nb clusters} & \textbf{Silhouette $\uparrow$} &
+\textbf{Davies-Bouldin $\downarrow$} & \textbf{Calinski-Harabasz $\uparrow$}\\
+\midrule
+K-Means        & 3 & \textbf{0,709} & \textbf{0,402} & \textbf{276}\\
+Agglomératif   & 3 & 0,709 & 0,402 & 276\\
+GMM            & 3 & 0,709 & 0,402 & 276\\
+DBSCAN         & 2 & 0,683 & 0,391 & 94\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{clustering_comparaison.png}
+  \caption{Comparaison des modèles selon le score de silhouette}
+  \label{fig:comparaison_clustering}
+\end{figure}
+
+K-Means, l'agglomératif et le GMM \textbf{convergent vers la même segmentation}
+(silhouette de $0{,}709$), ce qui confirme la \textbf{robustesse} des trois
+segments. DBSCAN, sensible à son paramètre de voisinage, ne distingue que deux
+groupes. Le \textbf{K-Means} est retenu : il obtient le meilleur score, tout en
+restant simple et facilement interprétable.
+
+\section{Résultats et interprétation}
+La figure~\ref{fig:clusters_pca} projette les agences dans le plan des deux
+premières composantes principales (PCA), colorées selon leur cluster ; la première
+composante (qui résume la \emph{taille} de l'agence) explique l'essentiel de la
+variance. Les trois segments sont nettement séparés.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.78\textwidth]{clustering_pca.png}
+  \caption{Segmentation des agences (K-Means) projetée par PCA}
+  \label{fig:clusters_pca}
+\end{figure}
+
+Le profil moyen de chaque segment (tableau~\ref{tab:profils_clusters}) permet de
+les caractériser.
+
+\begin{table}[htbp]
+\centering
+\caption{Profil moyen des segments d'agences}
+\label{tab:profils_clusters}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries}Xccccc}
+\toprule
+\textmd{\textbf{Segment}} & \textbf{Nb} & \textbf{Effectif} & \textbf{Clients} &
+\textbf{Prod. crédits} & \textbf{Présence}\\
+\midrule
+Grandes agences   & 7  & 116 & 952 & 1752 & 0,90\\
+Moyennes agences  & 16 & 55  & 427 & 789  & 0,90\\
+Petites agences   & 22 & 22  & 184 & 337  & 0,80\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+On distingue ainsi : un segment de \textbf{grandes agences} (pôles majeurs à fort
+effectif et forte production), un segment d'\textbf{agences moyennes} (activité
+intermédiaire) et un segment de \textbf{petites agences} (effectif et activité
+réduits, taux de présence plus faible).
+
+\section{Apport décisionnel}
+Cette segmentation constitue un véritable outil d'\textbf{aide à la décision} :
+elle permet d'adapter les actions à chaque profil --- allouer les ressources selon
+la taille, fixer des objectifs différenciés, accompagner spécifiquement les
+petites agences ou capitaliser sur les grandes. Elle prolonge naturellement le
+volet décisionnel et illustre l'apport de l'\textbf{intelligence artificielle} au
+pilotage du réseau.
+
+\section*{Conclusion}
+Ce chapitre a montré comment l'apprentissage non supervisé enrichit la solution
+d'une dimension analytique avancée. Après détermination du nombre optimal de
+clusters et comparaison de plusieurs modèles, le K-Means a fait émerger trois
+segments d'agences cohérents et exploitables pour la décision.
