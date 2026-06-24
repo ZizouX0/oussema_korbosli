@@ -11,8 +11,8 @@ skinparam actorStyle awesome
 skinparam usecaseBackgroundColor #EAF3FA
 skinparam usecaseBorderColor #1B6CA8
 skinparam actorBorderColor #14507A
-skinparam nodesep 34
-skinparam ranksep 75
+skinparam nodesep 6
+skinparam ranksep 220
 
 actor "Administrateur" as ADM
 actor "Directeur commercial" as DIR
