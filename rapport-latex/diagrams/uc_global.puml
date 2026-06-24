@@ -1,18 +1,19 @@
 @startuml
-
-skinparam dpi 150
+skinparam dpi 160
 skinparam shadowing false
 skinparam DefaultFontName Arial
-skinparam DefaultFontSize 13
+skinparam DefaultFontSize 15
 skinparam ArrowColor #14507A
 skinparam roundCorner 6
-
 left to right direction
 skinparam packageStyle rectangle
 skinparam actorStyle awesome
 skinparam usecaseBackgroundColor #EAF3FA
 skinparam usecaseBorderColor #1B6CA8
 skinparam actorBorderColor #14507A
+skinparam nodesep 34
+skinparam ranksep 75
+
 actor "Administrateur" as ADM
 actor "Directeur commercial" as DIR
 actor "Utilisateur" as USR
@@ -27,7 +28,7 @@ rectangle "Application de gestion des agences bancaires" {
   usecase "Valider / refuser\nune demande" as UC7
   usecase "Consulter le\njournal d'audit" as UC8
   usecase "Recevoir des\nnotifications" as UC9
-  usecase "Pointer\n(arrivée/départ)" as UC10
+  usecase "Pointer\n(arrivée / départ)" as UC10
   usecase "Gérer les\npointages" as UC11
 }
 ADM --> UC1
@@ -37,19 +38,18 @@ ADM --> UC4
 ADM --> UC7
 ADM --> UC8
 ADM --> UC9
+ADM --> UC11
 DIR --> UC1
 DIR --> UC5
 DIR --> UC6
-DIR --> UC9
 USR --> UC1
 USR --> UC6
 USR --> UC9
-ADM --> UC10
-DIR --> UC10
 USR --> UC10
-ADM --> UC11
+ADM --> UC10
 UC1 ..> UC0 : <<include>>
 UC2 ..> UC0 : <<include>>
 UC6 ..> UC0 : <<include>>
 UC7 ..> UC0 : <<include>>
+UC10 ..> UC0 : <<include>>
 @enduml
