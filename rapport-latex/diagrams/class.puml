@@ -11,6 +11,9 @@ skinparam classBackgroundColor #EAF3FA
 skinparam classBorderColor #1B6CA8
 skinparam classArrowColor #14507A
 hide empty members
+left to right direction
+skinparam ranksep 170
+skinparam nodesep 8
 
 class Agence {
   -id : Long

@@ -192,12 +192,16 @@ La figure~\ref{fig:class} présente le \textbf{diagramme de classes} du modèle
 métier, qui représente les entités persistantes du domaine, leurs attributs et
 les associations qui les relient.
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{class.png}
-  \caption{Diagramme de classes du modèle métier}
-  \label{fig:class}
-\end{figure}
+\begin{landscape}
+\thispagestyle{plain}
+\centering
+\vspace*{0.2cm}
+\makebox[\linewidth][c]{%
+  \includegraphics[width=24cm,height=14.2cm,keepaspectratio]{class.png}}
+\par\vspace{0.3cm}
+\captionof{figure}{Diagramme de classes du modèle métier}
+\label{fig:class}
+\end{landscape}
 
 L'entité \textbf{\texttt{Utilisateur}} occupe une position centrale. Une
 \texttt{Agence} regroupe plusieurs \texttt{Utilisateur}, \texttt{Client} et
