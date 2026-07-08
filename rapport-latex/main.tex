@@ -8,14 +8,16 @@
 % ---- Encodage & langue ----
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{newtxtext,newtxmath}     % Times New Roman (corps + maths)
+\usepackage[sfdefault]{carlito}      % Calibri (police métrique-compatible, noir)
 \usepackage[french]{babel}
 \usepackage{csquotes}
 
-% ---- Mise en page (charte : marges 2,5 cm, interligne 1,15) ----
+% ---- Mise en page (charte : marges 2,5 cm, interligne 1,5, Calibri 12 pt) ----
 \usepackage[a4paper,margin=2.5cm]{geometry}
 \usepackage{setspace}
-\setstretch{1.15}
+\setstretch{1.5}                     % interligne 1,5
+\setlength{\parindent}{0.8cm}        % retrait de 1re ligne : 0,8 cm
+\setlength{\parskip}{6pt plus 2pt minus 1pt}  % espacement avant/après : 6 pts
 \usepackage{microtype}
 % Tolérance de césure : évite les débordements dans la marge dus aux longs
 % identifiants de code (\texttt) non sécables, en autorisant un léger relâchement.
