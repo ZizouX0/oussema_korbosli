@@ -31,22 +31,36 @@ FEATURES = ["effectif", "nb_gestionnaires", "nb_clients", "total_comptes",
 
 
 # ============================ EXTRACT ======================================
-def extract_oracle():
-    """Extraction depuis Oracle (à activer avec vos identifiants).
+def extract_oracle(dsn=None, user=None, password=None):
+    """Extraction directe depuis la base Oracle BTK.
 
+    Renseignez la connexion via les arguments ou les variables d'environnement
+    BTK_DB_USER / BTK_DB_PWD / BTK_DB_DSN, puis appelez extract(source="oracle").
+    Les requêtes s'appuient sur les tables réelles du projet
+    (AGENCE, B_UTILISATEURS, CLIENT_BTK, B_OBJECTIF, POINTAGE).
+    """
     import oracledb
-    cn = oracledb.connect(user="...", password="...", dsn="host:1521/FREEPDB1")
+    cn = oracledb.connect(
+        user=user or os.environ.get("BTK_DB_USER", "system"),
+        password=password or os.environ.get("BTK_DB_PWD", ""),
+        dsn=dsn or os.environ.get("BTK_DB_DSN", "localhost:1521/FREEPDB1"))
+    ag = pd.read_sql("SELECT SK_AGENCE, LIBELLE_AGENCE, DISTRICT FROM AGENCE", cn)
     emp = pd.read_sql("SELECT SK_UTILISATEUR, SK_AGENCE, EST_GESTIONNAIRE "
                       "FROM B_UTILISATEURS", cn)
-    cli = pd.read_sql("SELECT SK_CLIENT, SK_AGENCE FROM CLIENT", cn)
-    obj = pd.read_sql("SELECT SK_AGENCE, SOUSCRIPTION_COMPTE_CHEQUES_OA, ... "
-                      "FROM B_OBJECTIF", cn)
+    cli = pd.read_sql("SELECT SK_CLIENT, SK_AGENCE FROM CLIENT_BTK", cn)
+    obj = pd.read_sql(
+        "SELECT SK_AGENCE, "
+        "  NVL(SOUSCRIPTION_COMPTE_CHEQUES_OA,0)+NVL(SOUSCRIPTION_COMPTE_EPARGNES_OA,0)"
+        "  +NVL(SOUSCRIPTION_COMPTE_COURANTS_OA,0) AS COMPTES, "
+        "  NVL(PRODUCTION_CREDITS_CONSO_OA,0)+NVL(PRODUCTION_CREDITS_IMMO_OA,0)"
+        "  +NVL(PRODUCTION_CREDITS_INVESTISSEMENT_OA,0) AS CREDITS, "
+        "  NVL(EPARGNE_ADD_OA,0) AS EPARGNE "
+        "FROM B_OBJECTIF", cn)
     poi = pd.read_sql("SELECT P.SK_UTILISATEUR, U.SK_AGENCE, P.STATUT "
                       "FROM POINTAGE P JOIN B_UTILISATEURS U "
-                      "ON P.SK_UTILISATEUR=U.SK_UTILISATEUR", cn)
-    return emp, cli, obj, poi
-    """
-    raise NotImplementedError("Configurer la connexion Oracle dans extract_oracle().")
+                      "ON P.SK_UTILISATEUR = U.SK_UTILISATEUR", cn)
+    cn.close()
+    return ag, emp, cli, obj, poi
 
 
 def _synthese_source():
@@ -89,8 +103,8 @@ def extract(source="auto"):
     fichiers = {n: os.path.join(SOURCE, n + ".csv")
                 for n in ["agences", "employes", "clients", "objectifs", "pointages"]}
     if source == "oracle":
-        ag = None; emp, cli, obj, poi = extract_oracle()
-        return ag, emp, cli, obj, poi
+        print("[extract] Connexion Oracle (source réelle).")
+        return extract_oracle()
     if all(os.path.exists(f) for f in fichiers.values()):
         print("[extract] Sources CSV réelles détectées dans etl/source/")
         return tuple(pd.read_csv(fichiers[n]) for n in
