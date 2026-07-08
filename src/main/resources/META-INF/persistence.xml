@@ -23,6 +23,7 @@
         <class>entity.BtkClient</class>
         <class>entity.DemandeEmploye</class>
         <class>entity.DemandeClient</class>
+        <class>entity.DemandeModification</class>
         <class>entity.SecurityUser</class>
         <class>entity.Pointage</class>
 

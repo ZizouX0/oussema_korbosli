@@ -71,6 +71,14 @@ proviennent du \textbf{datamart} produit par la chaîne ETL (table de faits
 (tableau~\ref{tab:variables_clustering}), ce qui garantit la cohérence entre le
 tableau de bord, Power BI et l'analyse non supervisée.
 
+\medskip\noindent\emph{Remarque.} En l'absence d'un export des données de
+production, la segmentation présentée dans ce chapitre est \textbf{illustrée sur un
+jeu de données représentatif} du réseau, généré par la chaîne ETL pour reproduire
+la structure et les ordres de grandeur des agences ; le pipeline bascule
+automatiquement sur les données réelles dès qu'un export est fourni
+(\texttt{etl/source/}). Les résultats ci-dessous illustrent donc la
+\emph{démarche} et restent reproductibles sur les données réelles.
+
 \begin{table}[htbp]
 \centering
 \caption{Variables de segmentation (par agence)}
@@ -179,8 +187,8 @@ les caractériser.
 \textmd{\textbf{Segment}} & \textbf{Nb} & \textbf{Effectif} & \textbf{Clients} &
 \textbf{Comptes} & \textbf{Prod. crédits} & \textbf{Présence}\\
 \midrule
-Grandes agences   & 7  & 116 & 908 & 2333 & 1734 & 0,98\\
-Moyennes agences  & 16 & 54  & 438 & 1076 & 823  & 0,94\\
+Grandes agences   & 7  & 116 & 908 & 2\,333 & 1\,734 & 0,98\\
+Moyennes agences  & 16 & 54  & 438 & 1\,076 & 823  & 0,94\\
 Petites agences   & 22 & 21  & 160 & 431  & 321  & 0,87\\
 \bottomrule
 \end{tabularx}

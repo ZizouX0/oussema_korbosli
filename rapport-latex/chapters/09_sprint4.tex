@@ -38,7 +38,7 @@ Le tableau~\ref{tab:bl_s4} détaille les user stories et les tâches techniques.
 US9 & Pointer la présence (arrivée / départ). &
 Développer l'entité \texttt{Pointage}, le \texttt{PointageService} (EJB) et le
 \texttt{PointageServlet} (\texttt{/pointage}) ; déterminer le statut
-(\texttt{PRESENT} / \texttt{RETARD} au-delà de 9h) ; page \texttt{pointage.jsp}.\\
+(\texttt{PRESENT} / \texttt{RETARD} au-delà de 9 h) ; page \texttt{pointage.jsp}.\\
 \midrule
 US10 & Saisir ou corriger un pointage manuel. &
 Permettre à l'administrateur de saisir un pointage (\texttt{PRESENT},
@@ -77,7 +77,7 @@ détermination automatique du statut.}
 \texttt{RETARD}).}
 {(1) L'employé clique sur « Pointer » ; (2) le \texttt{PointageService} relève
 l'heure courante et recherche le pointage du jour ; (3) s'il n'existe pas, il
-détermine le statut (\texttt{RETARD} au-delà de 9h) et l'enregistre ; (4) sinon,
+détermine le statut (\texttt{RETARD} au-delà de 9 h) et l'enregistre ; (4) sinon,
 il met à jour l'enregistrement existant.}
 
 \cudesc{tab:cu_demande}{Valider une demande}
@@ -104,7 +104,7 @@ La figure~\ref{fig:seq_pointage} décrit le scénario de pointage.
 
 Le \texttt{PointageServlet} transmet l'action au \texttt{PointageService}, qui
 recherche le pointage du jour. Le fragment \texttt{alt} distingue l'\texttt{INSERT}
-(premier pointage, statut \texttt{PRESENT}/\texttt{RETARD} au-delà de 9h) de
+(premier pointage, statut \texttt{PRESENT}/\texttt{RETARD} au-delà de 9 h) de
 l'\texttt{UPDATE} (pointage déjà existant).
 
 \subsection{Diagramme de séquence : « Valider une demande »}

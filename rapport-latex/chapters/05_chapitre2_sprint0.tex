@@ -187,7 +187,7 @@ les indicateurs ; l'\textbf{utilisateur} se limite à la consultation, au pointa
 et aux demandes le concernant.
 
 % ----------------------------------------------------------------------
-\section{Diagramme de classe}
+\section{Diagramme de classes}
 La figure~\ref{fig:class} présente le \textbf{diagramme de classes} du modèle
 métier, qui représente les entités persistantes du domaine, leurs attributs et
 les associations qui les relient.
@@ -200,16 +200,21 @@ les associations qui les relient.
   \label{fig:class}
 \end{figure}
 
-L'entité \textbf{\texttt{Utilisateur}} occupe une position centrale. Une
-\texttt{Agence} regroupe plusieurs \texttt{Utilisateur}, \texttt{Client} et
-\texttt{Objectif} ; un \texttt{Gestionnaire} encadre plusieurs \texttt{Client} ;
-les entités de demande (\texttt{DemandeClient}, \texttt{DemandeEmploye},
+L'entité \textbf{\texttt{Utilisateur}} occupe une position centrale. Le
+rattachement d'un \texttt{Utilisateur}, d'un \texttt{Client} ou d'un
+\texttt{Objectif} à son \texttt{Agence}, ainsi que d'un \texttt{Client} à son
+\texttt{Gestionnaire}, est matérialisé dans le code par des \textbf{clés
+étrangères} (\texttt{SK\_AGENCE}, \texttt{SK\_GESTIONNAIRE}). Les entités de
+demande (\texttt{DemandeClient}, \texttt{DemandeEmploye},
 \texttt{DemandeModification}, \texttt{DemandeAgence}), ainsi que
 \texttt{JournalAction}, \texttt{Notification} et \texttt{Pointage}, référencent un
-\texttt{Utilisateur} par une association \texttt{@ManyToOne}. Enfin,
-\texttt{SecurityUser} est relié à \texttt{Utilisateur} par une dépendance
-d'authentification. Le modèle ne comporte ni héritage ni composition : les liens
-sont exclusivement des associations, reflétant fidèlement le code du projet.
+\texttt{Utilisateur} par une association JPA \texttt{@ManyToOne} ;
+\texttt{DemandeAgence} possède en outre une association \texttt{@ManyToMany} avec
+\texttt{Utilisateur} (\texttt{utilisateursDemandes}). Enfin, \texttt{SecurityUser}
+est relié à \texttt{Utilisateur} par une dépendance d'authentification. Le modèle
+ne comporte ni héritage ni composition : les liens sont des associations, dont
+certaines sont implémentées par des clés étrangères et d'autres par des relations
+JPA explicites.
 
 % ----------------------------------------------------------------------
 \section{Planification des sprints}

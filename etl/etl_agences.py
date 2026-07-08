@@ -6,7 +6,7 @@ Objectif : consolider les données opérationnelles (employés, clients, objecti
 pointage) en un datamart agrégé PAR AGENCE, qui alimente à la fois le tableau de
 bord / Power BI et la segmentation par clustering.
 
-  EXTRACT   sources Oracle (B_UTILISATEURS, CLIENT, B_OBJECTIF, POINTAGE, AGENCE)
+  EXTRACT   sources Oracle (B_UTILISATEURS, CLIENT_BTK, B_OBJECTIF, POINTAGE, AGENCE)
             -> lues depuis etl/source/*.csv si présents, sinon jeu synthétique.
   TRANSFORM nettoyage, typage, agrégation par agence, calcul des indicateurs
             (effectif, portefeuille, production, taux de présence).
