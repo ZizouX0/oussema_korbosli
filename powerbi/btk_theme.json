@@ -1,0 +1,45 @@
+{
+  "name": "BTK Decisionnel Dark",
+  "dataColors": ["#4A90D9", "#E0A526", "#5BBE5B", "#E8833A", "#2AA9B5", "#9B7ED9", "#8A8D95", "#C0392B"],
+  "background": "#17181C",
+  "foreground": "#E8E9ED",
+  "tableAccent": "#E8833A",
+  "good": "#5BBE5B",
+  "neutral": "#E0A526",
+  "bad": "#E8833A",
+  "maximum": "#4A90D9",
+  "center": "#2AA9B5",
+  "minimum": "#212329",
+  "textClasses": {
+    "title":    { "color": "#E8E9ED", "fontFace": "Segoe UI Semibold", "fontSize": 13 },
+    "header":   { "color": "#E8E9ED", "fontFace": "Segoe UI Semibold", "fontSize": 12 },
+    "label":    { "color": "#8A8D95", "fontFace": "Segoe UI", "fontSize": 10 },
+    "callout":  { "color": "#E8E9ED", "fontFace": "Segoe UI Semibold", "fontSize": 27 }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{ "show": true, "color": { "solid": { "color": "#212329" } }, "transparency": 0 }],
+        "border":     [{ "show": true, "color": { "solid": { "color": "#2E3038" } }, "radius": 10 }],
+        "visualHeader": [{ "show": true, "foreground": { "solid": { "color": "#E8E9ED" } }, "background": { "solid": { "color": "#212329" } } }],
+        "title":      [{ "show": true, "fontColor": { "solid": { "color": "#E8E9ED" } }, "background": { "solid": { "color": "#212329" } }, "fontSize": 12, "fontFamily": "Segoe UI Semibold" }],
+        "labels":     [{ "color": { "solid": { "color": "#8A8D95" } } }],
+        "categoryAxis": [{ "labelColor": { "solid": { "color": "#8A8D95" } }, "gridlineColor": { "solid": { "color": "#2E3038" } } }],
+        "valueAxis":  [{ "labelColor": { "solid": { "color": "#8A8D95" } }, "gridlineColor": { "solid": { "color": "#2E3038" } } }]
+      }
+    },
+    "page": {
+      "*": {
+        "background": [{ "color": { "solid": { "color": "#17181C" } }, "transparency": 0 }],
+        "outspace":   [{ "color": { "solid": { "color": "#17181C" } }, "transparency": 0 }]
+      }
+    },
+    "tableEx": {
+      "*": {
+        "grid": [{ "gridVertical": false, "gridHorizontalColor": { "solid": { "color": "#262830" } }, "rowPadding": 6 }],
+        "columnHeaders": [{ "fontColor": { "solid": { "color": "#8A8D95" } }, "backColor": { "solid": { "color": "#212329" } } }],
+        "values": [{ "fontColorPrimary": { "solid": { "color": "#E8E9ED" } }, "backColorPrimary": { "solid": { "color": "#212329" } } }]
+      }
+    }
+  }
+}
