@@ -41,8 +41,9 @@ COMMIT;
 --              jamais tes vraies valeurs existantes)
 -- =====================================================================
 UPDATE BTK_BI.B_OBJECTIF SET
-  EER_PARTICULIER_OA                        = NVL(EER_PARTICULIER_OA,                        ROUND(DBMS_RANDOM.VALUE(0.45,0.90),2)),
-  EER_HORS_PARTICULIER_OA                   = NVL(EER_HORS_PARTICULIER_OA,                   ROUND(DBMS_RANDOM.VALUE(0.20,0.60),2)),
+  -- EER = objectifs chiffrés (entiers, cf. EER_PARTICULIER ~40-110 dans les données)
+  EER_PARTICULIER_OA                        = NVL(EER_PARTICULIER_OA,                        TRUNC(DBMS_RANDOM.VALUE(30,110))),
+  EER_HORS_PARTICULIER_OA                   = NVL(EER_HORS_PARTICULIER_OA,                   TRUNC(DBMS_RANDOM.VALUE(15,80))),
   SOUSCRIPTION_COMPTE_CHEQUES_OA            = NVL(SOUSCRIPTION_COMPTE_CHEQUES_OA,            TRUNC(DBMS_RANDOM.VALUE(50,200))),
   SOUSCRIPTION_COMPTE_EPARGNES_OA           = NVL(SOUSCRIPTION_COMPTE_EPARGNES_OA,           TRUNC(DBMS_RANDOM.VALUE(30,150))),
   SOUSCRIPTION_COMPTE_COURANTS_OA           = NVL(SOUSCRIPTION_COMPTE_COURANTS_OA,           TRUNC(DBMS_RANDOM.VALUE(20,120))),
