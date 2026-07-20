@@ -31,8 +31,8 @@ DECLARE
   v_g    NUMBER;          -- facteur de croissance mois après mois
   v_am   VARCHAR2(20);
   TYPE t_m IS TABLE OF VARCHAR2(20);
-  -- 👇 REMPLACE par tes vrais libellés de période (même format que l'étape 0)
-  v_months t_m := t_m('2026-01','2026-02','2026-03','2026-04','2026-05','2026-06');
+  -- Format réel du projet : texte « J/M/AAAA », 1er du mois (ex. 1/1/2026 = janvier)
+  v_months t_m := t_m('1/1/2026','1/2/2026','1/3/2026','1/4/2026','1/5/2026','1/6/2026');
 BEGIN
   SELECT NVL(MAX(ID_OBJECTIF), 0) INTO v_base FROM BTK_BI.B_OBJECTIF;
 
