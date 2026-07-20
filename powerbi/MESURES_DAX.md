@@ -81,6 +81,23 @@ EER Particulier      = SUM(B_OBJECTIF[EER_PARTICULIER_OA])
 EER Hors Particulier = SUM(B_OBJECTIF[EER_HORS_PARTICULIER_OA])
 ```
 
+## 4) MESURES « CENTRE D'ANNEAU » (pour mieux visualiser les 2 donuts, page 1)
+À afficher via une **Carte** superposée au centre de l'anneau (fond transparent).
+
+```DAX
+% Gestionnaires =
+DIVIDE(
+    CALCULATE(DISTINCTCOUNT(B_UTILISATEURS[SK_UTILISATEUR]), B_UTILISATEURS[Rôle] = "Gestionnaire"),
+    DISTINCTCOUNT(B_UTILISATEURS[SK_UTILISATEUR])
+)
+```
+```DAX
+Taux Absentéisme = DIVIDE([Nb Absences], [Nb Pointages])
+```
+- Anneau **Rôles** → centre = `Nb Employés` (total) ou `% Gestionnaires`
+- Anneau **Présence** → centre = `Taux Présence` (+ `Taux Absentéisme` en info-bulle)
+- Formater `% Gestionnaires` et `Taux Absentéisme` en **pourcentage**.
+
 ## Formats (ruban « Outils de mesure »)
 | Mesure | Format | Déc. |
 |---|---|---|
