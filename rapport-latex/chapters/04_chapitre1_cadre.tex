@@ -136,97 +136,33 @@ workflows de validation, et l'\textbf{ouverture décisionnelle} permise par
 l'exposition des données à des outils d'analyse et de \emph{reporting}.
 
 % ----------------------------------------------------------------------
-\section{Méthodologie adoptée}
+\section{Méthodologie et planification du projet}
 
-\subsection{Méthodes traditionnelles et leurs limites}
-Les méthodes classiques (cycle en cascade, cycle en V) reposent sur un
-enchaînement \textbf{séquentiel} de phases (analyse, conception, développement,
-tests) planifiées dès le départ. Elles conviennent aux projets dont les besoins
-sont stables et parfaitement connus à l'avance, mais montrent vite leurs limites
-dès que le périmètre évolue : faible flexibilité, coût élevé des changements,
-livraison tardive et détection des risques en fin de cycle.
+\subsection{Démarche de développement}
+Le périmètre du projet ayant été précisé progressivement au fil des échanges avec
+l'organisme d'accueil, une \textbf{démarche itérative et incrémentale}, d'inspiration
+\emph{agile}, a été adoptée. Plutôt qu'un enchaînement séquentiel figé, cette
+approche privilégie des livraisons fonctionnelles successives et une validation
+régulière avec l'encadrement, ce qui permet d'\textbf{adapter la solution} aux
+retours et de \textbf{détecter les risques au plus tôt}. Le travail a été organisé
+en phases classiques du génie logiciel --- analyse et spécification des besoins,
+conception, réalisation, puis volet décisionnel --- reprises comme fil conducteur
+des chapitres de ce rapport.
 
-\subsection{Origines et apport des méthodes agiles}
-En réponse à ces limites, les \textbf{méthodes agiles} privilégient une approche
-\textbf{itérative et incrémentale}, fondée sur la collaboration continue avec le
-client, l'adaptation au changement et la livraison fréquente d'incréments
-fonctionnels. Le tableau~\ref{tab:agile_vs_trad} oppose les deux familles.
+\subsection{Planification}
+Le projet s'est déroulé sur quatre mois, du 16 février au 16 juin 2026. La
+figure~\ref{fig:gantt} en présente le planning prévisionnel sous forme de
+diagramme de Gantt, organisé selon les grandes phases du projet.
 
-\begin{table}[htbp]
-\centering
-\caption{Méthodes traditionnelles vs méthodes agiles}
-\label{tab:agile_vs_trad}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabularx}{\textwidth}{>{\bfseries}p{2.8cm}XX}
-\toprule
-\textmd{\textbf{Critère}} & \textbf{Méthodes traditionnelles} & \textbf{Méthodes agiles}\\
-\midrule
-Approche & Séquentielle et planifiée (cascade, cycle en V) & Itérative et incrémentale\\
-Flexibilité & Faible : les changements sont coûteux & Élevée : adaptation continue\\
-Livraison & En fin de projet & Par incréments fréquents\\
-Implication du client & Au début et à la fin & Tout au long du projet\\
-Documentation & Abondante et préalable & Allégée, au juste nécessaire\\
-Détection des risques & Tardive & Précoce\\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\subsection{Comparaison des cadres agiles : Kanban et Scrum}
-Parmi les cadres agiles, deux sont particulièrement répandus. \textbf{Kanban}
-repose sur la visualisation d'un \emph{flux continu} de tâches et la limitation du
-travail en cours, sans rôles ni itérations imposés ; il convient surtout aux
-activités de maintenance. \textbf{Scrum} organise le travail en \emph{itérations
-de durée fixe} (les sprints), avec des rôles, des artefacts et des cérémonies
-définis. Le tableau~\ref{tab:kanban_vs_scrum} les compare.
-
-\begin{table}[htbp]
-\centering
-\caption{Kanban vs Scrum}
-\label{tab:kanban_vs_scrum}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabularx}{\textwidth}{>{\bfseries}p{2.8cm}XX}
-\toprule
-\textmd{\textbf{Critère}} & \textbf{Kanban} & \textbf{Scrum}\\
-\midrule
-Cadence & Flux continu & Sprints de durée fixe\\
-Rôles & Non imposés & Product Owner, Scrum Master, équipe\\
-Cérémonies & Optionnelles & Planning, mêlée, revue, rétrospective\\
-Gestion du travail & Tableau Kanban, limite du WIP & Sprint backlog\\
-Changements & À tout moment & Figés pendant le sprint\\
-Adapté à & Maintenance, flux continu & Projets à fonctionnalités planifiées\\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\subsection{Choix de la méthodologie : Scrum}
-Le projet visant à développer un ensemble de fonctionnalités planifiées et
-livrables par incréments, le cadre \textbf{Scrum} a été retenu. Le périmètre ayant
-été précisé progressivement au fil des échanges avec l'organisme d'accueil, ses
-sprints, ses rôles et ses cérémonies offrent une structure adaptée au suivi
-régulier de l'avancement et à la validation progressive des incréments.
-
-\subsection{Présentation de Scrum}
-Scrum est un cadre de travail agile reposant sur trois \textbf{rôles}, des
-\textbf{artefacts} et des \textbf{cérémonies} :
-\begin{itemize}[noitemsep]
-  \item \textbf{Rôles} : le \emph{Product Owner} porte la vision produit et
-        priorise le backlog ; le \emph{Scrum Master} veille au respect de la
-        démarche ; l'\emph{équipe de développement} réalise les incréments ;
-  \item \textbf{Artefacts} : le \emph{product backlog} (liste priorisée des
-        besoins), le \emph{sprint backlog} (besoins sélectionnés pour le sprint)
-        et l'\emph{incrément} (le produit potentiellement livrable) ;
-  \item \textbf{Cérémonies} : la planification du sprint (\emph{sprint planning}),
-        la mêlée quotidienne (\emph{daily scrum}), la revue de sprint
-        (\emph{sprint review}) et la rétrospective.
-\end{itemize}
-Chaque \textbf{sprint} est une itération de durée fixe au terme de laquelle un
-incrément fonctionnel est livré, puis évalué avec le Product Owner avant
-d'enchaîner sur le sprint suivant.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{gantt.png}
+  \caption{Planning prévisionnel du projet (diagramme de Gantt)}
+  \label{fig:gantt}
+\end{figure}
 
 \section*{Conclusion}
 Ce chapitre a posé le cadre du projet : l'organisme d'accueil et ses missions,
 l'étude de l'existant qui a mis en évidence la problématique, la solution
-proposée et la méthodologie Scrum retenue. Le chapitre suivant, consacré au
-\emph{Sprint~0}, détaille l'analyse et la spécification des besoins, la
-planification des sprints, l'environnement de développement et l'architecture du
-système.
+proposée, ainsi que la démarche et la planification retenues. Le chapitre suivant
+est consacré à l'\textbf{analyse et à la spécification des besoins}.

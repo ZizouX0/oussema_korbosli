@@ -1,0 +1,220 @@
+% ===================== CHAPITRE 3 — CONCEPTION =======================
+\chapter{Conception}
+
+\section*{Introduction}
+Ce chapitre traduit l'analyse en une \textbf{conception} détaillée du système. Il
+présente d'abord l'architecture (globale, physique et logique), puis le modèle
+statique du domaine (diagramme de classes) et enfin les scénarios dynamiques des
+fonctionnalités principales (diagrammes de séquence, d'états-transitions et
+d'activité).
+
+% ----------------------------------------------------------------------
+\section{Architecture du système}
+L'architecture définit l'organisation des composants du système et la manière dont
+ils communiquent. Elle est présentée à trois niveaux : globale, physique et
+logique.
+
+\subsection{Architecture globale}
+L'architecture globale (figure~\ref{fig:archi_globale}) offre une vue d'ensemble
+des composants. Un poste client (navigateur) dialogue en \texttt{HTTP/HTTPS} avec
+l'application web déployée sur \textbf{WildFly}, structurée en couches
+(présentation, contrôle, métier, persistance) ; celle-ci accède à la base
+\textbf{Oracle} en JDBC. La base alimente, d'une part, \textbf{Power BI} via les
+vues \texttt{V\_BI\_*} et, d'autre part, la \textbf{chaîne décisionnelle Python}
+(ETL puis segmentation).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{archi_globale.png}
+  \caption{Architecture globale du système}
+  \label{fig:archi_globale}
+\end{figure}
+
+\subsection{Architecture physique}
+L'architecture physique (figure~\ref{fig:archi_physique}) représente le
+\textbf{déploiement} des composants sur les nœuds matériels selon une organisation
+\textbf{3-tiers} : le poste client, le serveur d'applications WildFly hébergeant
+\texttt{gestion-agences.war} (accès à la base via la source de données JTA
+\texttt{OracleDS}), le serveur de base de données Oracle (\texttt{FREEPDB1}) et le
+poste décisionnel exécutant Power BI.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{archi_physique.png}
+  \caption{Architecture physique (diagramme de déploiement 3-tiers)}
+  \label{fig:archi_physique}
+\end{figure}
+
+\subsection{Architecture logique}
+L'architecture logique (figure~\ref{fig:archi_logique}) décompose le système en
+\textbf{couches} faiblement couplées suivant le patron \textbf{MVC} : la couche
+\emph{présentation} (JSP/JSTL, ApexCharts), la couche \emph{contrôle} (Servlets et
+le filtre \texttt{NotificationFilter}), la couche \emph{métier} (services EJB) et
+la couche \emph{persistance} (entités JPA et Hibernate dialoguant avec Oracle via
+l'\texttt{EntityManager}).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.62\textwidth]{archi_logique.png}
+  \caption{Architecture logique en couches de l'application}
+  \label{fig:archi_logique}
+\end{figure}
+
+% ----------------------------------------------------------------------
+\section{Diagramme de classes}
+La figure~\ref{fig:class} présente le \textbf{diagramme de classes} du modèle
+métier, qui représente les entités persistantes du domaine, leurs attributs et
+les associations qui les relient.
+
+\begin{figure}[p]
+  \centering
+  \rotatebox{90}{%
+    \includegraphics[width=0.92\textheight,height=\textwidth,keepaspectratio]{class.png}}
+  \caption{Diagramme de classes du modèle métier}
+  \label{fig:class}
+\end{figure}
+
+L'entité \textbf{\texttt{Utilisateur}} occupe une position centrale. Le
+rattachement d'un \texttt{Utilisateur}, d'un \texttt{Client} ou d'un
+\texttt{Objectif} à son \texttt{Agence}, ainsi que d'un \texttt{Client} à son
+\texttt{Gestionnaire}, est matérialisé dans le code par des \textbf{clés
+étrangères} (\texttt{SK\_AGENCE}, \texttt{SK\_GESTIONNAIRE}). Les entités de
+demande (\texttt{DemandeClient}, \texttt{DemandeEmploye},
+\texttt{DemandeModification}, \texttt{DemandeAgence}), ainsi que
+\texttt{JournalAction}, \texttt{Notification} et \texttt{Pointage}, référencent un
+\texttt{Utilisateur} par une association JPA \texttt{@ManyToOne} ;
+\texttt{DemandeAgence} possède en outre une association \texttt{@ManyToMany} avec
+\texttt{Utilisateur} (\texttt{utilisateursDemandes}). Enfin, \texttt{SecurityUser}
+est relié à \texttt{Utilisateur} par une dépendance d'authentification. Le modèle
+ne comporte ni héritage ni composition : les liens sont des associations, dont
+certaines sont implémentées par des clés étrangères et d'autres par des relations
+JPA explicites.
+
+% ----------------------------------------------------------------------
+\section{Diagrammes de séquence}
+Les diagrammes de séquence décrivent le déroulement dynamique des principales
+fonctionnalités, en montrant les échanges entre la couche de présentation, les
+servlets, les services métier et la base de données.
+
+\subsection{S'authentifier}
+La figure~\ref{fig:seq_auth} décrit le déroulement dynamique de l'authentification.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{seq_auth.png}
+  \caption{Diagramme de séquence -- Authentification}
+  \label{fig:seq_auth}
+\end{figure}
+
+Le \texttt{LoginServlet} reçoit la requête \texttt{POST /login} et délègue la
+vérification au \texttt{SecurityService}, qui interroge la table
+\texttt{SECURITY\_USERS} via l'\texttt{EntityManager}. Le fragment combiné
+\texttt{alt} distingue les deux issues : en cas de succès, l'\texttt{Utilisateur}
+métier est associé (ou créé), une session est ouverte et l'utilisateur est
+redirigé vers le tableau de bord ; en cas d'échec, un message d'erreur est
+renvoyé.
+
+\subsection{Créer une agence}
+La figure~\ref{fig:seq_agence} décrit le scénario de création d'une agence.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{seq_agence.png}
+  \caption{Diagramme de séquence -- Création d'une agence}
+  \label{fig:seq_agence}
+\end{figure}
+
+L'\texttt{AgenceServlet} reçoit la requête de création et délègue à
+l'\texttt{AgenceService}, qui persiste la nouvelle \texttt{Agence} via
+l'\texttt{EntityManager} (\texttt{INSERT}), puis recharge la liste des agences
+renvoyée à la page \texttt{agences.jsp}. Le même schéma s'applique aux opérations
+de modification et de suppression.
+
+\subsection{Gérer un client}
+La figure~\ref{fig:seq_client} décrit l'enregistrement et l'affectation d'un
+client.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{seq_client.png}
+  \caption{Diagramme de séquence -- Gestion d'un client}
+  \label{fig:seq_client}
+\end{figure}
+
+Le \texttt{ClientServlet} transmet la demande au \texttt{ClientService}, qui
+recherche le \texttt{Gestionnaire} concerné, associe le \texttt{Client} à ce
+dernier, puis le persiste via l'\texttt{EntityManager}. Le portefeuille mis à jour
+est renvoyé à la page \texttt{client.jsp}.
+
+\subsection{Pointer un employé}
+La figure~\ref{fig:seq_pointage} décrit le scénario de pointage.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.95\textwidth]{seq_pointage.png}
+  \caption{Diagramme de séquence -- Pointage d'un employé}
+  \label{fig:seq_pointage}
+\end{figure}
+
+Le \texttt{PointageServlet} transmet l'action au \texttt{PointageService}, qui
+recherche le pointage du jour. Le fragment \texttt{alt} distingue l'\texttt{INSERT}
+(premier pointage, statut \texttt{PRESENT}/\texttt{RETARD} au-delà de 9 h) de
+l'\texttt{UPDATE} (pointage déjà existant).
+
+\subsection{Valider une demande}
+La figure~\ref{fig:seq_demande} détaille le traitement d'une demande par
+l'administrateur.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{seq_demande.png}
+  \caption{Diagramme de séquence -- Validation d'une demande}
+  \label{fig:seq_demande}
+\end{figure}
+
+Le \texttt{GestionModificationsServlet} transmet la décision au service métier,
+qui charge la demande, met à jour son statut, persiste la modification puis
+journalise l'action via le \texttt{JournalService}.
+
+% ----------------------------------------------------------------------
+\section{Cycle de vie d'une demande}
+Les circuits de validation constituent un mécanisme transverse important. Leur
+comportement est modélisé par un diagramme d'états-transitions et un diagramme
+d'activité.
+
+\subsection{Diagramme d'états-transitions}
+La figure~\ref{fig:state_demande} modélise le cycle de vie d'une demande.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{state_demande.png}
+  \caption{Diagramme d'états-transitions -- Cycle de vie d'une demande}
+  \label{fig:state_demande}
+\end{figure}
+
+Une demande naît à l'état \texttt{EN\_ATTENTE}, passe en \texttt{EN\_COURS} lors de
+sa prise en charge, puis atteint un état final \texttt{EFFECTUE} ou
+\texttt{REFUSE}, en cohérence avec la contrainte de la table des demandes.
+
+\subsection{Diagramme d'activité}
+La figure~\ref{fig:activity_demande} représente le processus métier de traitement
+d'une demande.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{activity_demande.png}
+  \caption{Diagramme d'activité -- Traitement d'une demande}
+  \label{fig:activity_demande}
+\end{figure}
+
+Le directeur soumet une demande, notifiée à l'administrateur. Le nœud de décision
+oriente le flux : en cas de validation, le statut passe à \texttt{EFFECTUE} et la
+modification est appliquée ; en cas de refus, le statut passe à \texttt{REFUSE}
+avec un commentaire. Les deux branches convergent vers la journalisation et la
+notification du demandeur.
+
+\section*{Conclusion}
+Ce chapitre a défini l'architecture du système, son modèle de classes et les
+scénarios dynamiques de ses fonctionnalités clés. Le chapitre suivant présente la
+\textbf{réalisation} : l'environnement de travail et les interfaces de
+l'application.

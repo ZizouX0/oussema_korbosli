@@ -1,0 +1,277 @@
+% ================ CHAPITRE 5 — VOLET DÉCISIONNEL =====================
+\chapter{Volet décisionnel}
+\label{chap:decisionnel}
+
+\section*{Introduction}
+Ce chapitre présente le \textbf{volet décisionnel} de la solution. Il met en place
+une chaîne \textbf{ETL} qui consolide les données opérationnelles dans un
+\textbf{datamart}, restitue les indicateurs au moyen d'un tableau de bord embarqué
+et de rapports Power BI, puis introduit une brique d'\textbf{intelligence
+artificielle} : la segmentation des agences par apprentissage non supervisé.
+
+% ----------------------------------------------------------------------
+\section{Chaîne décisionnelle et processus ETL}
+Les données nécessaires au pilotage sont dispersées dans les tables opérationnelles
+et exprimées à des grains hétérogènes. Le processus \textbf{ETL} (\emph{Extract --
+Transform -- Load}) les consolide en un datamart agrégé par agence. La
+figure~\ref{fig:etl_chaine} présente cette chaîne décisionnelle.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{etl_chaine.png}
+  \caption{Chaîne décisionnelle : du système opérationnel au datamart et à sa restitution}
+  \label{fig:etl_chaine}
+\end{figure}
+
+Trois étapes s'enchaînent : \textbf{Extract} (lecture des sources
+\texttt{AGENCE}, \texttt{B\_UTILISATEURS}, \texttt{CLIENT\_BTK}, \texttt{B\_OBJECTIF},
+\texttt{POINTAGE}), \textbf{Transform} (nettoyage, typage et agrégation par agence)
+et \textbf{Load} (chargement du datamart en étoile). Ce datamart constitue une
+\textbf{source unique consolidée}, partagée par la restitution (tableau de bord et
+Power BI) et par la segmentation des agences présentée à la
+section~\ref{sec:segmentation}.
+
+% ----------------------------------------------------------------------
+\section{Modèle en étoile de l'entrepôt}
+L'entrepôt est organisé selon une logique en \textbf{étoile}
+(figure~\ref{fig:bi}) : autour de tables de faits (production, effectifs, clients,
+présence), des dimensions descriptives (agence, gestionnaire, période, type de
+client) permettent l'analyse multidimensionnelle. Les vues \texttt{V\_BI\_*}
+matérialisent cette couche sémantique pour l'outil de restitution.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.95\textwidth]{bi.png}
+  \caption{Modèle décisionnel en étoile (vues \texttt{V\_BI\_*})}
+  \label{fig:bi}
+\end{figure}
+
+Le tableau~\ref{tab:kpi} récapitule les principaux indicateurs (KPI) retenus.
+
+\begin{table}[htbp]
+\centering
+\caption{Indicateurs de performance (KPI) du volet décisionnel}
+\label{tab:kpi}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{4.2cm}Xp{2.6cm}}
+\toprule
+\textmd{\textbf{Indicateur}} & \textbf{Description} & \textbf{Source}\\
+\midrule
+Effectifs par agence & Nombre d'employés par agence & \texttt{V\_BI\_EMPLOYES}\\
+Répartition des rôles & Gestionnaires / conseillers / hors commercial & \texttt{V\_BI\_EMPLOYES}\\
+Portefeuille clients & Clients par type et par agence & \texttt{V\_BI\_CLIENTS}\\
+Ouvertures de comptes & Comptes chèques + épargne + courants & \texttt{V\_BI\_OBJECTIFS}\\
+Production de crédits & Conso, immobilier, investissement & \texttt{V\_BI\_OBJECTIFS}\\
+Collecte d'épargne & Épargne additionnelle collectée & \texttt{V\_BI\_OBJECTIFS}\\
+Taux de présence & Présents, retards et absences par agence et période & \texttt{V\_BI\_POINTAGE}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% ----------------------------------------------------------------------
+\section{Mise en œuvre de la chaîne ETL en Python}
+La chaîne ETL est implémentée en \textbf{Python} (script \texttt{etl\_agences.py})
+à l'aide de la bibliothèque \textbf{pandas}~\cite{pandas}. Elle est organisée en
+trois fonctions : \texttt{extract()} lit les données sources (connexion Oracle via
+le connecteur \texttt{oracledb} ou, à défaut, export CSV) ; \texttt{transform()}
+nettoie et \textbf{agrège les données par agence} pour produire les sept
+indicateurs de pilotage ; \texttt{load()} écrit le datamart en étoile
+(\texttt{dim\_agence}, \texttt{fait\_agence}) et le fichier réutilisé par la
+segmentation. L'extrait~\ref{lst:etl_transform} illustre le cœur de l'agrégation.
+
+\begin{lstlisting}[style=pycode,caption={Agrégation des indicateurs par agence (étape Transform)},label={lst:etl_transform}]
+# effectif et nombre de gestionnaires par agence
+eff = employes.groupby("SK_AGENCE").agg(
+    effectif=("SK_UTILISATEUR", "count"),
+    nb_gestionnaires=("EST_GESTIONNAIRE", "sum")).reset_index()
+# portefeuille clients
+cli = clients.groupby("SK_AGENCE").size().reset_index(name="nb_clients")
+# production (comptes, credits, epargne)
+obj = objectifs.groupby("SK_AGENCE").agg(
+    total_comptes=("COMPTES", "sum"),
+    production_credits=("CREDITS", "sum"),
+    collecte_epargne=("EPARGNE", "sum")).reset_index()
+# taux de presence issu du pointage
+poi = pointages.assign(
+        present=pointages["STATUT"].isin(["PRESENT", "RETARD"]).astype(int)) \
+    .groupby("SK_AGENCE").agg(taux_presence=("present", "mean")).reset_index()
+\end{lstlisting}
+
+L'exécution du script produit le datamart sous \texttt{etl/entrepot/}
+(\texttt{dim\_agence.csv}, \texttt{fait\_agence.csv}) ainsi que le fichier
+consolidé \texttt{clustering/data/agences.csv}. Le pipeline est \textbf{rejouable}
+et journalise le nombre d'enregistrements traités à chaque étape.
+
+% ----------------------------------------------------------------------
+\section{Tableau de bord et restitution Power BI}
+Le tableau de bord embarqué (\texttt{home.jsp}, alimenté par le
+\texttt{HomeServlet}) comporte une rangée de \textbf{cartes d'indicateurs}
+(employés, clients, présents du jour, taux de présence, demandes en attente) puis
+des \textbf{graphiques} ApexCharts (effectif par agence, répartition des rôles,
+présence du jour). En complément, les vues \texttt{V\_BI\_*} sont connectées à
+\textbf{Power BI} pour des rapports interactifs. La figure~\ref{fig:ui_dashboard}
+présente le tableau de bord embarqué.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{screens/dashboard.png}
+  \caption{Tableau de bord décisionnel embarqué de l'application}
+  \label{fig:ui_dashboard}
+\end{figure}
+
+% ----------------------------------------------------------------------
+\section{Segmentation des agences par apprentissage non supervisé}
+\label{sec:segmentation}
+Cette dernière section introduit une brique d'\textbf{intelligence artificielle} :
+la segmentation des agences par \textbf{apprentissage non supervisé}
+(\emph{clustering}). À partir du datamart produit par la chaîne ETL, elle regroupe
+automatiquement les agences en profils homogènes afin d'appuyer le ciblage,
+l'allocation des ressources et la définition d'objectifs différenciés.
+
+\subsection{Données et variables}
+Les données ne sont pas extraites directement de la base opérationnelle : elles
+proviennent du \textbf{datamart} produit par la chaîne ETL (table de faits
+\texttt{fait\_agence}). Chaque agence y est décrite par sept indicateurs agrégés
+(tableau~\ref{tab:variables_clustering}), ce qui garantit la cohérence entre le
+tableau de bord, Power BI et l'analyse non supervisée.
+
+\medskip\noindent\emph{Remarque.} En l'absence d'un export des données de
+production, la segmentation présentée ici est \textbf{illustrée sur un jeu de
+données représentatif} du réseau, généré par la chaîne ETL pour reproduire la
+structure et les ordres de grandeur des agences ; le pipeline bascule
+automatiquement sur les données réelles dès qu'un export est fourni
+(\texttt{etl/source/}). Les résultats ci-dessous illustrent donc la
+\emph{démarche} et restent reproductibles sur les données réelles.
+
+\begin{table}[htbp]
+\centering
+\caption{Variables de segmentation (par agence)}
+\label{tab:variables_clustering}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{4cm}X}
+\toprule
+\textmd{\textbf{Variable}} & \textbf{Description}\\
+\midrule
+effectif & Nombre d'employés de l'agence\\
+nb\_gestionnaires & Nombre de gestionnaires\\
+nb\_clients & Taille du portefeuille clients\\
+total\_comptes & Total des ouvertures de comptes\\
+production\_credits & Production de crédits\\
+collecte\_epargne & Collecte d'épargne\\
+taux\_presence & Taux de présence (issu du pointage)\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Prétraitement}
+Les variables étant exprimées dans des ordres de grandeur très différents (un
+effectif de quelques dizaines face à des milliers de comptes), une
+\textbf{standardisation} (centrage-réduction, \texttt{StandardScaler}) est
+appliquée. Sans elle, les variables de forte amplitude domineraient le calcul des
+distances et fausseraient le regroupement.
+
+\subsection{Détermination du nombre de clusters}
+Le nombre de clusters $k$ étant inconnu a priori, il est déterminé en combinant la
+\textbf{méthode du coude} (inertie intra-cluster) et le \textbf{score de
+silhouette} (figure~\ref{fig:choix_k}).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{clustering_choix_k.png}
+  \caption{Choix du nombre de clusters : méthode du coude et score de silhouette}
+  \label{fig:choix_k}
+\end{figure}
+
+Les deux indicateurs concordent : l'inertie présente un \textbf{coude marqué à
+$k=3$} et le score de silhouette y atteint son \textbf{maximum}
+($\approx 0{,}74$). La segmentation en \textbf{trois clusters} est donc retenue.
+
+\subsection{Comparaison des modèles de clustering}
+Quatre algorithmes ont été comparés : \textbf{K-Means}, \textbf{classification
+ascendante hiérarchique} (agglomératif), \textbf{modèle de mélange gaussien} (GMM)
+et \textbf{DBSCAN}, à l'aide de trois indices internes
+(tableau~\ref{tab:comparaison_clustering}, figure~\ref{fig:comparaison_clustering}).
+
+\begin{table}[htbp]
+\centering
+\caption{Comparaison des modèles de clustering}
+\label{tab:comparaison_clustering}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries}lcccc}
+\toprule
+\textmd{\textbf{Modèle}} & \textbf{Nb clusters} & \textbf{Silhouette $\uparrow$} &
+\textbf{Davies-Bouldin $\downarrow$} & \textbf{Calinski-Harabasz $\uparrow$}\\
+\midrule
+K-Means        & 3 & \textbf{0,736} & \textbf{0,350} & \textbf{391}\\
+Agglomératif   & 3 & 0,736 & 0,350 & 391\\
+GMM            & 3 & 0,736 & 0,350 & 391\\
+DBSCAN         & 3 & 0,736 & 0,350 & 391\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{clustering_comparaison.png}
+  \caption{Comparaison des modèles selon le score de silhouette}
+  \label{fig:comparaison_clustering}
+\end{figure}
+
+Les quatre algorithmes \textbf{convergent vers la même segmentation} : ils
+identifient les trois mêmes clusters et obtiennent des indices identiques
+(silhouette $0{,}736$, Davies-Bouldin $0{,}350$, Calinski-Harabasz $391$). Cette
+concordance, y compris pour des approches de nature différente (partitionnement,
+hiérarchique, probabiliste et à base de densité), confirme la \textbf{robustesse}
+des trois segments. Le \textbf{K-Means} est retenu : il atteint le meilleur score
+tout en restant simple et interprétable.
+
+\subsection{Résultats et interprétation}
+La figure~\ref{fig:clusters_pca} projette les agences dans le plan des deux
+premières composantes principales (PCA), colorées selon leur cluster ; la première
+composante, qui résume la \emph{taille} de l'agence, explique l'essentiel de la
+variance. Les trois segments sont nettement séparés.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.78\textwidth]{clustering_pca.png}
+  \caption{Segmentation des agences (K-Means) projetée par PCA}
+  \label{fig:clusters_pca}
+\end{figure}
+
+Le profil moyen de chaque segment (tableau~\ref{tab:profils_clusters}) permet de
+les caractériser.
+
+\begin{table}[htbp]
+\centering
+\caption{Profil moyen des segments d'agences}
+\label{tab:profils_clusters}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries}Xcccccc}
+\toprule
+\textmd{\textbf{Segment}} & \textbf{Nb} & \textbf{Effectif} & \textbf{Clients} &
+\textbf{Comptes} & \textbf{Prod. crédits} & \textbf{Présence}\\
+\midrule
+Grandes agences   & 7  & 116 & 908 & 2\,333 & 1\,734 & 0,98\\
+Moyennes agences  & 16 & 54  & 438 & 1\,076 & 823  & 0,94\\
+Petites agences   & 22 & 21  & 160 & 431  & 321  & 0,87\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+On distingue ainsi un segment de \textbf{grandes agences} (pôles majeurs à fort
+effectif et forte production), un segment d'\textbf{agences moyennes} (activité
+intermédiaire) et un segment de \textbf{petites agences} (effectif et activité
+réduits, taux de présence plus faible).
+
+\subsection{Apport décisionnel}
+Cette segmentation constitue un outil d'\textbf{aide à la décision} : elle permet
+d'adapter les actions à chaque profil --- allouer les ressources selon la taille,
+fixer des objectifs différenciés, accompagner spécifiquement les petites agences
+ou capitaliser sur les grandes. Elle prolonge le volet décisionnel et illustre
+l'apport de l'\textbf{intelligence artificielle} au pilotage du réseau.
+
+\section*{Conclusion}
+Ce chapitre a doté la solution d'un volet décisionnel complet : une chaîne ETL
+alimente un datamart consolidé, restitué par le tableau de bord et par Power BI,
+et exploité par une segmentation des agences qui fait émerger trois profils
+cohérents et exploitables pour la décision.

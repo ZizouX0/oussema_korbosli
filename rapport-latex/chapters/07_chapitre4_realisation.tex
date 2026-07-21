@@ -1,0 +1,159 @@
+% ===================== CHAPITRE 4 — RÉALISATION ======================
+\chapter{Réalisation}
+
+% --- macro locale : logo d'outil non flottant, légendé et numéroté ---
+\newcommand{\logofig}[3]{%  #1 = fichier (dossier logos/), #2 = hauteur, #3 = légende
+\par\medskip\noindent
+\begin{minipage}{\linewidth}\centering
+\includegraphics[height=#2]{logos/#1}\par\smallskip
+\captionof{figure}{#3}
+\end{minipage}\par\medskip}
+
+\section*{Introduction}
+Ce chapitre présente la \textbf{réalisation} de l'application. Il décrit d'abord
+l'environnement de travail --- matériel, logiciels et technologies mobilisés ---
+puis illustre, au moyen de captures d'écran, les principales interfaces
+développées.
+
+% ----------------------------------------------------------------------
+\section{Environnement de travail}
+
+\subsection{Environnement matériel}
+Le développement a été réalisé sur un poste de travail standard : ordinateur
+portable doté d'un processeur Intel Core~i5, de 16~Go de mémoire vive et du
+système d'exploitation Windows~11.
+
+\subsection{Outil de rédaction du rapport}
+Le présent rapport a été rédigé avec \textbf{\LaTeX}, système de composition de
+documents particulièrement adapté aux écrits scientifiques et techniques.
+\logofig{latex.png}{2.2cm}{Logo de « \LaTeX »}
+
+\subsection{Environnement logiciel}
+Plusieurs outils et technologies ont été mobilisés pour la réalisation du projet.
+
+\textbf{Java (JDK~21)} : langage et plateforme d'exécution sur lesquels repose
+l'ensemble de l'application.
+\logofig{java.png}{2.4cm}{Logo de « Java (JDK 21) »}
+
+\textbf{Jakarta EE~10} : ensemble de spécifications d'entreprise (Servlets, JSP,
+EJB, JPA) structurant l'application en couches.
+\logofig{jakartaee.png}{2.4cm}{Logo de « Jakarta EE »}
+
+\textbf{Hibernate} : implémentation de JPA assurant le mapping objet-relationnel
+entre les entités Java et la base Oracle.
+\logofig{hibernate.png}{2.2cm}{Logo de « Hibernate »}
+
+\textbf{Oracle Database} : système de gestion de base de données relationnelle
+hébergeant l'ensemble des données opérationnelles et les vues décisionnelles.
+\logofig{oracle.png}{1.6cm}{Logo d'« Oracle Database »}
+
+\textbf{WildFly / JBoss} : serveur d'applications Jakarta EE sur lequel
+l'application est déployée sous forme d'archive WAR.
+\logofig{wildfly.png}{2.2cm}{Logo de « WildFly / JBoss »}
+
+\textbf{Apache Maven} : outil de gestion des dépendances et d'automatisation du
+\emph{build} (production du WAR).
+\logofig{maven.png}{2cm}{Logo d'« Apache Maven »}
+
+\textbf{IntelliJ IDEA} : environnement de développement intégré utilisé pour le
+développement, le débogage et le déploiement de l'application.
+\logofig{intellij.png}{2.4cm}{Logo d'« IntelliJ IDEA »}
+
+\textbf{Git et GitHub} : système de gestion de versions et plateforme
+d'hébergement du code source.
+\par\medskip\noindent
+\begin{minipage}{\linewidth}\centering
+\includegraphics[height=2.2cm]{logos/git.png}\hspace{1.5cm}%
+\includegraphics[height=2.2cm]{logos/github.png}\par\smallskip
+\captionof{figure}{Logos de « Git » et « GitHub »}
+\end{minipage}\par\medskip
+
+\textbf{ApexCharts} : bibliothèque JavaScript de visualisation utilisée pour les
+graphiques du tableau de bord embarqué.
+\logofig{apexcharts.png}{2cm}{Logo d'« ApexCharts »}
+
+\textbf{Microsoft Power BI} : outil de \emph{reporting} décisionnel connecté aux
+vues analytiques de la base Oracle.
+\logofig{powerbi.png}{2.2cm}{Logo de « Microsoft Power BI »}
+
+\textbf{Python} : langage utilisé pour la chaîne \textbf{ETL} et la
+\textbf{segmentation} des agences, au moyen des bibliothèques \textbf{pandas}
+(manipulation des données) et \textbf{scikit-learn} (apprentissage automatique).
+\par\medskip\noindent
+\begin{minipage}{\linewidth}\centering
+\includegraphics[height=2.2cm]{logos/python.png}\hspace{1.2cm}%
+\includegraphics[height=2.2cm]{logos/pandas.png}\hspace{1.2cm}%
+\includegraphics[height=2.2cm]{logos/scikitlearn.png}\par\smallskip
+\captionof{figure}{Logos de « Python », « pandas » et « scikit-learn »}
+\end{minipage}\par\medskip
+
+% ----------------------------------------------------------------------
+\section{Interfaces de l'application}
+Cette section illustre les principales interfaces réalisées, présentées dans
+l'ordre des modules fonctionnels.
+
+\subsection{Authentification}
+La figure~\ref{fig:ui_login} présente la page d'authentification : l'utilisateur y
+saisit son identifiant et son mot de passe pour accéder à l'application.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{screens/login.png}
+  \caption{Interface d'authentification}
+  \label{fig:ui_login}
+\end{figure}
+
+\subsection{Gestion des agences et des employés}
+Les figures~\ref{fig:ui_agences} et~\ref{fig:ui_employes} illustrent les
+interfaces de gestion des agences et des employés.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{screens/agences.png}
+  \caption{Interface de gestion des agences (sélection et consultation des membres)}
+  \label{fig:ui_agences}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{screens/employes.png}
+  \caption{Interface de gestion des employés (ajout, filtres et liste)}
+  \label{fig:ui_employes}
+\end{figure}
+
+\subsection{Gestion des clients et des objectifs}
+Les figures~\ref{fig:ui_clients} et~\ref{fig:ui_objectifs} illustrent les
+interfaces de gestion des clients et de suivi des objectifs commerciaux.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{screens/clients.png}
+  \caption{Interface de gestion des clients (portefeuille BTK)}
+  \label{fig:ui_clients}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{screens/objectifs.png}
+  \caption{Suivi des objectifs commerciaux par agence et gestionnaire}
+  \label{fig:ui_objectifs}
+\end{figure}
+
+\subsection{Pointage des employés}
+La figure~\ref{fig:ui_pointage} présente l'interface du module de pointage : les
+cartes de synthèse (présents, retards, absents, taux de présence), le pointage du
+jour (boutons « Pointer l'arrivée / le départ ») et le formulaire de saisie ou de
+correction manuelle.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{screens/pointage.png}
+  \caption{Interface du module de pointage des employés}
+  \label{fig:ui_pointage}
+\end{figure}
+
+\section*{Conclusion}
+Ce chapitre a présenté l'environnement de travail et les interfaces réalisées pour
+les modules transactionnels de l'application. Le chapitre suivant est consacré au
+\textbf{volet décisionnel} : la chaîne ETL, le tableau de bord, les rapports Power
+BI et la segmentation des agences.
