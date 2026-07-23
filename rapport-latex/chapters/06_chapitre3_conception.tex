@@ -91,6 +91,95 @@ certaines sont implémentées par des clés étrangères et d'autres par des rel
 JPA explicites.
 
 % ----------------------------------------------------------------------
+\section{Modèle physique de données}
+Au modèle de classes correspond, au niveau de la base de données, un
+\textbf{schéma relationnel} : chaque entité persistante est traduite en une table
+Oracle, chaque attribut en une colonne et chaque association en une \textbf{clé
+étrangère}. La figure~\ref{fig:er} présente ce schéma relationnel, obtenu par
+\emph{mapping} objet-relationnel (JPA/Hibernate) à partir des entités du domaine.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{er.png}
+  \caption{Schéma relationnel de la base de données}
+  \label{fig:er}
+\end{figure}
+
+La table \texttt{AGENCE} constitue le référentiel central autour duquel gravitent
+les employés (\texttt{B\_UTILISATEURS}), les clients (\texttt{B\_CLIENTS}) et les
+objectifs (\texttt{B\_OBJECTIF}), reliés par la clé \texttt{SK\_AGENCE}. La table
+\texttt{B\_UTILISATEURS} est à son tour référencée par les pointages, les demandes
+et le journal d'audit. Le tableau~\ref{tab:tables} décrit le rôle des principales
+tables du schéma.
+
+\begin{table}[htbp]
+\centering
+\caption{Description des principales tables de la base}
+\label{tab:tables}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{>{\bfseries\ttfamily}p{3.6cm}Xp{2.8cm}}
+\toprule
+\textmd{\textbf{Table}} & \textbf{Rôle} & \textbf{Clé primaire}\\
+\midrule
+AGENCE & Référentiel des agences du réseau (libellé, adresse, district). & \texttt{SK\_AGENCE}\\
+B\_UTILISATEURS & Employés et utilisateurs de l'application. & \texttt{SK\_UTILISATEUR}\\
+B\_CLIENTS & Portefeuille clients (type, statut, secteur, adresse). & \texttt{SK\_CLIENT}\\
+B\_OBJECTIF & Objectifs commerciaux et production par période. & \texttt{ID\_OBJECTIF}\\
+POINTAGE & Pointages de présence des employés. & \texttt{ID\_POINTAGE}\\
+GESTIONNAIRE & Gestionnaires et rattachement de portefeuille. & \texttt{SK\_UTILISATEUR}\\
+SECURITY\_USERS & Comptes, mots de passe et rôles (sécurité). & \texttt{ID}\\
+DEMANDE\_CLIENT & Demandes de création de clients. & \texttt{ID\_DEMANDE}\\
+DEMANDE\_EMPLOYE & Demandes de création d'employés. & \texttt{ID\_DEMANDE}\\
+DEMANDES\_MODIF. & Demandes de modification de données. & \texttt{ID}\\
+JOURNAL\_ACTION & Journal d'audit des actions. & \texttt{ID\_JOURNAL}\\
+NOTIFICATION & Notifications adressées aux utilisateurs. & \texttt{ID}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% ----------------------------------------------------------------------
+\section{Sécurité et contrôle d'accès}
+La sécurité de l'application repose sur trois mécanismes complémentaires :
+l'authentification, la gestion des rôles et le filtrage des requêtes.
+
+\subsection{Authentification et session}
+Les comptes sont stockés dans la table \texttt{SECURITY\_USERS} (identifiant, mot
+de passe et rôle). Le \texttt{LoginServlet} délègue la vérification au
+\texttt{SecurityService} ; en cas de succès, une \texttt{HttpSession} est ouverte
+et l'\texttt{Utilisateur} métier correspondant y est associé. Le filtre
+\texttt{NotificationFilter} intercepte ensuite les requêtes pour vérifier la
+présence d'une session valide avant tout accès aux pages protégées, et redirige
+vers la page de connexion dans le cas contraire.
+
+\subsection{Rôles et matrice des droits}
+Trois rôles structurent les droits d'accès. Le tableau~\ref{tab:permissions}
+présente la matrice des permissions par fonctionnalité.
+
+\begin{table}[htbp]
+\centering
+\caption{Matrice des droits d'accès par rôle}
+\label{tab:permissions}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{Xccc}
+\toprule
+\textbf{Fonctionnalité} & \textbf{ADMIN} & \textbf{DIR. COMM.} & \textbf{USER}\\
+\midrule
+Gestion des agences, employés, clients & Oui & Non & Non\\
+Validation des demandes & Oui & Modif. employés & Non\\
+Soumission de demandes & Oui & Oui & Ses informations\\
+Consultation des objectifs et indicateurs & Oui & Oui & Autorisé\\
+Pointage de présence & Oui & Oui & Oui\\
+Supervision du volet décisionnel & Oui & Non & Non\\
+Consultation du journal d'audit & Oui & Non & Non\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Ce cloisonnement garantit qu'un utilisateur ne peut accéder qu'aux fonctionnalités
+autorisées par son rôle : une tentative d'accès direct à une ressource réservée
+est bloquée par le contrôle de session et de rôle.
+
+% ----------------------------------------------------------------------
 \section{Diagrammes de séquence}
 Les diagrammes de séquence décrivent le déroulement dynamique des principales
 fonctionnalités, en montrant les échanges entre la couche de présentation, les

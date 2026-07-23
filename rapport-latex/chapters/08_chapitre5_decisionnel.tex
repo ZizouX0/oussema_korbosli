@@ -70,6 +70,34 @@ Taux de présence & Présents, retards et absences par agence et période & \tex
 
 % ----------------------------------------------------------------------
 \section{Mise en œuvre de la chaîne ETL en Python}
+
+\subsection{Export des données sources}
+La chaîne ETL peut se connecter directement à Oracle ou, à défaut, consommer des
+fichiers CSV. Pour ce second mode, un script \textbf{SQLcl}
+(\texttt{etl/export\_sources.sql}) exporte les cinq tables sources vers des CSV
+horodatés (extrait~\ref{lst:export}). Chaque \texttt{SPOOL} redirige le résultat
+d'une requête vers un fichier, placé ensuite dans \texttt{etl/source/}.
+
+\begin{lstlisting}[style=pycode,language=SQL,caption={Export des sources vers CSV (SQLcl)},label={lst:export}]
+SET SQLFORMAT CSV
+SPOOL agences.csv
+SELECT SK_AGENCE, LIBELLE_AGENCE, DISTRICT FROM AGENCE;
+SPOOL OFF
+
+SPOOL objectifs.csv
+SELECT SK_AGENCE,
+       NVL(SOUSCRIPTION_COMPTE_CHEQUES_OA,0)
+         + NVL(SOUSCRIPTION_COMPTE_EPARGNES_OA,0)
+         + NVL(SOUSCRIPTION_COMPTE_COURANTS_OA,0) AS COMPTES,
+       NVL(PRODUCTION_CREDITS_CONSO_OA,0)
+         + NVL(PRODUCTION_CREDITS_IMMO_OA,0)
+         + NVL(PRODUCTION_CREDITS_INVESTISSEMENT_OA,0) AS CREDITS,
+       NVL(EPARGNE_ADD_OA,0) AS EPARGNE
+FROM   B_OBJECTIF;
+SPOOL OFF
+\end{lstlisting}
+
+\subsection{Agrégation et chargement}
 La chaîne ETL est implémentée en \textbf{Python} (script \texttt{etl\_agences.py})
 à l'aide de la bibliothèque \textbf{pandas}~\cite{pandas}. Elle est organisée en
 trois fonctions : \texttt{extract()} lit les données sources (connexion Oracle via
@@ -118,6 +146,101 @@ présente le tableau de bord embarqué.
   \caption{Tableau de bord décisionnel embarqué de l'application}
   \label{fig:ui_dashboard}
 \end{figure}
+
+% ----------------------------------------------------------------------
+\section{Rapport décisionnel sous Power BI}
+Au-delà du tableau de bord embarqué, un \textbf{rapport décisionnel dédié} a été
+développé sous \textbf{Microsoft Power BI}, connecté aux données consolidées. Il
+est organisé en \textbf{quatre pages} analytiques thématiques --- \emph{Résumé},
+\emph{Clients}, \emph{Commercial} et \emph{Présence} --- reliées par une barre de
+navigation, chacune munie de \textbf{segments} de filtrage (district, période,
+type de client) qui recalculent l'ensemble des visuels d'un simple clic. La
+\textbf{page de synthèse} (\emph{Résumé}) regroupe les indicateurs clés du réseau
+(clients, production de crédits, taux de présence, ouvertures de comptes), la
+répartition des rôles et des présences, l'évolution mensuelle de la production et
+un classement des agences. Les trois pages suivantes approfondissent
+respectivement l'analyse des clients, la performance commerciale et l'assiduité.
+
+\subsection{Indicateurs et mesures (DAX)}
+Les indicateurs restitués sont calculés au moyen de \textbf{mesures DAX} définies
+sur le modèle de données. Le tableau~\ref{tab:dax} en récapitule les principales.
+
+\begin{table}[htbp]
+\centering
+\caption{Principales mesures DAX du rapport Power BI}
+\label{tab:dax}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3.8cm}X}
+\toprule
+\textmd{\textbf{Mesure}} & \textbf{Définition}\\
+\midrule
+Nb Employés & Nombre distinct d'employés (\texttt{SK\_UTILISATEUR}).\\
+Nb Clients & Nombre distinct de clients (\texttt{SK\_CLIENT}).\\
+Total Comptes & Somme des ouvertures de comptes (chèques + épargne + courants).\\
+Total Crédits & Somme de la production de crédits (conso + immobilier + investissement).\\
+Total Épargne & Épargne additionnelle collectée.\\
+Total Packs \& Cartes & Souscriptions de packs (particulier, pro) et de cartes.\\
+Taux Présence & Part des pointages au statut « présent » ou « retard ».\\
+Nb Présences / Retards / Absences & Nombre de pointages par statut.\\
+Rôle \emph{(colonne calculée)} & Gestionnaire / Conseiller / Hors commercial, selon \texttt{EST\_GESTIONNAIRE} et l'agence.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Analyse des clients}
+La page \emph{Clients} (figure~\ref{fig:pbi_clients}) segmente le portefeuille selon
+plusieurs axes : le \textbf{type de client}, le \textbf{sexe}, la \textbf{région}
+et le \textbf{gouvernorat} (histogramme des principaux gouvernorats), complétés par
+un classement des agences selon leur nombre de clients. Elle offre une lecture
+\textbf{géographique et démographique} du portefeuille, absente du tableau de bord
+opérationnel.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{screens/pbi_clients.png}
+  \caption{Rapport Power BI --- page « Clients » (segmentation et territoire)}
+  \label{fig:pbi_clients}
+\end{figure}
+
+\subsection{Performance commerciale}
+La page \emph{Commercial} (figure~\ref{fig:pbi_commercial}) détaille les
+\textbf{objectifs} : les ouvertures de comptes par type, la production de crédits
+par nature, l'effort d'équipement (EER), l'\textbf{évolution mensuelle} de la
+production et un classement des agences par production. Elle constitue l'outil de
+\textbf{pilotage commercial} du réseau.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{screens/pbi_commercial.png}
+  \caption{Rapport Power BI --- page « Commercial » (objectifs et production)}
+  \label{fig:pbi_commercial}
+\end{figure}
+
+\subsection{Suivi de la présence}
+La page \emph{Présence} (figure~\ref{fig:pbi_presence}) suit l'\textbf{assiduité}
+des employés : le taux de présence, la répartition des statuts (présent, retard,
+absent) et de la source de pointage (automatique, manuel), l'\textbf{évolution
+mensuelle} du taux de présence et la liste des \textbf{agences à surveiller}
+(présence la plus faible). Elle prolonge le module de pointage par une vue
+\textbf{ressources humaines} consolidée.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{screens/pbi_presence.png}
+  \caption{Rapport Power BI --- page « Présence » (assiduité et suivi RH)}
+  \label{fig:pbi_presence}
+\end{figure}
+
+\subsection{Navigation et interactivité}
+Les quatre pages sont reliées par un \textbf{navigateur} qui joue le rôle de menu.
+Chaque page est équipée de \textbf{segments} (district, période, type de client)
+et d'un bouton \textbf{RÉINITIALISER} : un clic sur une valeur recalcule
+instantanément l'ensemble des visuels de la page (\emph{filtrage croisé}), et la
+sélection d'une part d'un graphique filtre à son tour les autres. Cette
+\textbf{interactivité} transforme le rapport en un véritable outil d'exploration :
+le décideur peut, par exemple, isoler un district puis observer simultanément le
+portefeuille, la production et l'assiduité correspondants. Un \textbf{thème
+sombre} homogène assure la lisibilité et la cohérence visuelle de l'ensemble.
 
 % ----------------------------------------------------------------------
 \section{Segmentation des agences par apprentissage non supervisé}
@@ -265,10 +388,32 @@ réduits, taux de présence plus faible).
 
 \subsection{Apport décisionnel}
 Cette segmentation constitue un outil d'\textbf{aide à la décision} : elle permet
-d'adapter les actions à chaque profil --- allouer les ressources selon la taille,
-fixer des objectifs différenciés, accompagner spécifiquement les petites agences
-ou capitaliser sur les grandes. Elle prolonge le volet décisionnel et illustre
-l'apport de l'\textbf{intelligence artificielle} au pilotage du réseau.
+d'adapter les actions à chaque profil. Le tableau~\ref{tab:reco} décline des
+recommandations de pilotage par segment.
+
+\begin{table}[htbp]
+\centering
+\caption{Recommandations de pilotage par segment}
+\label{tab:reco}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3.4cm}X}
+\toprule
+\textmd{\textbf{Segment}} & \textbf{Recommandations}\\
+\midrule
+Grandes agences & Capitaliser sur la performance ; fixer des objectifs ambitieux ;
+en faire des agences de référence et diffuser leurs bonnes pratiques.\\
+Moyennes agences & Fort potentiel de croissance ; renforcer l'effort d'équipement
+(EER) et la collecte ; assigner des objectifs progressifs.\\
+Petites agences & Accompagnement ciblé ; suivi rapproché de l'assiduité (taux de
+présence plus faible) ; mutualisation des ressources et montée en compétence.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+En résumé, la segmentation permet d'\textbf{allouer les ressources} selon la
+taille, de \textbf{différencier les objectifs} et d'\textbf{accompagner
+spécifiquement} les agences les plus fragiles. Elle prolonge le volet décisionnel
+et illustre l'apport de l'\textbf{intelligence artificielle} au pilotage du réseau.
 
 \section*{Conclusion}
 Ce chapitre a doté la solution d'un volet décisionnel complet : une chaîne ETL

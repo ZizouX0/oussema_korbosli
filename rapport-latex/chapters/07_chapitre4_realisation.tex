@@ -152,8 +152,78 @@ correction manuelle.
   \label{fig:ui_pointage}
 \end{figure}
 
+% ----------------------------------------------------------------------
+\section{Déploiement de l'application}
+L'application est packagée par \textbf{Maven} sous forme d'une archive web
+\texttt{gestion-agences.war}, puis déployée sur le serveur d'applications
+\textbf{WildFly}. La persistance repose sur une \textbf{unité de persistance JPA}
+de type \texttt{JTA}, qui accède à la base Oracle via la source de données
+\texttt{java:/OracleDS} déclarée sur le serveur. Le fichier \texttt{persistence.xml}
+(extrait~\ref{lst:persistence}) déclare les entités du domaine et la connexion à la
+base \texttt{FREEPDB1}.
+
+\begin{lstlisting}[style=pycode,language=XML,caption={Configuration de la persistance (persistence.xml)},label={lst:persistence}]
+<persistence-unit name="default" transaction-type="JTA">
+    <jta-data-source>java:/OracleDS</jta-data-source>
+    <class>entity.Utilisateur</class>
+    <class>entity.Agence</class>
+    <class>entity.BClient</class>
+    <class>entity.Objectif</class>
+    <class>entity.Pointage</class>
+    <class>entity.Gestionnaire</class>
+    <!-- ... autres entites ... -->
+    <properties>
+        <property name="jakarta.persistence.jdbc.driver" value="oracle.jdbc.OracleDriver"/>
+        <property name="jakarta.persistence.jdbc.url"
+                  value="jdbc:oracle:thin:@localhost:1521/FREEPDB1"/>
+        <property name="hibernate.dialect" value="org.hibernate.dialect.OracleDialect"/>
+        <property name="hibernate.hbm2ddl.auto" value="none"/>
+    </properties>
+</persistence-unit>
+\end{lstlisting}
+
+Le paramètre \texttt{hibernate.hbm2ddl.auto = none} indique que le schéma de la base
+est géré par les scripts SQL d'initialisation (annexe) et non régénéré par
+Hibernate, garantissant la maîtrise de la structure de la base en production.
+
+% ----------------------------------------------------------------------
+\section{Tests et validation}
+Afin de garantir la conformité de l'application aux besoins spécifiés, des
+\textbf{tests fonctionnels} ont été menés au fil du développement, module par
+module. Chaque fonctionnalité livrée a été éprouvée à travers des scénarios
+nominaux et des cas limites (identifiants invalides, accès non autorisé, pointage
+tardif), puis validée avec l'encadrement. Le tableau~\ref{tab:tests} récapitule
+les principaux scénarios de test et leur résultat.
+
+\begin{table}[htbp]
+\centering
+\caption{Principaux scénarios de test fonctionnel}
+\label{tab:tests}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{2.7cm}Xp{1.9cm}}
+\toprule
+\textmd{\textbf{Module}} & \textbf{Scénario testé} & \textbf{Résultat}\\
+\midrule
+Authentification & Connexion avec des identifiants valides puis invalides. & Conforme\\
+Rôles & Accès à une fonction réservée à l'\texttt{ADMIN} par un \texttt{USER}. & Conforme\\
+Agences & Création, modification et suppression d'une agence. & Conforme\\
+Employés & Ajout d'un employé et rattachement à une agence. & Conforme\\
+Clients & Affectation d'un client à un gestionnaire. & Conforme\\
+Objectifs & Consultation de la production par agence et période. & Conforme\\
+Pointage & Pointage au-delà de 9~h (détermination du statut). & Conforme (\texttt{RETARD})\\
+Demandes & Validation puis refus d'une demande avec journalisation. & Conforme\\
+ETL & Exécution du pipeline et production du datamart. & Conforme\\
+Décisionnel & Filtrage par district dans le rapport Power BI. & Conforme\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+L'ensemble des scénarios a produit le comportement attendu, ce qui confirme la
+\textbf{conformité fonctionnelle} de la solution aux besoins exprimés au
+chapitre~2.
+
 \section*{Conclusion}
-Ce chapitre a présenté l'environnement de travail et les interfaces réalisées pour
-les modules transactionnels de l'application. Le chapitre suivant est consacré au
-\textbf{volet décisionnel} : la chaîne ETL, le tableau de bord, les rapports Power
-BI et la segmentation des agences.
+Ce chapitre a présenté l'environnement de travail, les interfaces réalisées et la
+validation fonctionnelle des modules transactionnels de l'application. Le chapitre
+suivant est consacré au \textbf{volet décisionnel} : la chaîne ETL, le tableau de
+bord, les rapports Power BI et la segmentation des agences.
