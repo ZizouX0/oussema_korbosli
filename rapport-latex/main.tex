@@ -37,6 +37,16 @@
 \usepackage{multirow}
 \usepackage{enumitem}
 \usepackage{ragged2e}
+\usepackage{float}
+% Placement des flottants : réduit les grands espaces blancs (les figures se
+% placent au plus près de leur appel et remplissent mieux les pages).
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.72}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{6}
 % Colonnes X en alignement « ragged right » : évite l'étirement et les
 % débordements dus aux identifiants de code (\texttt) dans les tableaux.
 \renewcommand{\tabularxcolumn}[1]{>{\RaggedRight\arraybackslash}p{#1}}
@@ -62,7 +72,7 @@
 % ---- Style des titres de chapitre ----
 \usepackage{titlesec}
 \titleformat{\chapter}[display]
-  {\normalfont\huge\bfseries\color{btkblue}}
+  {\normalfont\huge\bfseries\color{black}}
   {\chaptertitlename\ \thechapter}{16pt}{\Huge}
 \titlespacing*{\chapter}{0pt}{0pt}{24pt}
 
@@ -141,10 +151,10 @@ Scénario nominal & #7\\
 \input{chapters/08_chapitre5_decisionnel}  % Ch.5 — Volet décisionnel
 \input{chapters/12_conclusion}             % Conclusion générale
 
-% ============================ NÉTOGRAPHIE =============================
+% ============================ BIBLIOGRAPHIE ==========================
 \cleardoublepage
-\renewcommand{\bibname}{Nétographie}
-\addcontentsline{toc}{chapter}{Nétographie}
+\renewcommand{\bibname}{Bibliographie}
+\addcontentsline{toc}{chapter}{Bibliographie}
 \nocite{*}
 \bibliographystyle{ieeetr}
 \bibliography{references}

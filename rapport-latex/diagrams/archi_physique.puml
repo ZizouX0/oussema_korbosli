@@ -25,7 +25,7 @@ node "Serveur d'applications\nWildFly / JBoss" as S {
 node "Serveur de base de données" as DBS {
   database "Oracle\n(FREEPDB1)" as DB
 }
-C --> S : HTTP / HTTPS
-S --> DBS : JDBC (datasource JTA OracleDS)
-P --> DBS : connexion Oracle (vues V_BI_*)
+C <--> S : HTTP / HTTPS
+S <--> DBS : JDBC (datasource JTA OracleDS)
+P <--> DBS : connexion Oracle (vues V_BI_*)
 @enduml

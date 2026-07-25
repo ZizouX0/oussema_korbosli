@@ -96,7 +96,7 @@ l'ordre des modules fonctionnels.
 La figure~\ref{fig:ui_login} présente la page d'authentification : l'utilisateur y
 saisit son identifiant et son mot de passe pour accéder à l'application.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{screens/login.png}
   \caption{Interface d'authentification}
@@ -107,14 +107,14 @@ saisit son identifiant et son mot de passe pour accéder à l'application.
 Les figures~\ref{fig:ui_agences} et~\ref{fig:ui_employes} illustrent les
 interfaces de gestion des agences et des employés.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{screens/agences.png}
   \caption{Interface de gestion des agences (sélection et consultation des membres)}
   \label{fig:ui_agences}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{screens/employes.png}
   \caption{Interface de gestion des employés (ajout, filtres et liste)}
@@ -125,14 +125,14 @@ interfaces de gestion des agences et des employés.
 Les figures~\ref{fig:ui_clients} et~\ref{fig:ui_objectifs} illustrent les
 interfaces de gestion des clients et de suivi des objectifs commerciaux.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{screens/clients.png}
   \caption{Interface de gestion des clients (portefeuille BTK)}
   \label{fig:ui_clients}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{screens/objectifs.png}
   \caption{Suivi des objectifs commerciaux par agence et gestionnaire}
@@ -145,7 +145,7 @@ cartes de synthèse (présents, retards, absents, taux de présence), le pointag
 jour (boutons « Pointer l'arrivée / le départ ») et le formulaire de saisie ou de
 correction manuelle.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{screens/pointage.png}
   \caption{Interface du module de pointage des employés}
@@ -158,33 +158,14 @@ L'application est packagée par \textbf{Maven} sous forme d'une archive web
 \texttt{gestion-agences.war}, puis déployée sur le serveur d'applications
 \textbf{WildFly}. La persistance repose sur une \textbf{unité de persistance JPA}
 de type \texttt{JTA}, qui accède à la base Oracle via la source de données
-\texttt{java:/OracleDS} déclarée sur le serveur. Le fichier \texttt{persistence.xml}
-(extrait~\ref{lst:persistence}) déclare les entités du domaine et la connexion à la
-base \texttt{FREEPDB1}.
+\texttt{java:/OracleDS} déclarée sur le serveur. L'unité de persistance déclare
+les entités du domaine (Utilisateur, Agence, Client, Objectif, Pointage,
+Gestionnaire\ldots), le pilote \texttt{oracle.jdbc.OracleDriver} et la connexion à
+la base \texttt{FREEPDB1}, ainsi que le dialecte Hibernate pour Oracle.
 
-\begin{lstlisting}[style=pycode,language=XML,caption={Configuration de la persistance (persistence.xml)},label={lst:persistence}]
-<persistence-unit name="default" transaction-type="JTA">
-    <jta-data-source>java:/OracleDS</jta-data-source>
-    <class>entity.Utilisateur</class>
-    <class>entity.Agence</class>
-    <class>entity.BClient</class>
-    <class>entity.Objectif</class>
-    <class>entity.Pointage</class>
-    <class>entity.Gestionnaire</class>
-    <!-- ... autres entites ... -->
-    <properties>
-        <property name="jakarta.persistence.jdbc.driver" value="oracle.jdbc.OracleDriver"/>
-        <property name="jakarta.persistence.jdbc.url"
-                  value="jdbc:oracle:thin:@localhost:1521/FREEPDB1"/>
-        <property name="hibernate.dialect" value="org.hibernate.dialect.OracleDialect"/>
-        <property name="hibernate.hbm2ddl.auto" value="none"/>
-    </properties>
-</persistence-unit>
-\end{lstlisting}
-
-Le paramètre \texttt{hibernate.hbm2ddl.auto = none} indique que le schéma de la base
-est géré par les scripts SQL d'initialisation (annexe) et non régénéré par
-Hibernate, garantissant la maîtrise de la structure de la base en production.
+Le schéma de la base est \textbf{géré par les scripts SQL d'initialisation} et non
+régénéré automatiquement par Hibernate, ce qui garantit la maîtrise de la
+structure de la base en production.
 
 % ----------------------------------------------------------------------
 \section{Tests et validation}

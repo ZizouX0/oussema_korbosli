@@ -1,134 +1,49 @@
 % ============================ ANNEXES =================================
 \chapter{Annexes}
 
-Cette annexe rassemble des extraits du code réel du projet : la chaîne ETL, la
-segmentation par apprentissage automatique et une vue décisionnelle SQL.
+Cette annexe présente l'organisation du code du projet et les composants qui le
+constituent.
 
 % ---------------------------------------------------------------------
-\section{Chaîne ETL --- extraction, transformation, chargement (Python)}
-Extraits du script \texttt{etl/etl\_agences.py}. La fonction \texttt{extract\_oracle}
-lit les tables opérationnelles ; \texttt{transform} agrège les indicateurs par
-agence ; \texttt{load} écrit le datamart en étoile.
+\section{Organisation du code du projet}
+Le projet est structuré en modules distincts, du cœur applicatif Jakarta~EE à la
+chaîne décisionnelle. Le tableau~\ref{tab:modules} récapitule les principaux
+composants et leur rôle.
 
-\begin{lstlisting}[style=pycode,language=Python,caption={Extraction des sources depuis Oracle}]
-def extract_oracle(dsn=None, user=None, password=None):
-    import oracledb
-    cn = oracledb.connect(
-        user=user or os.environ.get("BTK_DB_USER", "system"),
-        password=password or os.environ.get("BTK_DB_PWD", ""),
-        dsn=dsn or os.environ.get("BTK_DB_DSN", "localhost:1521/FREEPDB1"))
-    ag  = pd.read_sql("SELECT SK_AGENCE, LIBELLE_AGENCE, DISTRICT FROM AGENCE", cn)
-    emp = pd.read_sql("SELECT SK_UTILISATEUR, SK_AGENCE, EST_GESTIONNAIRE "
-                      "FROM B_UTILISATEURS", cn)
-    cli = pd.read_sql("SELECT SK_CLIENT, SK_AGENCE FROM CLIENT_BTK", cn)
-    obj = pd.read_sql(
-        "SELECT SK_AGENCE, "
-        "  NVL(SOUSCRIPTION_COMPTE_CHEQUES_OA,0)+NVL(SOUSCRIPTION_COMPTE_EPARGNES_OA,0)"
-        "  +NVL(SOUSCRIPTION_COMPTE_COURANTS_OA,0) AS COMPTES, "
-        "  NVL(PRODUCTION_CREDITS_CONSO_OA,0)+NVL(PRODUCTION_CREDITS_IMMO_OA,0)"
-        "  +NVL(PRODUCTION_CREDITS_INVESTISSEMENT_OA,0) AS CREDITS, "
-        "  NVL(EPARGNE_ADD_OA,0) AS EPARGNE FROM B_OBJECTIF", cn)
-    poi = pd.read_sql("SELECT P.SK_UTILISATEUR, U.SK_AGENCE, P.STATUT "
-                      "FROM POINTAGE P JOIN B_UTILISATEURS U "
-                      "ON P.SK_UTILISATEUR = U.SK_UTILISATEUR", cn)
-    cn.close()
-    return ag, emp, cli, obj, poi
-\end{lstlisting}
-
-\begin{lstlisting}[style=pycode,language=Python,caption={Transformation (agrégation par agence) et chargement du datamart}]
-def transform(agences, employes, clients, objectifs, pointages):
-    eff = employes.groupby("SK_AGENCE").agg(
-        effectif=("SK_UTILISATEUR", "count"),
-        nb_gestionnaires=("EST_GESTIONNAIRE", "sum")).reset_index()
-    cli = clients.groupby("SK_AGENCE").size().reset_index(name="nb_clients")
-    obj = objectifs.groupby("SK_AGENCE").agg(
-        total_comptes=("COMPTES", "sum"),
-        production_credits=("CREDITS", "sum"),
-        collecte_epargne=("EPARGNE", "sum")).reset_index()
-    poi = pointages.assign(
-            present=pointages["STATUT"].isin(["PRESENT", "RETARD"]).astype(int)) \
-        .groupby("SK_AGENCE").agg(taux_presence=("present", "mean")).reset_index()
-    dm = agences.merge(eff, on="SK_AGENCE", how="left") \
-                .merge(cli, on="SK_AGENCE", how="left") \
-                .merge(obj, on="SK_AGENCE", how="left") \
-                .merge(poi, on="SK_AGENCE", how="left")
-    return dm.rename(columns={"LIBELLE_AGENCE": "agence"})
-
-def load(dm):
-    dim_agence  = dm[["SK_AGENCE", "agence", "DISTRICT"]]
-    fait_agence = dm[["SK_AGENCE"] + FEATURES]
-    dim_agence.to_csv(os.path.join(ENTREPOT, "dim_agence.csv"), index=False)
-    fait_agence.to_csv(os.path.join(ENTREPOT, "fait_agence.csv"), index=False)
-    dm[["agence"] + FEATURES].to_csv(DATAMART, index=False)
-\end{lstlisting}
+\begin{table}[htbp]
+\centering
+\caption{Principaux modules du projet}
+\label{tab:modules}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries\ttfamily}p{3.6cm}X}
+\toprule
+\textmd{\textbf{Module}} & \textbf{Rôle}\\
+\midrule
+entity & Entités JPA du domaine (Utilisateur, Agence, Client, Objectif, Pointage\ldots).\\
+servlet & Couche de contrôle (servlets et filtre de sécurité).\\
+service & Couche métier (services applicatifs).\\
+*.jsp & Couche de présentation (interfaces et tableau de bord embarqué).\\
+sql/ & Scripts d'initialisation des tables et vues décisionnelles \texttt{V\_BI\_*}.\\
+etl/ & Chaîne ETL en Python (agrégation des indicateurs par agence).\\
+clustering/ & Segmentation des agences en Python (scikit-learn).\\
+powerbi/ & Thème et rapport décisionnel Power BI.\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 % ---------------------------------------------------------------------
-\section{Segmentation des agences (Python, scikit-learn)}
-Extraits du script \texttt{clustering/segmentation\_agences.py} : la standardisation
-des variables et la détermination du nombre optimal de clusters (méthode du coude
-combinée au score de silhouette).
-
-\begin{lstlisting}[style=pycode,language=Python,caption={Choix du nombre de clusters (coude + silhouette)}]
-from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
-
-X = StandardScaler().fit_transform(df[FEATURES])   # centrage-reduction
-
-def choisir_k(X, kmax=8):
-    ks = list(range(2, kmax + 1))
-    inerties, silhouettes = [], []
-    for k in ks:
-        km = KMeans(n_clusters=k, n_init=10, random_state=42).fit(X)
-        inerties.append(km.inertia_)                # methode du coude
-        silhouettes.append(silhouette_score(X, km.labels_))
-    return ks[int(np.argmax(silhouettes))]          # k au meilleur silhouette
-\end{lstlisting}
-
-\begin{lstlisting}[style=pycode,language=Python,caption={Comparaison des modèles et profilage des segments}]
-modeles = {
-    "K-Means":      KMeans(n_clusters=k, n_init=10, random_state=42),
-    "Agglomeratif": AgglomerativeClustering(n_clusters=k),
-    "GMM":          GaussianMixture(n_components=k, random_state=42),
-    "DBSCAN":       DBSCAN(eps=1.2, min_samples=3),
-}
-for nom, modele in modeles.items():
-    labels = modele.fit_predict(X)
-    sil = silhouette_score(X, labels)
-    db  = davies_bouldin_score(X, labels)
-    ch  = calinski_harabasz_score(X, labels)
-    print(nom, round(sil, 3), round(db, 3), round(ch))
-# profil moyen de chaque segment
-df["cluster"] = KMeans(n_clusters=k, n_init=10, random_state=42).fit_predict(X)
-profils = df.groupby("cluster")[FEATURES].mean()
-\end{lstlisting}
-
-% ---------------------------------------------------------------------
-\section{Vue décisionnelle (SQL)}
-Exemple de vue analytique exposée à Power BI (\texttt{sql/v\_bi\_employes.sql}) :
-elle joint les employés à leur agence et calcule le rôle métier.
-
-\begin{lstlisting}[style=pycode,language=SQL,caption={Vue décisionnelle V\_BI\_EMPLOYES}]
-CREATE OR REPLACE VIEW V_BI_EMPLOYES AS
-SELECT
-    U.SK_UTILISATEUR       AS ID_EMPLOYE,
-    U.LIBELLE_UTILISATEUR  AS NOM_COMPLET,
-    U.EMAIL_UTILISATEUR    AS EMAIL,
-    CASE
-        WHEN U.EST_GESTIONNAIRE = 1 THEN 'Gestionnaire'
-        WHEN U.EST_GESTIONNAIRE = 0 AND U.SK_AGENCE = 31 THEN 'Hors Commercial'
-        ELSE 'Conseiller'
-    END AS ROLE_LABEL,
-    CASE WHEN U.EST_SUSPENDU = 1 THEN 'Suspendu' ELSE 'Actif' END AS STATUT,
-    A.LIBELLE_AGENCE AS NOM_AGENCE,
-    A.DISTRICT       AS DISTRICT_AGENCE
-FROM B_UTILISATEURS U
-LEFT JOIN AGENCE A ON U.SK_AGENCE = A.SK_AGENCE;
-\end{lstlisting}
+\section{Chaîne ETL et volet décisionnel}
+La chaîne ETL consolide les données opérationnelles en trois étapes : l'extraction
+lit les tables sources (agences, employés, clients, objectifs, pointage) ;
+la transformation nettoie et agrège les indicateurs \emph{par agence} ; le
+chargement produit le datamart en étoile (\texttt{dim\_agence}, \texttt{fait\_agence}).
+Les vues \texttt{V\_BI\_*} exposent une couche sémantique agrégée à Power BI, tandis
+que la segmentation applique un algorithme de \emph{clustering} (K-Means) sur les
+indicateurs standardisés pour faire émerger les profils d'agences.
 
 % ---------------------------------------------------------------------
 \section{Dépôt du code source}
 Le code source complet du projet --- application Jakarta EE (entités, servlets,
 services, pages JSP), scripts SQL d'initialisation, chaîne ETL et segmentation
-Python, thème et modèle Power BI --- est versionné sur le dépôt Git associé à ce
+Python, thème et rapport Power BI --- est versionné sur le dépôt Git associé à ce
 rapport.

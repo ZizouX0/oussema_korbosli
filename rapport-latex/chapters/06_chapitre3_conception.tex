@@ -23,7 +23,7 @@ l'application web déployée sur \textbf{WildFly}, structurée en couches
 vues \texttt{V\_BI\_*} et, d'autre part, la \textbf{chaîne décisionnelle Python}
 (ETL puis segmentation).
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.92\textwidth]{archi_globale.png}
   \caption{Architecture globale du système}
@@ -38,7 +38,7 @@ L'architecture physique (figure~\ref{fig:archi_physique}) représente le
 \texttt{OracleDS}), le serveur de base de données Oracle (\texttt{FREEPDB1}) et le
 poste décisionnel exécutant Power BI.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.85\textwidth]{archi_physique.png}
   \caption{Architecture physique (diagramme de déploiement 3-tiers)}
@@ -53,7 +53,7 @@ le filtre \texttt{NotificationFilter}), la couche \emph{métier} (services EJB) 
 la couche \emph{persistance} (entités JPA et Hibernate dialoguant avec Oracle via
 l'\texttt{EntityManager}).
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.62\textwidth]{archi_logique.png}
   \caption{Architecture logique en couches de l'application}
@@ -98,7 +98,7 @@ Oracle, chaque attribut en une colonne et chaque association en une \textbf{clé
 étrangère}. La figure~\ref{fig:er} présente ce schéma relationnel, obtenu par
 \emph{mapping} objet-relationnel (JPA/Hibernate) à partir des entités du domaine.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{er.png}
   \caption{Schéma relationnel de la base de données}
@@ -188,7 +188,7 @@ servlets, les services métier et la base de données.
 \subsection{S'authentifier}
 La figure~\ref{fig:seq_auth} décrit le déroulement dynamique de l'authentification.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.92\textwidth]{seq_auth.png}
   \caption{Diagramme de séquence -- Authentification}
@@ -206,7 +206,7 @@ renvoyé.
 \subsection{Créer une agence}
 La figure~\ref{fig:seq_agence} décrit le scénario de création d'une agence.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.92\textwidth]{seq_agence.png}
   \caption{Diagramme de séquence -- Création d'une agence}
@@ -223,7 +223,7 @@ de modification et de suppression.
 La figure~\ref{fig:seq_client} décrit l'enregistrement et l'affectation d'un
 client.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.92\textwidth]{seq_client.png}
   \caption{Diagramme de séquence -- Gestion d'un client}
@@ -238,7 +238,7 @@ est renvoyé à la page \texttt{client.jsp}.
 \subsection{Pointer un employé}
 La figure~\ref{fig:seq_pointage} décrit le scénario de pointage.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{seq_pointage.png}
   \caption{Diagramme de séquence -- Pointage d'un employé}
@@ -254,7 +254,7 @@ l'\texttt{UPDATE} (pointage déjà existant).
 La figure~\ref{fig:seq_demande} détaille le traitement d'une demande par
 l'administrateur.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.92\textwidth]{seq_demande.png}
   \caption{Diagramme de séquence -- Validation d'une demande}
@@ -274,7 +274,7 @@ d'activité.
 \subsection{Diagramme d'états-transitions}
 La figure~\ref{fig:state_demande} modélise le cycle de vie d'une demande.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.6\textwidth]{state_demande.png}
   \caption{Diagramme d'états-transitions -- Cycle de vie d'une demande}
@@ -289,7 +289,7 @@ sa prise en charge, puis atteint un état final \texttt{EFFECTUE} ou
 La figure~\ref{fig:activity_demande} représente le processus métier de traitement
 d'une demande.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.6\textwidth]{activity_demande.png}
   \caption{Diagramme d'activité -- Traitement d'une demande}

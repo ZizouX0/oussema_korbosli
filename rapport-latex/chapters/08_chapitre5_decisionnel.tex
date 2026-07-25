@@ -16,7 +16,7 @@ et exprimées à des grains hétérogènes. Le processus \textbf{ETL} (\emph{Ext
 Transform -- Load}) les consolide en un datamart agrégé par agence. La
 figure~\ref{fig:etl_chaine} présente cette chaîne décisionnelle.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{etl_chaine.png}
   \caption{Chaîne décisionnelle : du système opérationnel au datamart et à sa restitution}
@@ -39,7 +39,7 @@ présence), des dimensions descriptives (agence, gestionnaire, période, type de
 client) permettent l'analyse multidimensionnelle. Les vues \texttt{V\_BI\_*}
 matérialisent cette couche sémantique pour l'outil de restitution.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{bi.png}
   \caption{Modèle décisionnel en étoile (vues \texttt{V\_BI\_*})}
@@ -74,28 +74,11 @@ Taux de présence & Présents, retards et absences par agence et période & \tex
 \subsection{Export des données sources}
 La chaîne ETL peut se connecter directement à Oracle ou, à défaut, consommer des
 fichiers CSV. Pour ce second mode, un script \textbf{SQLcl}
-(\texttt{etl/export\_sources.sql}) exporte les cinq tables sources vers des CSV
-horodatés (extrait~\ref{lst:export}). Chaque \texttt{SPOOL} redirige le résultat
-d'une requête vers un fichier, placé ensuite dans \texttt{etl/source/}.
-
-\begin{lstlisting}[style=pycode,language=SQL,caption={Export des sources vers CSV (SQLcl)},label={lst:export}]
-SET SQLFORMAT CSV
-SPOOL agences.csv
-SELECT SK_AGENCE, LIBELLE_AGENCE, DISTRICT FROM AGENCE;
-SPOOL OFF
-
-SPOOL objectifs.csv
-SELECT SK_AGENCE,
-       NVL(SOUSCRIPTION_COMPTE_CHEQUES_OA,0)
-         + NVL(SOUSCRIPTION_COMPTE_EPARGNES_OA,0)
-         + NVL(SOUSCRIPTION_COMPTE_COURANTS_OA,0) AS COMPTES,
-       NVL(PRODUCTION_CREDITS_CONSO_OA,0)
-         + NVL(PRODUCTION_CREDITS_IMMO_OA,0)
-         + NVL(PRODUCTION_CREDITS_INVESTISSEMENT_OA,0) AS CREDITS,
-       NVL(EPARGNE_ADD_OA,0) AS EPARGNE
-FROM   B_OBJECTIF;
-SPOOL OFF
-\end{lstlisting}
+(\texttt{etl/export\_sources.sql}) exporte les cinq tables sources ---
+agences, employés, clients, objectifs et pointages --- vers des fichiers CSV,
+placés ensuite dans le répertoire \texttt{etl/source/}. Les indicateurs
+d'objectifs (comptes, crédits, épargne) y sont déjà consolidés à partir des
+colonnes correspondantes de la table \texttt{B\_OBJECTIF}.
 
 \subsection{Agrégation et chargement}
 La chaîne ETL est implémentée en \textbf{Python} (script \texttt{etl\_agences.py})
@@ -105,25 +88,11 @@ le connecteur \texttt{oracledb} ou, à défaut, export CSV) ; \texttt{transform(
 nettoie et \textbf{agrège les données par agence} pour produire les sept
 indicateurs de pilotage ; \texttt{load()} écrit le datamart en étoile
 (\texttt{dim\_agence}, \texttt{fait\_agence}) et le fichier réutilisé par la
-segmentation. L'extrait~\ref{lst:etl_transform} illustre le cœur de l'agrégation.
-
-\begin{lstlisting}[style=pycode,caption={Agrégation des indicateurs par agence (étape Transform)},label={lst:etl_transform}]
-# effectif et nombre de gestionnaires par agence
-eff = employes.groupby("SK_AGENCE").agg(
-    effectif=("SK_UTILISATEUR", "count"),
-    nb_gestionnaires=("EST_GESTIONNAIRE", "sum")).reset_index()
-# portefeuille clients
-cli = clients.groupby("SK_AGENCE").size().reset_index(name="nb_clients")
-# production (comptes, credits, epargne)
-obj = objectifs.groupby("SK_AGENCE").agg(
-    total_comptes=("COMPTES", "sum"),
-    production_credits=("CREDITS", "sum"),
-    collecte_epargne=("EPARGNE", "sum")).reset_index()
-# taux de presence issu du pointage
-poi = pointages.assign(
-        present=pointages["STATUT"].isin(["PRESENT", "RETARD"]).astype(int)) \
-    .groupby("SK_AGENCE").agg(taux_presence=("present", "mean")).reset_index()
-\end{lstlisting}
+segmentation. Concrètement, l'agrégation regroupe les employés, les clients, les
+objectifs et les pointages \emph{par agence} afin d'en dériver les sept
+indicateurs de pilotage : effectif et nombre de gestionnaires, taille du
+portefeuille clients, total des comptes ouverts, production de crédits, collecte
+d'épargne et taux de présence.
 
 L'exécution du script produit le datamart sous \texttt{etl/entrepot/}
 (\texttt{dim\_agence.csv}, \texttt{fait\_agence.csv}) ainsi que le fichier
@@ -140,7 +109,7 @@ présence du jour). En complément, les vues \texttt{V\_BI\_*} sont connectées 
 \textbf{Power BI} pour des rapports interactifs. La figure~\ref{fig:ui_dashboard}
 présente le tableau de bord embarqué.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{screens/dashboard.png}
   \caption{Tableau de bord décisionnel embarqué de l'application}
@@ -197,7 +166,7 @@ et un \textbf{tableau} classe les agences selon leur performance. Les trois
 \textbf{segments} de l'en-tête (district, période, type de client) et le bouton
 \textbf{RÉINITIALISER} pilotent l'ensemble.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{screens/pbi_resume.png}
   \caption{Rapport Power BI --- page « Résumé » (synthèse du réseau)}
@@ -212,7 +181,7 @@ un classement des agences selon leur nombre de clients. Elle offre une lecture
 \textbf{géographique et démographique} du portefeuille, absente du tableau de bord
 opérationnel.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{screens/pbi_clients.png}
   \caption{Rapport Power BI --- page « Clients » (segmentation et territoire)}
@@ -226,7 +195,7 @@ par nature, l'effort d'équipement (EER), l'\textbf{évolution mensuelle} de la
 production et un classement des agences par production. Elle constitue l'outil de
 \textbf{pilotage commercial} du réseau.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{screens/pbi_commercial.png}
   \caption{Rapport Power BI --- page « Commercial » (objectifs et production)}
@@ -241,7 +210,7 @@ mensuelle} du taux de présence et la liste des \textbf{agences à surveiller}
 (présence la plus faible). Elle prolonge le module de pointage par une vue
 \textbf{ressources humaines} consolidée.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{screens/pbi_presence.png}
   \caption{Rapport Power BI --- page « Présence » (assiduité et suivi RH)}
@@ -315,7 +284,7 @@ Le nombre de clusters $k$ étant inconnu a priori, il est déterminé en combina
 \textbf{méthode du coude} (inertie intra-cluster) et le \textbf{score de
 silhouette} (figure~\ref{fig:choix_k}).
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{clustering_choix_k.png}
   \caption{Choix du nombre de clusters : méthode du coude et score de silhouette}
@@ -350,7 +319,7 @@ DBSCAN         & 3 & 0,736 & 0,350 & 391\\
 \end{tabularx}
 \end{table}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.7\textwidth]{clustering_comparaison.png}
   \caption{Comparaison des modèles selon le score de silhouette}
@@ -371,7 +340,7 @@ premières composantes principales (PCA), colorées selon leur cluster ; la prem
 composante, qui résume la \emph{taille} de l'agence, explique l'essentiel de la
 variance. Les trois segments sont nettement séparés.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.78\textwidth]{clustering_pca.png}
   \caption{Segmentation des agences (K-Means) projetée par PCA}
