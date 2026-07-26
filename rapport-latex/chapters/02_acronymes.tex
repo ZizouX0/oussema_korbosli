@@ -2,7 +2,10 @@
 \chapter*{Liste des acronymes}
 \addcontentsline{toc}{chapter}{Liste des acronymes}
 
-\renewcommand{\arraystretch}{1.3}
+% Interligne simple : la liste tient sur une seule page (pas de débordement).
+\begingroup
+\setstretch{1}
+\renewcommand{\arraystretch}{1.25}
 \begin{longtable}{>{\bfseries}p{3cm}p{11cm}}
 \toprule
 \textmd{\textbf{Acronyme}} & \textbf{Signification}\\
@@ -31,3 +34,4 @@ CRUD  & Create, Read, Update, Delete\\
 HTTP  & HyperText Transfer Protocol\\
 \bottomrule
 \end{longtable}
+\endgroup
