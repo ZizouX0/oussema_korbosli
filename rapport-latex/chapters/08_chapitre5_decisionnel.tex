@@ -16,7 +16,7 @@ et exprimées à des grains hétérogènes. Le processus \textbf{ETL} (\emph{Ext
 Transform -- Load}) les consolide en un datamart agrégé par agence. La
 figure~\ref{fig:etl_chaine} présente cette chaîne décisionnelle.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{etl_chaine.png}
   \caption{Chaîne décisionnelle : du système opérationnel au datamart et à sa restitution}
@@ -39,12 +39,34 @@ présence), des dimensions descriptives (agence, gestionnaire, période, type de
 client) permettent l'analyse multidimensionnelle. Les vues \texttt{V\_BI\_*}
 matérialisent cette couche sémantique pour l'outil de restitution.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=0.95\textwidth]{bi.png}
   \caption{Modèle décisionnel en étoile (vues \texttt{V\_BI\_*})}
   \label{fig:bi}
 \end{figure}
+
+Au centre du schéma, la \textbf{table de faits} porte les mesures numériques
+agrégées ; autour d'elle, les \textbf{tables de dimensions} fournissent les axes
+d'analyse. Le tableau~\ref{tab:etoile} en précise le rôle.
+
+\begin{table}[htbp]
+\centering
+\caption{Table de faits et tables de dimensions du modèle en étoile}
+\label{tab:etoile}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{2.5cm}>{\ttfamily}p{2.5cm}X}
+\toprule
+\textmd{\textbf{Rôle}} & \textmd{\textbf{Table}} & \textbf{Description}\\
+\midrule
+Table de faits & fait\_agence & Mesures agrégées par agence : effectif, nombre de gestionnaires, portefeuille clients, comptes ouverts, production de crédits, collecte d'épargne et taux de présence.\\
+Dimension & dim\_agence & Axe « agence » : libellé et district --- analyse géographique par agence et par région.\\
+Dimension & période & Axe temporel (\texttt{ANNEE\_MOIS}) : analyse par mois et par exercice.\\
+Dimension & gestionnaire & Axe « responsable » : analyse par gestionnaire de portefeuille.\\
+Dimension & type\_client & Axe « portefeuille » : analyse par type de client (particulier, professionnel, entreprise).\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 Le tableau~\ref{tab:kpi} récapitule les principaux indicateurs (KPI) retenus.
 
@@ -80,24 +102,53 @@ placés ensuite dans le répertoire \texttt{etl/source/}. Les indicateurs
 d'objectifs (comptes, crédits, épargne) y sont déjà consolidés à partir des
 colonnes correspondantes de la table \texttt{B\_OBJECTIF}.
 
-\subsection{Agrégation et chargement}
+\subsection{Détail des étapes de traitement}
 La chaîne ETL est implémentée en \textbf{Python} (script \texttt{etl\_agences.py})
-à l'aide de la bibliothèque \textbf{pandas}~\cite{pandas}. Elle est organisée en
-trois fonctions : \texttt{extract()} lit les données sources (connexion Oracle via
-le connecteur \texttt{oracledb} ou, à défaut, export CSV) ; \texttt{transform()}
-nettoie et \textbf{agrège les données par agence} pour produire les sept
-indicateurs de pilotage ; \texttt{load()} écrit le datamart en étoile
-(\texttt{dim\_agence}, \texttt{fait\_agence}) et le fichier réutilisé par la
-segmentation. Concrètement, l'agrégation regroupe les employés, les clients, les
-objectifs et les pointages \emph{par agence} afin d'en dériver les sept
-indicateurs de pilotage : effectif et nombre de gestionnaires, taille du
-portefeuille clients, total des comptes ouverts, production de crédits, collecte
-d'épargne et taux de présence.
+à l'aide de la bibliothèque \textbf{pandas}~\cite{pandas}. Elle enchaîne les trois
+étapes du processus.
 
-L'exécution du script produit le datamart sous \texttt{etl/entrepot/}
-(\texttt{dim\_agence.csv}, \texttt{fait\_agence.csv}) ainsi que le fichier
-consolidé \texttt{clustering/data/agences.csv}. Le pipeline est \textbf{rejouable}
-et journalise le nombre d'enregistrements traités à chaque étape.
+\paragraph{Extraction (\emph{Extract}).} Les cinq jeux de données sources ---
+agences, employés, clients, objectifs et pointages --- sont lus depuis la base
+Oracle (via le connecteur \texttt{oracledb}) ou, à défaut, depuis les fichiers CSV
+exportés.
+
+\paragraph{Transformation (\emph{Transform}).} C'est le cœur du traitement. Les
+données brutes sont successivement :
+\begin{itemize}[noitemsep]
+  \item \textbf{nettoyées} : les enregistrements sans agence de rattachement
+        (\texttt{SK\_AGENCE} manquant) sont écartés ;
+  \item \textbf{agrégées par agence} : un regroupement (\emph{group by}) sur
+        l'agence calcule, pour chacune, les sept indicateurs de pilotage ;
+  \item \textbf{consolidées} : les valeurs manquantes sont remplacées par zéro et
+        les mesures sont arrondies pour l'analyse.
+\end{itemize}
+Le tableau~\ref{tab:etl_calc} précise le calcul de chaque indicateur.
+
+\begin{table}[htbp]
+\centering
+\caption{Calcul des indicateurs lors de l'étape de transformation}
+\label{tab:etl_calc}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{>{\bfseries\ttfamily}p{3.6cm}X}
+\toprule
+\textmd{\textbf{Indicateur}} & \textbf{Calcul (agrégation par agence)}\\
+\midrule
+effectif & Nombre d'employés rattachés à l'agence.\\
+nb\_gestionnaires & Somme des employés marqués gestionnaires.\\
+nb\_clients & Nombre de clients du portefeuille de l'agence.\\
+total\_comptes & Somme des ouvertures de comptes (chèques, épargne, courants).\\
+production\_credits & Somme de la production de crédits (conso, immobilier, investissement).\\
+collecte\_epargne & Somme de l'épargne additionnelle collectée.\\
+taux\_presence & Proportion de pointages « présent » ou « retard » sur le total.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Chargement (\emph{Load}).} Le datamart en étoile est écrit sous
+\texttt{etl/entrepot/} : la dimension \texttt{dim\_agence} et la table de faits
+\texttt{fait\_agence}. Un fichier consolidé (\texttt{clustering/data/agences.csv})
+est également produit pour alimenter la segmentation. Le pipeline est
+\textbf{rejouable} et journalise le nombre d'enregistrements traités à chaque étape.
 
 % ----------------------------------------------------------------------
 \section{Tableau de bord et restitution Power BI}
@@ -109,7 +160,7 @@ présence du jour). En complément, les vues \texttt{V\_BI\_*} sont connectées 
 \textbf{Power BI} pour des rapports interactifs. La figure~\ref{fig:ui_dashboard}
 présente le tableau de bord embarqué.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{screens/dashboard.png}
   \caption{Tableau de bord décisionnel embarqué de l'application}
@@ -156,6 +207,30 @@ Rôle \emph{(colonne calculée)} & Gestionnaire / Conseiller / Hors commercial, 
 \end{tabularx}
 \end{table}
 
+Au-delà de leur définition, ces indicateurs sont retenus pour l'\textbf{aide à la
+décision} qu'ils apportent. Le tableau~\ref{tab:kpi_interet} précise l'\textbf{intérêt
+décisionnel} de chacun.
+
+\begin{table}[htbp]
+\centering
+\caption{Principaux KPI des tableaux de bord et leur intérêt décisionnel}
+\label{tab:kpi_interet}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3.6cm}X}
+\toprule
+\textmd{\textbf{KPI}} & \textbf{Intérêt décisionnel}\\
+\midrule
+Nombre de clients & Taille du portefeuille : dimensionne l'activité et l'allocation des ressources par agence.\\
+Production de crédits & Performance commerciale majeure et source de revenus : suivi de l'objectif prioritaire.\\
+Total des comptes ouverts & Effort de conquête et d'équipement : mesure la croissance du portefeuille.\\
+Collecte d'épargne & Capacité à mobiliser des ressources : équilibre entre emplois et ressources.\\
+Taux de présence & Assiduité des équipes : disponibilité commerciale et suivi RH.\\
+Répartition des rôles & Structure des effectifs : adéquation entre gestionnaires et conseillers.\\
+Segmentation des agences & Profils d'agences : ciblage des actions et fixation d'objectifs différenciés.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \subsection{Page de synthèse}
 La page \emph{Résumé} (figure~\ref{fig:pbi_resume}) offre une vue d'ensemble du
 réseau. Une rangée de \textbf{cartes d'indicateurs} présente les chiffres clés
@@ -166,7 +241,7 @@ et un \textbf{tableau} classe les agences selon leur performance. Les trois
 \textbf{segments} de l'en-tête (district, période, type de client) et le bouton
 \textbf{RÉINITIALISER} pilotent l'ensemble.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{screens/pbi_resume.png}
   \caption{Rapport Power BI --- page « Résumé » (synthèse du réseau)}
@@ -181,7 +256,7 @@ un classement des agences selon leur nombre de clients. Elle offre une lecture
 \textbf{géographique et démographique} du portefeuille, absente du tableau de bord
 opérationnel.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{screens/pbi_clients.png}
   \caption{Rapport Power BI --- page « Clients » (segmentation et territoire)}
@@ -195,7 +270,7 @@ par nature, l'effort d'équipement (EER), l'\textbf{évolution mensuelle} de la
 production et un classement des agences par production. Elle constitue l'outil de
 \textbf{pilotage commercial} du réseau.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{screens/pbi_commercial.png}
   \caption{Rapport Power BI --- page « Commercial » (objectifs et production)}
@@ -210,7 +285,7 @@ mensuelle} du taux de présence et la liste des \textbf{agences à surveiller}
 (présence la plus faible). Elle prolonge le module de pointage par une vue
 \textbf{ressources humaines} consolidée.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{screens/pbi_presence.png}
   \caption{Rapport Power BI --- page « Présence » (assiduité et suivi RH)}
@@ -284,7 +359,7 @@ Le nombre de clusters $k$ étant inconnu a priori, il est déterminé en combina
 \textbf{méthode du coude} (inertie intra-cluster) et le \textbf{score de
 silhouette} (figure~\ref{fig:choix_k}).
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{clustering_choix_k.png}
   \caption{Choix du nombre de clusters : méthode du coude et score de silhouette}
@@ -319,7 +394,7 @@ DBSCAN         & 3 & 0,736 & 0,350 & 391\\
 \end{tabularx}
 \end{table}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=0.7\textwidth]{clustering_comparaison.png}
   \caption{Comparaison des modèles selon le score de silhouette}
@@ -340,7 +415,7 @@ premières composantes principales (PCA), colorées selon leur cluster ; la prem
 composante, qui résume la \emph{taille} de l'agence, explique l'essentiel de la
 variance. Les trois segments sont nettement séparés.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=0.78\textwidth]{clustering_pca.png}
   \caption{Segmentation des agences (K-Means) projetée par PCA}
@@ -405,4 +480,5 @@ et illustre l'apport de l'\textbf{intelligence artificielle} au pilotage du rés
 Ce chapitre a doté la solution d'un volet décisionnel complet : une chaîne ETL
 alimente un datamart consolidé, restitué par le tableau de bord et par Power BI,
 et exploité par une segmentation des agences qui fait émerger trois profils
-cohérents et exploitables pour la décision.
+cohérents et exploitables pour la décision. Le chapitre suivant présente la
+\textbf{réalisation et le déploiement} de l'ensemble de la solution.

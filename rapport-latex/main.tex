@@ -129,12 +129,14 @@ Scénario nominal & #7\\
 \input{chapters/00c_dedicaces}
 \input{chapters/01_remerciements}
 
+% Sommaire et listes en interligne simple et sans espacement de paragraphe
+% (compacts : évitent les débordements sur une page presque vide).
 \cleardoublepage
-\tableofcontents
+{\setstretch{1}\setlength{\parskip}{0pt}\tableofcontents}
 \cleardoublepage
-\listoffigures
+{\setstretch{1}\setlength{\parskip}{0pt}\listoffigures}
 \cleardoublepage
-\listoftables
+{\setstretch{1}\setlength{\parskip}{0pt}\listoftables}
 \cleardoublepage
 \input{chapters/02_acronymes}
 
@@ -147,8 +149,8 @@ Scénario nominal & #7\\
 \input{chapters/04_chapitre1_cadre}        % Ch.1 — Cadre général du projet
 \input{chapters/05_chapitre2_analyse}      % Ch.2 — Analyse et spécification des besoins
 \input{chapters/06_chapitre3_conception}   % Ch.3 — Conception
-\input{chapters/07_chapitre4_realisation}  % Ch.4 — Réalisation
-\input{chapters/08_chapitre5_decisionnel}  % Ch.5 — Volet décisionnel
+\input{chapters/08_chapitre5_decisionnel}  % Ch.4 — Volet décisionnel
+\input{chapters/07_chapitre4_realisation}  % Ch.5 — Réalisation et Déploiement
 \input{chapters/12_conclusion}             % Conclusion générale
 
 % ============================ BIBLIOGRAPHIE ==========================

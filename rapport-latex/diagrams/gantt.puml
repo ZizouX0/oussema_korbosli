@@ -9,18 +9,18 @@ skinparam roundCorner 6
 
 printscale weekly
 Project starts 2026-02-16
-[Etude et analyse des besoins] as [P1] lasts 3 weeks
+[Comprehension metier] as [P1] lasts 2 weeks
 [P1] is colored in #1B6CA8/#EAF3FA
-[Conception] as [P2] lasts 3 weeks
+[Comprehension des donnees] as [P2] lasts 2 weeks
 [P2] starts at [P1]'s end
-[Realisation de l'application] as [P3] lasts 5 weeks
+[Preparation des donnees (ETL)] as [P3] lasts 3 weeks
 [P3] starts at [P2]'s end
-[Volet decisionnel (ETL, tableau de bord, Power BI)] as [P4] lasts 3 weeks
+[P3] is colored in #C8861A/#FFF3DC
+[Modelisation (application et segmentation)] as [P4] lasts 5 weeks
 [P4] starts at [P3]'s end
-[P4] is colored in #C8861A/#FFF3DC
-[Segmentation des agences (clustering)] as [P5] lasts 2 weeks
+[Evaluation] as [P5] lasts 2 weeks
 [P5] starts at [P4]'s end
 [P5] is colored in #2E7D32/#E8F5E9
-[Tests et redaction du rapport] as [P6] lasts 2 weeks
+[Deploiement et redaction] as [P6] lasts 3 weeks
 [P6] starts at [P5]'s end
 @endgantt

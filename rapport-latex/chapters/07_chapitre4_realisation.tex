@@ -1,5 +1,5 @@
-% ===================== CHAPITRE 4 — RÉALISATION ======================
-\chapter{Réalisation}
+% ============= CHAPITRE 5 — RÉALISATION ET DÉPLOIEMENT ===============
+\chapter{Réalisation et déploiement}
 
 % --- macro locale : logo d'outil non flottant, légendé et numéroté ---
 \newcommand{\logofig}[3]{%  #1 = fichier (dossier logos/), #2 = hauteur, #3 = légende
@@ -10,10 +10,11 @@
 \end{minipage}\par\medskip}
 
 \section*{Introduction}
-Ce chapitre présente la \textbf{réalisation} de l'application. Il décrit d'abord
-l'environnement de travail --- matériel, logiciels et technologies mobilisés ---
-puis illustre, au moyen de captures d'écran, les principales interfaces
-développées.
+Ce dernier chapitre présente la \textbf{réalisation} et le \textbf{déploiement} de
+la solution. Il décrit d'abord l'environnement de travail --- matériel, logiciels
+et technologies mobilisés ---, illustre au moyen de captures d'écran les
+principales interfaces développées, puis expose le déploiement de l'application et
+la validation fonctionnelle.
 
 % ----------------------------------------------------------------------
 \section{Environnement de travail}
@@ -96,7 +97,7 @@ l'ordre des modules fonctionnels.
 La figure~\ref{fig:ui_login} présente la page d'authentification : l'utilisateur y
 saisit son identifiant et son mot de passe pour accéder à l'application.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{screens/login.png}
   \caption{Interface d'authentification}
@@ -104,17 +105,22 @@ saisit son identifiant et son mot de passe pour accéder à l'application.
 \end{figure}
 
 \subsection{Gestion des agences et des employés}
-Les figures~\ref{fig:ui_agences} et~\ref{fig:ui_employes} illustrent les
-interfaces de gestion des agences et des employés.
+La figure~\ref{fig:ui_agences} présente l'interface de gestion des agences :
+l'administrateur y sélectionne une agence pour en consulter les membres et peut
+créer, modifier ou supprimer une agence du réseau.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{screens/agences.png}
   \caption{Interface de gestion des agences (sélection et consultation des membres)}
   \label{fig:ui_agences}
 \end{figure}
 
-\begin{figure}[H]
+La figure~\ref{fig:ui_employes} montre l'interface de gestion des employés : la
+liste des employés, les filtres de recherche et le formulaire d'ajout, chaque
+employé étant rattaché à son agence.
+
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{screens/employes.png}
   \caption{Interface de gestion des employés (ajout, filtres et liste)}
@@ -122,17 +128,22 @@ interfaces de gestion des agences et des employés.
 \end{figure}
 
 \subsection{Gestion des clients et des objectifs}
-Les figures~\ref{fig:ui_clients} et~\ref{fig:ui_objectifs} illustrent les
-interfaces de gestion des clients et de suivi des objectifs commerciaux.
+La figure~\ref{fig:ui_clients} présente l'interface de gestion du portefeuille
+clients : consultation, recherche et affectation de chaque client à un
+gestionnaire.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{screens/clients.png}
   \caption{Interface de gestion des clients (portefeuille BTK)}
   \label{fig:ui_clients}
 \end{figure}
 
-\begin{figure}[H]
+La figure~\ref{fig:ui_objectifs} montre le suivi des objectifs commerciaux :
+production de comptes, de crédits et d'épargne restituée par agence et par
+gestionnaire, pour une période donnée.
+
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{screens/objectifs.png}
   \caption{Suivi des objectifs commerciaux par agence et gestionnaire}
@@ -145,7 +156,7 @@ cartes de synthèse (présents, retards, absents, taux de présence), le pointag
 jour (boutons « Pointer l'arrivée / le départ ») et le formulaire de saisie ou de
 correction manuelle.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{screens/pointage.png}
   \caption{Interface du module de pointage des employés}
@@ -204,7 +215,7 @@ L'ensemble des scénarios a produit le comportement attendu, ce qui confirme la
 chapitre~2.
 
 \section*{Conclusion}
-Ce chapitre a présenté l'environnement de travail, les interfaces réalisées et la
-validation fonctionnelle des modules transactionnels de l'application. Le chapitre
-suivant est consacré au \textbf{volet décisionnel} : la chaîne ETL, le tableau de
-bord, les rapports Power BI et la segmentation des agences.
+Ce chapitre a présenté l'environnement de travail, les interfaces réalisées, le
+déploiement de l'application et la validation fonctionnelle. Il clôt la partie
+technique du projet : la solution, de la gestion opérationnelle jusqu'au volet
+décisionnel, est désormais réalisée, déployée et opérationnelle.

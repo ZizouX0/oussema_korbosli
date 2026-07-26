@@ -42,7 +42,7 @@ d'un capital social de 200~millions de dinars et a son siège social à Tunis. �
 travers un réseau d'agences couvrant l'ensemble du territoire tunisien, elle
 accompagne aussi bien les particuliers que les entreprises.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=0.18\textwidth]{logo_btk.png}
   \caption{Logo de la BTK -- Banque Tuniso-Koweïtienne}
@@ -150,28 +150,111 @@ workflows de validation, et l'\textbf{ouverture décisionnelle} permise par
 l'exposition des données à des outils d'analyse et de \emph{reporting}.
 
 % ----------------------------------------------------------------------
-\section{Méthodologie et planification du projet}
+\section{Méthodologie adoptée}
+Le choix d'une méthodologie adaptée conditionne le bon déroulement du projet. Ce
+projet étant \textbf{centré sur les données} --- consolidation, tableaux de bord et
+apprentissage automatique ---, la méthodologie \textbf{CRISP-DM} a été retenue,
+après comparaison des approches classiques, agiles et décisionnelles.
 
-\subsection{Démarche de développement}
-Le périmètre du projet ayant été précisé progressivement au fil des échanges avec
-l'organisme d'accueil, une \textbf{démarche itérative et incrémentale}, d'inspiration
-\emph{agile}, a été adoptée. Plutôt qu'un enchaînement séquentiel figé, cette
-approche privilégie des livraisons fonctionnelles successives et une validation
-régulière avec l'encadrement, ce qui permet d'\textbf{adapter la solution} aux
-retours et de \textbf{détecter les risques au plus tôt}. Le travail a été organisé
-en phases classiques du génie logiciel --- analyse et spécification des besoins,
-conception, réalisation, puis volet décisionnel --- reprises comme fil conducteur
-des chapitres de ce rapport.
+\subsection{Méthodes classiques et méthodes agiles}
+Les \textbf{méthodes classiques} (cycle en cascade, cycle en V) reposent sur un
+enchaînement \textbf{séquentiel} de phases planifiées dès le départ ; elles
+conviennent aux besoins stables mais s'adaptent mal au changement. Les
+\textbf{méthodes agiles} privilégient au contraire une approche \textbf{itérative et
+incrémentale}, fondée sur la collaboration continue et la livraison fréquente
+d'incréments. Le tableau~\ref{tab:classique_agile} oppose les deux familles.
+
+\begin{table}[htbp]
+\centering
+\caption{Méthodes classiques vs méthodes agiles}
+\label{tab:classique_agile}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3cm}XX}
+\toprule
+\textmd{\textbf{Critère}} & \textbf{Méthodes classiques} & \textbf{Méthodes agiles}\\
+\midrule
+Approche & Séquentielle et planifiée (cascade, cycle en V) & Itérative et incrémentale\\
+Flexibilité & Faible : les changements sont coûteux & Élevée : adaptation continue\\
+Livraison & En fin de projet & Par incréments fréquents\\
+Implication du client & Au début et à la fin & Tout au long du projet\\
+Détection des risques & Tardive & Précoce\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{De Scrum à CRISP-DM}
+\textbf{Scrum} est un cadre agile de \emph{développement logiciel} : il organise le
+travail en \emph{sprints}, avec des rôles et des cérémonies, et vise la livraison
+d'incréments fonctionnels. \textbf{CRISP-DM} (\emph{Cross-Industry Standard Process
+for Data Mining}) est en revanche une méthodologie dédiée aux \emph{projets de
+données et décisionnels} : elle structure le travail en \textbf{six phases}
+orientées vers la compréhension, la préparation et l'exploitation des données. Le
+tableau~\ref{tab:scrum_crispdm} les compare.
+
+\begin{table}[htbp]
+\centering
+\caption{Scrum vs CRISP-DM}
+\label{tab:scrum_crispdm}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{2.8cm}XX}
+\toprule
+\textmd{\textbf{Critère}} & \textbf{Scrum} & \textbf{CRISP-DM}\\
+\midrule
+Domaine & Développement logiciel & Projets de données / décisionnel\\
+Structure & Sprints, rôles, cérémonies & Six phases orientées données\\
+Centré sur & Fonctionnalités livrables & Compréhension et exploitation des données\\
+Cycle & Itératif (sprints) & Itératif (retours entre phases)\\
+Livrable final & Incrément logiciel & Solution décisionnelle déployée\\
+Adapté à & Applications et produits & Analyse de données, BI, apprentissage automatique\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Choix et justification de CRISP-DM}
+Le cœur de ce projet est un \textbf{système décisionnel} : consolidation des données
+par une chaîne ETL, restitution par des tableaux de bord et Power BI, et
+segmentation des agences par apprentissage automatique. Pour ce type de projet
+\textbf{orienté données}, \textbf{CRISP-DM} constitue la méthodologie de référence :
+ses phases épousent naturellement le déroulement du travail, de la compréhension du
+besoin métier jusqu'au déploiement de la solution. Scrum, centré sur la seule
+production logicielle, ne couvre pas les étapes propres à l'analyse et à la
+valorisation des données ; \textbf{CRISP-DM a donc été retenu}, tout en intégrant des
+pratiques agiles (itérations et validations régulières avec l'encadrement) au sein
+de ses phases.
+
+\subsection{Les phases de CRISP-DM appliquées au projet}
+CRISP-DM se décompose en six phases, susceptibles d'être rejouées en cycles. Le
+tableau~\ref{tab:phases_crispdm} en précise le contenu dans le cadre du projet et la
+correspondance avec les chapitres de ce rapport.
+
+\begin{table}[htbp]
+\centering
+\caption{Les six phases de CRISP-DM appliquées au projet}
+\label{tab:phases_crispdm}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3.4cm}Xp{2cm}}
+\toprule
+\textmd{\textbf{Phase}} & \textbf{Contenu dans le projet} & \textbf{Chapitre}\\
+\midrule
+Compréhension métier & Cadre du projet, étude de l'existant, besoins et objectifs. & Ch.~1--2\\
+Compréhension des données & Sources opérationnelles, entités et modèle de données. & Ch.~2--3\\
+Préparation des données & Chaîne ETL : nettoyage, agrégation, datamart en étoile. & Ch.~4\\
+Modélisation & Indicateurs, tableaux de bord et segmentation (K-Means). & Ch.~4\\
+Évaluation & Comparaison des modèles et validation des résultats. & Ch.~4\\
+Déploiement & Réalisation, restitution Power BI et déploiement de la solution. & Ch.~5\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \subsection{Planification}
 Le projet s'est déroulé sur quatre mois, du 16 février au 16 juin 2026. La
 figure~\ref{fig:gantt} en présente le planning prévisionnel sous forme de
-diagramme de Gantt, organisé selon les grandes phases du projet.
+diagramme de Gantt, organisé selon les phases de CRISP-DM.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{gantt.png}
-  \caption{Planning prévisionnel du projet (diagramme de Gantt)}
+  \caption{Planning prévisionnel du projet (diagramme de Gantt selon CRISP-DM)}
   \label{fig:gantt}
 \end{figure}
 
