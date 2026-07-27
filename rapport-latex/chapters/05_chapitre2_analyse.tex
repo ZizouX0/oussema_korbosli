@@ -108,6 +108,9 @@ Cette section détaille, sous forme de fiches, les principaux cas d'utilisation,
 regroupés par module fonctionnel.
 
 \subsection{Authentification et sécurité}
+Ce module regroupe les cas d'utilisation qui conditionnent l'accès à l'application.
+Le premier, \emph{S'authentifier}, en contrôle l'entrée : le tableau~\ref{tab:cu_auth}
+en détaille le déroulement.
 
 \cudesc{tab:cu_auth}{S'authentifier}
 {Permettre à l'utilisateur de se connecter à l'application avec son identifiant et
@@ -121,6 +124,9 @@ correspondant à son rôle.}
 cas de succès, une session est ouverte et l'utilisateur est redirigé ; (4) sinon,
 un message d'erreur est affiché.}
 
+Une fois connecté, l'administrateur attribue à chaque utilisateur un rôle qui
+détermine ses droits d'accès, comme le précise le tableau~\ref{tab:cu_roles}.
+
 \cudesc{tab:cu_roles}{Gérer les rôles et les droits d'accès}
 {Permettre à l'administrateur d'attribuer un rôle à chaque utilisateur afin de
 contrôler l'accès aux fonctionnalités.}
@@ -133,6 +139,8 @@ utilisateur ; (3) il lui attribue un rôle (\texttt{ADMIN},
 contrôle d'accès correspondant.}
 
 \subsection{Gestion du référentiel : agences et employés}
+Ce module couvre la gestion du référentiel structurant du réseau. Le premier cas,
+\emph{Gérer les agences} (tableau~\ref{tab:cu_agence}), administre les agences.
 
 \cudesc{tab:cu_agence}{Gérer les agences}
 {Permettre à l'administrateur de créer, consulter, modifier et supprimer les
@@ -146,6 +154,9 @@ sélectionne une action (créer, modifier, supprimer) ; (3) il saisit ou met à 
 les informations de l'agence ; (4) l'\texttt{AgenceService} persiste la
 modification et la liste est rafraîchie.}
 
+Chaque agence étant animée par des employés, le second cas, \emph{Gérer les
+employés} (tableau~\ref{tab:cu_employe}), les rattache à leur agence.
+
 \cudesc{tab:cu_employe}{Gérer les employés}
 {Permettre à l'administrateur de gérer les employés et de les rattacher à leur
 agence.}
@@ -157,6 +168,9 @@ les informations de l'employé ; (3) il sélectionne l'agence de rattachement ; 
 l'\texttt{UtilisateurService} enregistre l'employé associé à l'agence.}
 
 \subsection{Gestion commerciale : clients et objectifs}
+Ce module concerne la gestion commerciale du réseau : le portefeuille clients et le
+suivi des objectifs de production. Le premier cas, \emph{Gérer les clients}
+(tableau~\ref{tab:cu_client}), administre le portefeuille.
 
 \cudesc{tab:cu_client}{Gérer les clients}
 {Permettre à l'administrateur de gérer le portefeuille clients et d'affecter
@@ -169,6 +183,10 @@ exister.}
 ou met à jour les informations du client ; (3) il sélectionne le gestionnaire
 responsable ; (4) le \texttt{ClientService} enregistre le client et met à jour le
 portefeuille.}
+
+Ce portefeuille alimente le suivi de la performance : le second cas, \emph{Suivre
+les objectifs commerciaux} (tableau~\ref{tab:cu_objectif}), en restitue la
+production par agence et par période.
 
 \cudesc{tab:cu_objectif}{Suivre les objectifs commerciaux}
 {Permettre au directeur commercial de consulter les objectifs et la production par
@@ -183,6 +201,10 @@ et une période ; (3) l'\texttt{ObjectifService} agrège la production ; (4) les
 indicateurs sont affichés.}
 
 \subsection{Pointage et workflows de demandes}
+Ce module traite du suivi de la présence des employés et du circuit de validation
+des opérations sensibles. Le premier cas, \emph{Pointer la présence}
+(tableau~\ref{tab:cu_pointage}), enregistre les arrivées et départs avec
+détermination automatique du statut.
 
 \cudesc{tab:cu_pointage}{Pointer la présence}
 {Permettre à l'employé d'enregistrer son arrivée et son départ, avec
@@ -196,6 +218,10 @@ l'heure courante et recherche le pointage du jour ; (3) s'il n'existe pas, il
 détermine le statut (\texttt{RETARD} au-delà de 9 h) et l'enregistre ; (4) sinon,
 il met à jour l'enregistrement existant.}
 
+Au-delà du pointage, les opérations sensibles suivent un circuit de validation : le
+second cas, \emph{Valider une demande} (tableau~\ref{tab:cu_demande}), en formalise
+l'approbation ou le refus.
+
 \cudesc{tab:cu_demande}{Valider une demande}
 {Permettre à l'administrateur d'approuver ou de refuser une demande soumise.}
 {Administrateur}
@@ -207,6 +233,10 @@ demande ; (3) il l'approuve ou la refuse avec un commentaire ; (4) le service me
 à jour le statut, applique la modification le cas échéant et journalise l'action.}
 
 \subsection{Volet décisionnel}
+Ce dernier module rassemble les cas d'utilisation du volet décisionnel, de la
+préparation des données jusqu'à leur exploitation analytique. Le premier,
+\emph{Alimenter le datamart} (tableau~\ref{tab:cu_etl}), consolide les données
+opérationnelles par la chaîne ETL.
 
 \cudesc{tab:cu_etl}{Alimenter le datamart (ETL)}
 {Consolider les données opérationnelles en un datamart agrégé par agence.}
@@ -219,6 +249,10 @@ la segmentation.}
 les nettoie et les agrège par agence ; (3) l'étape \emph{Load} écrit le datamart
 (\texttt{dim\_agence}, \texttt{fait\_agence}).}
 
+Une fois le datamart alimenté, il est restitué aux responsables : le deuxième cas,
+\emph{Consulter le tableau de bord} (tableau~\ref{tab:cu_dashboard}), en offre une
+vue synthétique.
+
 \cudesc{tab:cu_dashboard}{Consulter le tableau de bord}
 {Restituer aux responsables une vision synthétique de l'activité.}
 {Administrateur / Directeur commercial}
@@ -227,6 +261,10 @@ les nettoie et les agrège par agence ; (3) l'étape \emph{Load} écrit le datam
 {(1) L'acteur se connecte ; (2) le \texttt{HomeServlet} calcule les statistiques ;
 (3) la page \texttt{home.jsp} affiche les cartes d'indicateurs et les graphiques
 ApexCharts.}
+
+Enfin, le troisième cas, \emph{Segmenter les agences} (tableau~\ref{tab:cu_clustering}),
+exploite ce même datamart pour regrouper les agences en profils homogènes par
+apprentissage non supervisé.
 
 \cudesc{tab:cu_clustering}{Segmenter les agences}
 {Regrouper automatiquement les agences en profils homogènes à partir de leurs
@@ -239,8 +277,42 @@ pour la décision.}
 (3) il détermine le nombre de clusters puis compare les modèles ; (4) il retient
 le meilleur modèle, projette en PCA et restitue le profil de chaque segment.}
 
+% ----------------------------------------------------------------------
+\section{Environnement technique}
+La réalisation de la solution s'appuie sur un ensemble cohérent de technologies,
+réparties entre le développement de l'application, la base de données et le volet
+décisionnel. Le tableau~\ref{tab:env_technique} en récapitule les principales et
+précise le rôle de chacune.
+
+\begin{table}[htbp]
+\centering
+\caption{Environnement technique du projet}
+\label{tab:env_technique}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3.1cm}>{\ttfamily}p{3.5cm}X}
+\toprule
+\textmd{\textbf{Catégorie}} & \textmd{\textbf{Technologie}} & \textbf{Rôle}\\
+\midrule
+Langage & Java (JDK 21) & Langage principal de l'application.\\
+Plateforme & Jakarta EE 10 & Servlets, JSP, EJB et JPA : structuration en couches.\\
+Persistance & Hibernate (JPA) & Mapping objet-relationnel entre entités et base.\\
+Base de données & Oracle Database & Données opérationnelles et vues décisionnelles.\\
+Serveur & WildFly / JBoss & Serveur d'applications (déploiement du WAR).\\
+Build & Apache Maven & Gestion des dépendances et production du livrable.\\
+Visualisation Web & ApexCharts & Graphiques du tableau de bord embarqué.\\
+Décisionnel & Microsoft Power BI & Rapports analytiques connectés à Oracle.\\
+ETL et IA & Python (pandas, scikit-learn) & Chaîne ETL et segmentation des agences.\\
+Versionnement & Git / GitHub & Gestion de versions et hébergement du code.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Ce socle technique, retenu pour sa robustesse et sa large diffusion, est mis en
+œuvre tout au long du projet ; l'environnement de travail et les outils
+correspondants sont présentés plus en détail au moment de la réalisation.
+
 \section*{Conclusion}
 Ce chapitre a identifié les acteurs, spécifié les besoins fonctionnels et non
-fonctionnels et formalisé les cas d'utilisation du système. Le chapitre suivant
-traduit cette analyse en une \textbf{conception} détaillée : architecture,
-modèle de classes et scénarios dynamiques.
+fonctionnels, formalisé les cas d'utilisation et présenté l'environnement technique
+du système. Le chapitre suivant traduit cette analyse en une \textbf{conception}
+détaillée : architecture, modèle de classes et scénarios dynamiques.

@@ -164,6 +164,37 @@ correction manuelle.
 \end{figure}
 
 % ----------------------------------------------------------------------
+\section{Organisation du code}
+Le projet est structuré en modules distincts, du cœur applicatif Jakarta~EE à la
+chaîne décisionnelle. Le tableau~\ref{tab:modules} récapitule les principaux
+composants et leur rôle.
+
+\begin{table}[htbp]
+\centering
+\caption{Principaux modules du projet}
+\label{tab:modules}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries\ttfamily}p{3.6cm}X}
+\toprule
+\textmd{\textbf{Module}} & \textbf{Rôle}\\
+\midrule
+entity & Entités JPA du domaine (Utilisateur, Agence, Client, Objectif, Pointage\ldots).\\
+servlet & Couche de contrôle (servlets et filtre de sécurité).\\
+service & Couche métier (services applicatifs).\\
+*.jsp & Couche de présentation (interfaces et tableau de bord embarqué).\\
+sql/ & Scripts d'initialisation des tables et vues décisionnelles \texttt{V\_BI\_*}.\\
+etl/ & Chaîne ETL en Python (agrégation des indicateurs par agence).\\
+clustering/ & Segmentation des agences en Python (scikit-learn).\\
+powerbi/ & Thème et rapport décisionnel Power BI.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+L'ensemble du code source --- application Jakarta~EE (entités, servlets, services,
+pages JSP), scripts SQL d'initialisation, chaîne ETL et segmentation Python, thème
+et rapport Power BI --- est versionné sur le dépôt \textbf{Git} associé au projet.
+
+% ----------------------------------------------------------------------
 \section{Déploiement de l'application}
 L'application est packagée par \textbf{Maven} sous forme d'une archive web
 \texttt{gestion-agences.war}, puis déployée sur le serveur d'applications

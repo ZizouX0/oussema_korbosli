@@ -33,6 +33,52 @@ section~\ref{sec:segmentation}.
 
 % ----------------------------------------------------------------------
 \section{Modèle en étoile de l'entrepôt}
+
+\subsection{Comparaison des schémas de modélisation}
+La modélisation dimensionnelle d'un entrepôt de données peut suivre trois grands
+schémas. Le \textbf{modèle en étoile} place une table de faits centrale, entourée
+de tables de dimensions \emph{dénormalisées} (une table par axe d'analyse). Le
+\textbf{modèle en flocon} (\emph{snowflake}) en dérive : les dimensions y sont
+\emph{normalisées} en sous-tables hiérarchiques, ce qui économise l'espace mais
+multiplie les jointures. Le \textbf{modèle en constellation} (\emph{galaxy})
+comporte enfin \emph{plusieurs} tables de faits partageant des dimensions communes,
+afin de couvrir plusieurs processus métier au sein d'un même entrepôt. Le
+tableau~\ref{tab:schemas_dw} confronte ces trois approches.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparaison des schémas de modélisation des entrepôts de données}
+\label{tab:schemas_dw}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{2.8cm}XX}
+\toprule
+\textmd{\textbf{Schéma}} & \textbf{Principe} & \textbf{Avantages / limites}\\
+\midrule
+Étoile & Une table de faits centrale, dimensions dénormalisées (une table par
+axe). & \textbf{+} Simple, lisible, requêtes rapides (peu de jointures). \textbf{--}
+Légère redondance dans les dimensions.\\
+Flocon & Dimensions normalisées en sous-tables hiérarchiques. & \textbf{+} Moins de
+redondance, espace optimisé. \textbf{--} Requêtes plus complexes, plus de jointures,
+lisibilité réduite.\\
+Constellation & Plusieurs tables de faits partageant des dimensions communes. &
+\textbf{+} Couvre plusieurs processus métier. \textbf{--} Modèle plus lourd,
+réservé aux entrepôts de grande ampleur.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Pour ce projet, le \textbf{modèle en étoile} a été retenu. Le besoin porte sur un
+\textbf{grain unique et homogène} --- l'agence --- et sur un \textbf{nombre réduit
+de dimensions} (agence, période, gestionnaire, type de client) : la normalisation
+en flocon n'apporterait ici aucun gain significatif d'espace tout en alourdissant
+les requêtes, et la constellation, pensée pour plusieurs processus de faits, serait
+surdimensionnée. L'étoile offre en revanche la \textbf{simplicité}, la
+\textbf{rapidité des requêtes} et surtout la \textbf{lisibilité} attendues d'un
+outil de restitution en libre-service comme \textbf{Power BI}, où des relations
+directes entre la table de faits et ses dimensions garantissent un filtrage croisé
+immédiat.
+
+\subsection{Structure du modèle retenu}
 L'entrepôt est organisé selon une logique en \textbf{étoile}
 (figure~\ref{fig:bi}) : autour de tables de faits (production, effectifs, clients,
 présence), des dimensions descriptives (agence, gestionnaire, période, type de
@@ -104,25 +150,33 @@ colonnes correspondantes de la table \texttt{B\_OBJECTIF}.
 
 \subsection{Détail des étapes de traitement}
 La chaîne ETL est implémentée en \textbf{Python} (script \texttt{etl\_agences.py})
-à l'aide de la bibliothèque \textbf{pandas}~\cite{pandas}. Elle enchaîne les trois
-étapes du processus.
+à l'aide de la bibliothèque \textbf{pandas}~\cite{pandas}. Elle enchaîne cinq
+étapes --- \textbf{collecte}, \textbf{nettoyage}, \textbf{transformation},
+\textbf{intégration} et \textbf{contrôle de qualité} --- journalisées à chaque
+exécution, comme l'illustre la figure~\ref{fig:etl_run}.
 
-\paragraph{Extraction (\emph{Extract}).} Les cinq jeux de données sources ---
-agences, employés, clients, objectifs et pointages --- sont lus depuis la base
-Oracle (via le connecteur \texttt{oracledb}) ou, à défaut, depuis les fichiers CSV
-exportés.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{etl/etl_run.png}
+  \caption{Journal d'exécution de la chaîne ETL (\texttt{etl\_agences.py})}
+  \label{fig:etl_run}
+\end{figure}
 
-\paragraph{Transformation (\emph{Transform}).} C'est le cœur du traitement. Les
-données brutes sont successivement :
-\begin{itemize}[noitemsep]
-  \item \textbf{nettoyées} : les enregistrements sans agence de rattachement
-        (\texttt{SK\_AGENCE} manquant) sont écartés ;
-  \item \textbf{agrégées par agence} : un regroupement (\emph{group by}) sur
-        l'agence calcule, pour chacune, les sept indicateurs de pilotage ;
-  \item \textbf{consolidées} : les valeurs manquantes sont remplacées par zéro et
-        les mesures sont arrondies pour l'analyse.
-\end{itemize}
-Le tableau~\ref{tab:etl_calc} précise le calcul de chaque indicateur.
+\paragraph{1. Collecte (\emph{Extract}).} Les cinq jeux de données sources ---
+agences, employés, clients, objectifs et pointages --- sont lus depuis les tables
+Oracle \texttt{AGENCE}, \texttt{B\_UTILISATEURS}, \texttt{CLIENT\_BTK},
+\texttt{B\_OBJECTIF} et \texttt{POINTAGE} (via le connecteur \texttt{oracledb}) ou,
+à défaut, depuis les fichiers CSV exportés.
+
+\paragraph{2. Nettoyage.} Les enregistrements incomplets ou incohérents sont
+écartés : les lignes sans agence de rattachement (\texttt{SK\_AGENCE} manquant)
+sont supprimées, puis les colonnes sont \textbf{typées} (entiers, décimaux,
+libellés) afin de fiabiliser les calculs ultérieurs.
+
+\paragraph{3. Transformation.} C'est le cœur du traitement : un regroupement
+(\emph{group by}) par agence calcule, pour chacune, les \textbf{sept indicateurs}
+de pilotage. Le tableau~\ref{tab:etl_calc} précise le mode de calcul de chaque
+indicateur.
 
 \begin{table}[htbp]
 \centering
@@ -144,11 +198,30 @@ taux\_presence & Proportion de pointages « présent » ou « retard » sur le t
 \end{tabularx}
 \end{table}
 
-\paragraph{Chargement (\emph{Load}).} Le datamart en étoile est écrit sous
+\paragraph{4. Intégration.} Les indicateurs agrégés issus des différentes sources
+(effectifs, portefeuille, production, présence) sont \textbf{fusionnés} sur la clé
+\texttt{SK\_AGENCE} en une table unique décrivant chaque agence par ses sept
+indicateurs. La figure~\ref{fig:etl_datamart} en présente un aperçu.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{etl/etl_datamart.png}
+  \caption{Aperçu du datamart agrégé produit par la chaîne ETL (\texttt{fait\_agence})}
+  \label{fig:etl_datamart}
+\end{figure}
+
+\paragraph{5. Contrôle de qualité.} Avant chargement, la qualité du datamart est
+vérifiée : les \textbf{valeurs manquantes} sont remplacées par zéro, les mesures
+sont \textbf{arrondies}, et le pipeline \textbf{journalise} le nombre
+d'enregistrements traités à chaque étape (figure~\ref{fig:etl_run}), ce qui permet
+de contrôler la cohérence des volumes d'une exécution à l'autre.
+
+\paragraph{Chargement (\emph{Load}).} Le datamart en étoile est enfin écrit sous
 \texttt{etl/entrepot/} : la dimension \texttt{dim\_agence} et la table de faits
 \texttt{fait\_agence}. Un fichier consolidé (\texttt{clustering/data/agences.csv})
-est également produit pour alimenter la segmentation. Le pipeline est
-\textbf{rejouable} et journalise le nombre d'enregistrements traités à chaque étape.
+est également produit pour alimenter la segmentation. Le pipeline étant
+\textbf{rejouable}, il bascule automatiquement sur les données réelles dès qu'un
+export est fourni.
 
 % ----------------------------------------------------------------------
 \section{Tableau de bord et restitution Power BI}
@@ -166,6 +239,61 @@ présente le tableau de bord embarqué.
   \caption{Tableau de bord décisionnel embarqué de l'application}
   \label{fig:ui_dashboard}
 \end{figure}
+
+% ----------------------------------------------------------------------
+\section{Intégration du modèle en étoile dans Power BI}
+Le modèle en étoile décrit précédemment est \textbf{matérialisé dans Power BI} pour
+servir de socle aux rapports. Les tables et vues décisionnelles sont d'abord
+\textbf{importées} depuis le schéma Oracle (\texttt{AGENCE}, \texttt{B\_UTILISATEURS},
+\texttt{CLIENT\_BTK}, \texttt{B\_OBJECTIF}, \texttt{POINTAGE} et les vues
+\texttt{V\_BI\_*}) au moyen du connecteur Oracle natif.
+
+\subsection{Création des relations entre les tables}
+Dans la \emph{vue Modèle} de Power BI, des \textbf{relations} sont établies entre la
+dimension centrale \texttt{AGENCE} et les tables de faits, sur les clés de
+substitution (\texttt{SK\_AGENCE} et \texttt{SK\_UTILISATEUR}). La
+figure~\ref{fig:pbi_modele} présente le modèle obtenu.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{etl/pbi_modele.png}
+  \caption{Modèle de données Power BI : relations en étoile autour de la dimension \texttt{AGENCE}}
+  \label{fig:pbi_modele}
+\end{figure}
+
+Chaque relation est de type \textbf{un-à-plusieurs} (\emph{one-to-many}), orientée de
+la dimension vers les faits, avec un filtre à \textbf{sens unique}. Le
+tableau~\ref{tab:relations} en récapitule le détail.
+
+\begin{table}[htbp]
+\centering
+\caption{Relations du modèle Power BI et leur cardinalité}
+\label{tab:relations}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\ttfamily}p{3cm}>{\ttfamily}p{3cm}>{\ttfamily}p{3.1cm}c}
+\toprule
+\textmd{\textbf{Table (côté 1)}} & \textmd{\textbf{Table (côté *)}} &
+\textmd{\textbf{Clé de jointure}} & \textbf{Cardinalité}\\
+\midrule
+AGENCE & B\_UTILISATEURS & SK\_AGENCE & 1 -- *\\
+AGENCE & CLIENT\_BTK & SK\_AGENCE & 1 -- *\\
+AGENCE & B\_OBJECTIF & SK\_AGENCE & 1 -- *\\
+B\_UTILISATEURS & POINTAGE & SK\_UTILISATEUR & 1 -- *\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Exploitation dans les visualisations}
+Ces relations sont le \textbf{moteur de l'interactivité} du rapport. Le filtre se
+propageant du côté « 1 » vers le côté « plusieurs » (de la dimension vers les
+faits), la sélection d'une agence, d'un district ou d'une période dans un segment
+--- ou dans n'importe quel visuel --- \textbf{recalcule instantanément} tous les
+visuels reliés (\emph{filtrage croisé}). Les mesures DAX présentées à la section
+suivante s'appuient sur ce modèle : elles agrègent les faits en respectant les
+relations, ce qui garantit la cohérence des indicateurs quel que soit l'axe
+d'analyse retenu (agence, période, type de client). C'est cette intégration du
+modèle en étoile qui fait passer Power BI d'un simple afficheur de tableaux à un
+véritable outil d'\textbf{analyse multidimensionnelle}.
 
 % ----------------------------------------------------------------------
 \section{Rapport décisionnel sous Power BI}
@@ -248,6 +376,18 @@ et un \textbf{tableau} classe les agences selon leur performance. Les trois
   \label{fig:pbi_resume}
 \end{figure}
 
+\textbf{Interprétation.} Le réseau compte environ \textbf{30\,000 clients} et
+\textbf{105\,000 comptes}, pour une production de crédits de \textbf{1,40 milliard}
+et un \textbf{taux de présence de 87,9\,\%}. La répartition des présences révèle
+toutefois que près d'un pointage sur trois est un \textbf{retard} (25\,\%) ou une
+\textbf{absence} (12\,\%) : l'assiduité apparaît ainsi comme un premier levier
+d'amélioration. Les effectifs se partagent de façon relativement équilibrée entre
+personnel hors commercial (38\,\%), conseillers (32\,\%) et gestionnaires (30\,\%).
+L'évolution mensuelle met en évidence un \textbf{pic de production en février}
+suivi d'un tassement, que le décideur peut interpréter comme un effet de campagne à
+reconduire. Enfin, le classement des agences traduit une \textbf{forte hétérogénéité}
+du réseau --- que les trois pages suivantes approfondissent.
+
 \subsection{Analyse des clients}
 La page \emph{Clients} (figure~\ref{fig:pbi_clients}) segmente le portefeuille selon
 plusieurs axes : le \textbf{type de client}, le \textbf{sexe}, la \textbf{région}
@@ -263,6 +403,17 @@ opérationnel.
   \label{fig:pbi_clients}
 \end{figure}
 
+\textbf{Interprétation.} Le portefeuille est très majoritairement composé de
+\textbf{particuliers} (88\,\%), les segments \emph{société} et \emph{entreprise} ne
+pesant qu'environ 12\,\% : il existe donc une réelle \textbf{marge de développement}
+sur la clientèle professionnelle, à plus forte valeur ajoutée. La clientèle est par
+ailleurs \textbf{masculine à 63\,\%} et fortement \textbf{concentrée sur le Grand
+Tunis} (Tunis, Ben Arous, Ariana), les régions Tunis Nord et Tunis Sud totalisant à
+elles seules plus de la moitié des clients. Ces constats invitent à \textbf{cibler
+les régions sous-représentées} (Centre, Sud) et à rééquilibrer la conquête ; le
+classement des agences par nombre de clients aide, quant à lui, à prioriser les
+efforts commerciaux.
+
 \subsection{Performance commerciale}
 La page \emph{Commercial} (figure~\ref{fig:pbi_commercial}) détaille les
 \textbf{objectifs} : les ouvertures de comptes par type, la production de crédits
@@ -276,6 +427,18 @@ production et un classement des agences par production. Elle constitue l'outil d
   \caption{Rapport Power BI --- page « Commercial » (objectifs et production)}
   \label{fig:pbi_commercial}
 \end{figure}
+
+\textbf{Interprétation.} La production de crédits (1,40 milliard) se répartit de
+manière assez \textbf{équilibrée} entre l'immobilier (0,53\,Md), la consommation
+(0,46\,Md) et l'investissement (0,41\,Md), l'immobilier restant en tête. Côté
+équipement, les \textbf{comptes chèques} dominent les ouvertures (47\,K, devant
+l'épargne et les comptes courants) et l'effort d'équipement (EER) porte à
+\textbf{83,6\,\% sur les particuliers} : la clientèle professionnelle constitue là
+encore un gisement de croissance. Le classement des agences révèle enfin une agence
+phare, \textbf{CENTRALE}, dont la production dépasse largement celle des suivantes ;
+ses bonnes pratiques peuvent être diffusées au réseau. Le décideur dispose ainsi
+d'une base factuelle pour \textbf{diversifier la production} vers l'investissement et
+le segment entreprise.
 
 \subsection{Suivi de la présence}
 La page \emph{Présence} (figure~\ref{fig:pbi_presence}) suit l'\textbf{assiduité}
@@ -291,6 +454,18 @@ mensuelle} du taux de présence et la liste des \textbf{agences à surveiller}
   \caption{Rapport Power BI --- page « Présence » (assiduité et suivi RH)}
   \label{fig:pbi_presence}
 \end{figure}
+
+\textbf{Interprétation.} Avec un taux global de \textbf{87,9\,\%}, l'assiduité reste
+correcte mais perfectible : les \textbf{retards} représentent un quart des pointages
+(25\,\%) et les absences 12\,\%. Le pointage est majoritairement \textbf{automatique}
+(72\,\% en mode « auto » contre 28\,\% de saisies manuelles), signe d'une bonne
+adoption de l'outil. L'évolution mensuelle décrit une \textbf{montée jusqu'à un pic
+en avril--mai} (proche de 92\,\%) suivie d'un \textbf{repli estival} vers juillet
+($\approx$~80\,\%), tendance à surveiller. Surtout, la liste des \textbf{agences à
+surveiller} isole quelques établissements au taux critique (Montplaisir et Mourouj~6
+à 50\,\%, Rades à 60\,\%) qui appellent une \textbf{action RH ciblée}. Cette page
+transforme ainsi le suivi du pointage en un véritable outil de \textbf{pilotage
+social} du réseau.
 
 \subsection{Navigation et interactivité}
 Les quatre pages sont reliées par un \textbf{navigateur} qui joue le rôle de menu.
