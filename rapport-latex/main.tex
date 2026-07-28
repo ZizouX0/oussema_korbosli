@@ -51,6 +51,11 @@
 % Colonnes X en alignement « ragged right » : évite l'étirement et les
 % débordements dus aux identifiants de code (\texttt) dans les tableaux.
 \renewcommand{\tabularxcolumn}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+% Autorise une coupure de ligne après chaque « _ » : les longs identifiants
+% techniques (ex. DIRECTEUR\_COMMERCIAL, V\_BI\_OBJECTIFS) se replient dans la
+% cellule au lieu de déborder hors du tableau.
+\let\origunderscore\_
+\renewcommand{\_}{\origunderscore\allowbreak}
 
 % ---- Légendes : « Figure 1.1 – ... » (numérotation par chapitre native) ----
 \usepackage{caption}
