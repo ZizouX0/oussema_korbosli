@@ -176,7 +176,7 @@ figure~\ref{fig:etl_cell1} en présente l'exécution.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{etl/etl_cell1.png}
-  \caption{Collecte : extraction des tables sources dans le notebook Python}
+  \caption{Collecte : lecture des tables sources du réseau BTK (données réelles)}
   \label{fig:etl_cell1}
 \end{figure}
 
@@ -218,14 +218,17 @@ taux\_presence & Proportion de pointages « présent » ou « retard » sur le t
 
 \paragraph{4. Intégration.} Les indicateurs agrégés issus des différentes sources
 (effectifs, portefeuille, production, présence) sont \textbf{fusionnés} sur la clé
-\texttt{SK\_AGENCE} en une table unique décrivant chaque agence par ses sept
-indicateurs. La figure~\ref{fig:etl_cell2} présente cette agrégation et le datamart
-obtenu.
+\texttt{SK\_AGENCE} en une table unique décrivant chaque agence. La
+figure~\ref{fig:etl_cell2} présente cette agrégation sur les \textbf{données réelles
+du réseau BTK} : elle détaille, pour les principales agences, le portefeuille clients
+et la production commerciale (comptes, crédits, épargne). Les indicateurs d'effectif
+et de présence sont obtenus de la même manière à partir des tables
+\texttt{B\_UTILISATEURS} et \texttt{POINTAGE}.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{etl/etl_cell2.png}
-  \caption{Transformation et intégration : agrégation par agence et datamart obtenu}
+  \caption{Datamart par agence sur les données réelles du réseau BTK (portefeuille et production)}
   \label{fig:etl_cell2}
 \end{figure}
 
@@ -237,7 +240,7 @@ manquante} et récapitule les statistiques du datamart (figure~\ref{fig:etl_cell
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{etl/etl_cell3.png}
-  \caption{Contrôle de qualité : vérification des valeurs manquantes et statistiques du datamart}
+  \caption{Contrôle de qualité : statistiques du datamart (données réelles du réseau BTK)}
   \label{fig:etl_cell3}
 \end{figure}
 
