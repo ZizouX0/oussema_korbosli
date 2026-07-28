@@ -19,19 +19,21 @@ tableau~\ref{tab:acteurs} en précise les responsabilités.
 \caption{Identification des acteurs}
 \label{tab:acteurs}
 \renewcommand{\arraystretch}{1.25}
-\begin{tabularx}{\textwidth}{>{\bfseries}p{4cm}X}
-\toprule
+\begin{tabularx}{\textwidth}{|>{\bfseries}p{4cm}|X|}
+\hline
 \textmd{\textbf{Acteur}} & \textbf{Responsabilités}\\
-\midrule
+\hline
 Administrateur (\texttt{ADMIN}) & Gère les agences, les employés et les clients ;
 valide les demandes de création de clients et d'employés ; consulte le journal
 d'audit ; supervise le volet décisionnel.\\
+\hline
 Directeur commercial (\texttt{DIRECTEUR\_COMMERCIAL}) & Soumet les demandes de
 création (clients, employés) ; valide les demandes de modification des données
 des employés ; consulte les objectifs et les indicateurs.\\
+\hline
 Utilisateur (\texttt{USER}) & Consulte les données autorisées, effectue son
 pointage et soumet des demandes de modification de ses propres informations.\\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -65,18 +67,23 @@ Le tableau~\ref{tab:bnf} récapitule les besoins non fonctionnels.
 \caption{Besoins non fonctionnels}
 \label{tab:bnf}
 \renewcommand{\arraystretch}{1.2}
-\begin{tabularx}{\textwidth}{>{\bfseries}p{3.4cm}X}
-\toprule
+\begin{tabularx}{\textwidth}{|>{\bfseries}p{3.4cm}|X|}
+\hline
 \textmd{\textbf{Besoin}} & \textbf{Description}\\
-\midrule
+\hline
 Sécurité & Authentification, gestion des rôles et protection des opérations
 sensibles par des workflows de validation.\\
+\hline
 Fiabilité & Intégrité des données garantie par le SGBD et les transactions JTA.\\
+\hline
 Performance & Temps de réponse acceptable sur les volumes manipulés.\\
+\hline
 Ergonomie & Interface claire et cohérente, navigation par menu latéral.\\
+\hline
 Maintenabilité & Architecture en couches, code modulaire et faiblement couplé.\\
+\hline
 Portabilité & Application Jakarta EE standard, déployable sur serveur compatible.\\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -289,21 +296,30 @@ précise le rôle de chacune.
 \caption{Environnement technique du projet}
 \label{tab:env_technique}
 \renewcommand{\arraystretch}{1.25}
-\begin{tabularx}{\textwidth}{>{\bfseries}p{3.1cm}>{\ttfamily}p{3.5cm}X}
-\toprule
+\begin{tabularx}{\textwidth}{|>{\bfseries}p{3.1cm}|>{\ttfamily}p{3.5cm}|X|}
+\hline
 \textmd{\textbf{Catégorie}} & \textmd{\textbf{Technologie}} & \textbf{Rôle}\\
-\midrule
+\hline
 Langage & Java (JDK 21) & Langage principal de l'application.\\
+\hline
 Plateforme & Jakarta EE 10 & Servlets, JSP, EJB et JPA : structuration en couches.\\
+\hline
 Persistance & Hibernate (JPA) & Mapping objet-relationnel entre entités et base.\\
+\hline
 Base de données & Oracle Database & Données opérationnelles et vues décisionnelles.\\
+\hline
 Serveur & WildFly / JBoss & Serveur d'applications (déploiement du WAR).\\
+\hline
 Build & Apache Maven & Gestion des dépendances et production du livrable.\\
+\hline
 Visualisation Web & ApexCharts & Graphiques du tableau de bord embarqué.\\
+\hline
 Décisionnel & Microsoft Power BI & Rapports analytiques connectés à Oracle.\\
+\hline
 ETL et IA & Python (pandas, scikit-learn) & Chaîne ETL et segmentation des agences.\\
+\hline
 Versionnement & Git / GitHub & Gestion de versions et hébergement du code.\\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 

@@ -174,19 +174,26 @@ composants et leur rôle.
 \caption{Principaux modules du projet}
 \label{tab:modules}
 \renewcommand{\arraystretch}{1.25}
-\begin{tabularx}{\textwidth}{>{\bfseries\ttfamily}p{3.6cm}X}
-\toprule
+\begin{tabularx}{\textwidth}{|>{\bfseries\ttfamily}p{3.6cm}|X|}
+\hline
 \textmd{\textbf{Module}} & \textbf{Rôle}\\
-\midrule
+\hline
 entity & Entités JPA du domaine (Utilisateur, Agence, Client, Objectif, Pointage\ldots).\\
+\hline
 servlet & Couche de contrôle (servlets et filtre de sécurité).\\
+\hline
 service & Couche métier (services applicatifs).\\
+\hline
 *.jsp & Couche de présentation (interfaces et tableau de bord embarqué).\\
+\hline
 sql/ & Scripts d'initialisation des tables et vues décisionnelles \texttt{V\_BI\_*}.\\
+\hline
 etl/ & Chaîne ETL en Python (agrégation des indicateurs par agence).\\
+\hline
 clustering/ & Segmentation des agences en Python (scikit-learn).\\
+\hline
 powerbi/ & Thème et rapport décisionnel Power BI.\\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -223,21 +230,30 @@ les principaux scénarios de test et leur résultat.
 \caption{Principaux scénarios de test fonctionnel}
 \label{tab:tests}
 \renewcommand{\arraystretch}{1.2}
-\begin{tabularx}{\textwidth}{>{\bfseries}p{2.7cm}Xp{1.9cm}}
-\toprule
+\begin{tabularx}{\textwidth}{|>{\bfseries}p{2.7cm}|X|p{1.9cm}|}
+\hline
 \textmd{\textbf{Module}} & \textbf{Scénario testé} & \textbf{Résultat}\\
-\midrule
+\hline
 Authentification & Connexion avec des identifiants valides puis invalides. & Conforme\\
+\hline
 Rôles & Accès à une fonction réservée à l'\texttt{ADMIN} par un \texttt{USER}. & Conforme\\
+\hline
 Agences & Création, modification et suppression d'une agence. & Conforme\\
+\hline
 Employés & Ajout d'un employé et rattachement à une agence. & Conforme\\
+\hline
 Clients & Affectation d'un client à un gestionnaire. & Conforme\\
+\hline
 Objectifs & Consultation de la production par agence et période. & Conforme\\
+\hline
 Pointage & Pointage au-delà de 9~h (détermination du statut). & Conforme (\texttt{RETARD})\\
+\hline
 Demandes & Validation puis refus d'une demande avec journalisation. & Conforme\\
+\hline
 ETL & Exécution du pipeline et production du datamart. & Conforme\\
+\hline
 Décisionnel & Filtrage par district dans le rapport Power BI. & Conforme\\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 

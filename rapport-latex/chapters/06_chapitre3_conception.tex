@@ -117,23 +117,34 @@ tables du schéma.
 \caption{Description des principales tables de la base}
 \label{tab:tables}
 \renewcommand{\arraystretch}{1.2}
-\begin{tabularx}{\textwidth}{>{\bfseries\ttfamily}p{3.6cm}Xp{2.8cm}}
-\toprule
+\begin{tabularx}{\textwidth}{|>{\bfseries\ttfamily}p{3.6cm}|X|p{2.8cm}|}
+\hline
 \textmd{\textbf{Table}} & \textbf{Rôle} & \textbf{Clé primaire}\\
-\midrule
+\hline
 AGENCE & Référentiel des agences du réseau (libellé, adresse, district). & \texttt{SK\_AGENCE}\\
+\hline
 B\_UTILISATEURS & Employés et utilisateurs de l'application. & \texttt{SK\_UTILISATEUR}\\
+\hline
 B\_CLIENTS & Portefeuille clients (type, statut, secteur, adresse). & \texttt{SK\_CLIENT}\\
+\hline
 B\_OBJECTIF & Objectifs commerciaux et production par période. & \texttt{ID\_OBJECTIF}\\
+\hline
 POINTAGE & Pointages de présence des employés. & \texttt{ID\_POINTAGE}\\
+\hline
 GESTIONNAIRE & Gestionnaires et rattachement de portefeuille. & \texttt{SK\_UTILISATEUR}\\
+\hline
 SECURITY\_USERS & Comptes, mots de passe et rôles (sécurité). & \texttt{ID}\\
+\hline
 DEMANDE\_CLIENT & Demandes de création de clients. & \texttt{ID\_DEMANDE}\\
+\hline
 DEMANDE\_EMPLOYE & Demandes de création d'employés. & \texttt{ID\_DEMANDE}\\
+\hline
 DEMANDES\_MODIF. & Demandes de modification de données. & \texttt{ID}\\
+\hline
 JOURNAL\_ACTION & Journal d'audit des actions. & \texttt{ID\_JOURNAL}\\
+\hline
 NOTIFICATION & Notifications adressées aux utilisateurs. & \texttt{ID}\\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -160,18 +171,24 @@ présente la matrice des permissions par fonctionnalité.
 \caption{Matrice des droits d'accès par rôle}
 \label{tab:permissions}
 \renewcommand{\arraystretch}{1.25}
-\begin{tabularx}{\textwidth}{Xccc}
-\toprule
+\begin{tabularx}{\textwidth}{|X|c|c|c|}
+\hline
 \textbf{Fonctionnalité} & \textbf{ADMIN} & \textbf{DIR. COMM.} & \textbf{USER}\\
-\midrule
+\hline
 Gestion des agences, employés, clients & Oui & Non & Non\\
+\hline
 Validation des demandes & Oui & Modif. employés & Non\\
+\hline
 Soumission de demandes & Oui & Oui & Ses informations\\
+\hline
 Consultation des objectifs et indicateurs & Oui & Oui & Autorisé\\
+\hline
 Pointage de présence & Oui & Oui & Oui\\
+\hline
 Supervision du volet décisionnel & Oui & Non & Non\\
+\hline
 Consultation du journal d'audit & Oui & Non & Non\\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 

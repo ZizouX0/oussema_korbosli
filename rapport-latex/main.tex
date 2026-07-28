@@ -98,16 +98,20 @@
 \begin{table}[htbp]\centering
 \caption{Description textuelle du cas d'utilisation « #2 »}\label{#1}
 \renewcommand{\arraystretch}{1.3}
-\begin{tabularx}{\textwidth}{>{\bfseries}p{3.2cm}X}
-\toprule
+\begin{tabularx}{\textwidth}{|>{\bfseries}p{3.2cm}|X|}
+\hline
 \textmd{\textbf{Titre}} & #2\\
-\midrule
+\hline
 Objectif & #3\\
+\hline
 Acteur & #4\\
+\hline
 Pré-condition & #5\\
+\hline
 Post-condition & #6\\
+\hline
 Scénario nominal & #7\\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}}
 
