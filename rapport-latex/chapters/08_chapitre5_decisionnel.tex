@@ -220,15 +220,15 @@ taux\_presence & Proportion de pointages « présent » ou « retard » sur le t
 (effectifs, portefeuille, production, présence) sont \textbf{fusionnés} sur la clé
 \texttt{SK\_AGENCE} en une table unique décrivant chaque agence. La
 figure~\ref{fig:etl_cell2} présente cette agrégation sur les \textbf{données réelles
-du réseau BTK} : elle détaille, pour les principales agences, le portefeuille clients
-et la production commerciale (comptes, crédits, épargne). Les indicateurs d'effectif
-et de présence sont obtenus de la même manière à partir des tables
-\texttt{B\_UTILISATEURS} et \texttt{POINTAGE}.
+du réseau BTK} (49 agences) : elle détaille, pour chaque agence, l'effectif, le
+nombre de gestionnaires, le portefeuille clients et la production commerciale
+(comptes, crédits, épargne). Le taux de présence est calculé de la même manière à
+partir de la table \texttt{POINTAGE}.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{etl/etl_cell2.png}
-  \caption{Datamart par agence sur les données réelles du réseau BTK (portefeuille et production)}
+  \caption{Datamart par agence sur les données réelles du réseau BTK (49 agences)}
   \label{fig:etl_cell2}
 \end{figure}
 
