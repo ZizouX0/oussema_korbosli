@@ -161,24 +161,24 @@ d'objectifs (comptes, crédits, épargne) y sont déjà consolidés à partir de
 colonnes correspondantes de la table \texttt{B\_OBJECTIF}.
 
 \subsection{Détail des étapes de traitement}
-La chaîne ETL est implémentée en \textbf{Python} (script \texttt{etl\_agences.py})
-à l'aide de la bibliothèque \textbf{pandas}~\cite{pandas}. Elle enchaîne cinq
-étapes --- \textbf{collecte}, \textbf{nettoyage}, \textbf{transformation},
-\textbf{intégration} et \textbf{contrôle de qualité} --- journalisées à chaque
-exécution, comme l'illustre la figure~\ref{fig:etl_run}.
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.9\textwidth]{etl/etl_run.png}
-  \caption{Journal d'exécution de la chaîne ETL (\texttt{etl\_agences.py})}
-  \label{fig:etl_run}
-\end{figure}
+La chaîne ETL est implémentée en \textbf{Python} (bibliothèque
+\textbf{pandas}~\cite{pandas}) et exécutée dans un \textbf{notebook} connecté à la
+base Oracle. Elle enchaîne cinq étapes --- \textbf{collecte}, \textbf{nettoyage},
+\textbf{transformation}, \textbf{intégration} et \textbf{contrôle de qualité} ---,
+illustrées ci-après par des captures du notebook.
 
 \paragraph{1. Collecte (\emph{Extract}).} Les cinq jeux de données sources ---
 agences, employés, clients, objectifs et pointages --- sont lus depuis les tables
 Oracle \texttt{AGENCE}, \texttt{B\_UTILISATEURS}, \texttt{CLIENT\_BTK},
-\texttt{B\_OBJECTIF} et \texttt{POINTAGE} (via le connecteur \texttt{oracledb}) ou,
-à défaut, depuis les fichiers CSV exportés.
+\texttt{B\_OBJECTIF} et \texttt{POINTAGE} (via le connecteur \texttt{oracledb}). La
+figure~\ref{fig:etl_cell1} en présente l'exécution.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{etl/etl_cell1.png}
+  \caption{Collecte : extraction des tables sources dans le notebook Python}
+  \label{fig:etl_cell1}
+\end{figure}
 
 \paragraph{2. Nettoyage.} Les enregistrements incomplets ou incohérents sont
 écartés : les lignes sans agence de rattachement (\texttt{SK\_AGENCE} manquant)
@@ -219,20 +219,27 @@ taux\_presence & Proportion de pointages « présent » ou « retard » sur le t
 \paragraph{4. Intégration.} Les indicateurs agrégés issus des différentes sources
 (effectifs, portefeuille, production, présence) sont \textbf{fusionnés} sur la clé
 \texttt{SK\_AGENCE} en une table unique décrivant chaque agence par ses sept
-indicateurs. La figure~\ref{fig:etl_datamart} en présente un aperçu.
+indicateurs. La figure~\ref{fig:etl_cell2} présente cette agrégation et le datamart
+obtenu.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{etl/etl_datamart.png}
-  \caption{Aperçu du datamart agrégé produit par la chaîne ETL (\texttt{fait\_agence})}
-  \label{fig:etl_datamart}
+  \includegraphics[width=\textwidth]{etl/etl_cell2.png}
+  \caption{Transformation et intégration : agrégation par agence et datamart obtenu}
+  \label{fig:etl_cell2}
 \end{figure}
 
 \paragraph{5. Contrôle de qualité.} Avant chargement, la qualité du datamart est
-vérifiée : les \textbf{valeurs manquantes} sont remplacées par zéro, les mesures
-sont \textbf{arrondies}, et le pipeline \textbf{journalise} le nombre
-d'enregistrements traités à chaque étape (figure~\ref{fig:etl_run}), ce qui permet
-de contrôler la cohérence des volumes d'une exécution à l'autre.
+vérifiée : les \textbf{valeurs manquantes} sont remplacées par zéro et les mesures
+sont \textbf{arrondies}. Un contrôle final confirme l'\textbf{absence de valeur
+manquante} et récapitule les statistiques du datamart (figure~\ref{fig:etl_cell3}).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{etl/etl_cell3.png}
+  \caption{Contrôle de qualité : vérification des valeurs manquantes et statistiques du datamart}
+  \label{fig:etl_cell3}
+\end{figure}
 
 \paragraph{Chargement (\emph{Load}).} Le datamart en étoile est enfin écrit sous
 \texttt{etl/entrepot/} : la dimension \texttt{dim\_agence} et la table de faits
