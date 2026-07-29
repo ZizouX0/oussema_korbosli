@@ -47,11 +47,12 @@ poste décisionnel exécutant Power BI.
 
 \subsection{Architecture logique}
 L'architecture logique (figure~\ref{fig:archi_logique}) décompose le système en
-\textbf{couches} faiblement couplées suivant le patron \textbf{MVC} : la couche
+\textbf{couches} faiblement couplées suivant le patron \textbf{MVC}, conformément
+aux pratiques de la plateforme Jakarta~EE~\cite{goncalves2016jee} : la couche
 \emph{présentation} (JSP/JSTL, ApexCharts), la couche \emph{contrôle} (Servlets et
 le filtre \texttt{NotificationFilter}), la couche \emph{métier} (services EJB) et
-la couche \emph{persistance} (entités JPA et Hibernate dialoguant avec Oracle via
-l'\texttt{EntityManager}).
+la couche \emph{persistance} (entités JPA et Hibernate~\cite{hibernate} dialoguant
+avec Oracle via l'\texttt{EntityManager}).
 
 \begin{figure}[htbp]
   \centering
@@ -63,8 +64,8 @@ l'\texttt{EntityManager}).
 % ----------------------------------------------------------------------
 \section{Diagramme de classes}
 La figure~\ref{fig:class} présente le \textbf{diagramme de classes} du modèle
-métier, qui représente les entités persistantes du domaine, leurs attributs et
-les associations qui les relient.
+métier~\cite{fowler2004uml}, qui représente les entités persistantes du domaine,
+leurs attributs et les associations qui les relient.
 
 \begin{figure}[p]
   \centering
@@ -94,9 +95,9 @@ JPA explicites.
 \section{Modèle physique de données}
 Au modèle de classes correspond, au niveau de la base de données, un
 \textbf{schéma relationnel} : chaque entité persistante est traduite en une table
-Oracle, chaque attribut en une colonne et chaque association en une \textbf{clé
-étrangère}. La figure~\ref{fig:er} présente ce schéma relationnel, obtenu par
-\emph{mapping} objet-relationnel (JPA/Hibernate) à partir des entités du domaine.
+Oracle~\cite{oracle}, chaque attribut en une colonne et chaque association en une
+\textbf{clé étrangère}. La figure~\ref{fig:er} présente ce schéma relationnel, obtenu
+par \emph{mapping} objet-relationnel (JPA/Hibernate) à partir des entités du domaine.
 
 \begin{figure}[htbp]
   \centering
@@ -198,9 +199,9 @@ est bloquée par le contrôle de session et de rôle.
 
 % ----------------------------------------------------------------------
 \section{Diagrammes de séquence}
-Les diagrammes de séquence décrivent le déroulement dynamique des principales
-fonctionnalités, en montrant les échanges entre la couche de présentation, les
-servlets, les services métier et la base de données.
+Les diagrammes de séquence~\cite{roques2018uml} décrivent le déroulement dynamique
+des principales fonctionnalités, en montrant les échanges entre la couche de
+présentation, les servlets, les services métier et la base de données.
 
 \subsection{S'authentifier}
 La figure~\ref{fig:seq_auth} décrit le déroulement dynamique de l'authentification.

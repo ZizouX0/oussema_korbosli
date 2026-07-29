@@ -35,8 +35,9 @@ section~\ref{sec:segmentation}.
 \section{Modèle en étoile de l'entrepôt}
 
 \subsection{Comparaison des schémas de modélisation}
-La modélisation dimensionnelle d'un entrepôt de données peut suivre trois grands
-schémas. Le \textbf{modèle en étoile} place une table de faits centrale, entourée
+La modélisation dimensionnelle d'un entrepôt de données~\cite{kimball2013dwh} peut
+suivre trois grands schémas. Le \textbf{modèle en étoile} place une table de faits
+centrale, entourée
 de tables de dimensions \emph{dénormalisées} (une table par axe d'analyse). Le
 \textbf{modèle en flocon} (\emph{snowflake}) en dérive : les dimensions y sont
 \emph{normalisées} en sous-tables hiérarchiques, ce qui économise l'espace mais
@@ -270,8 +271,9 @@ présente le tableau de bord embarqué.
 
 % ----------------------------------------------------------------------
 \section{Intégration du modèle en étoile dans Power BI}
-Le modèle en étoile décrit précédemment est \textbf{matérialisé dans Power BI} pour
-servir de socle aux rapports. Les tables et vues décisionnelles sont d'abord
+Le modèle en étoile décrit précédemment est \textbf{matérialisé dans Power
+BI}~\cite{powerbi} pour servir de socle aux rapports. Les tables et vues
+décisionnelles sont d'abord
 \textbf{importées} depuis le schéma Oracle (\texttt{AGENCE}, \texttt{B\_UTILISATEURS},
 \texttt{B\_CLIENTS}, \texttt{B\_OBJECTIF}, \texttt{POINTAGE} et les vues
 \texttt{V\_BI\_*}) au moyen du connecteur Oracle natif.
@@ -344,11 +346,11 @@ respectivement l'analyse des clients, la performance commerciale et l'assiduité
 Les indicateurs restitués sont calculés au moyen de \textbf{mesures DAX} définies
 sur le modèle de données. Le tableau~\ref{tab:dax} en récapitule les principales.
 
-\begin{table}[htbp]
-\centering
+\begin{table}[!htb]
+\centering\small
 \caption{Principales mesures DAX du rapport Power BI}
 \label{tab:dax}
-\renewcommand{\arraystretch}{1.25}
+\renewcommand{\arraystretch}{1.15}
 \begin{tabularx}{\textwidth}{|>{\bfseries}p{3.8cm}|X|}
 \hline
 \textmd{\textbf{Mesure}} & \textbf{Définition}\\
@@ -378,11 +380,11 @@ Au-delà de leur définition, ces indicateurs sont retenus pour l'\textbf{aide �
 décision} qu'ils apportent. Le tableau~\ref{tab:kpi_interet} précise l'\textbf{intérêt
 décisionnel} de chacun.
 
-\begin{table}[htbp]
-\centering
+\begin{table}[!htb]
+\centering\small
 \caption{Principaux KPI des tableaux de bord et leur intérêt décisionnel}
 \label{tab:kpi_interet}
-\renewcommand{\arraystretch}{1.25}
+\renewcommand{\arraystretch}{1.15}
 \begin{tabularx}{\textwidth}{|>{\bfseries}p{3.6cm}|X|}
 \hline
 \textmd{\textbf{KPI}} & \textbf{Intérêt décisionnel}\\
@@ -528,7 +530,8 @@ sombre} homogène assure la lisibilité et la cohérence visuelle de l'ensemble.
 \label{sec:segmentation}
 Cette dernière section introduit une brique d'\textbf{intelligence artificielle} :
 la segmentation des agences par \textbf{apprentissage non supervisé}
-(\emph{clustering}). À partir du datamart produit par la chaîne ETL, elle regroupe
+(\emph{clustering})~\cite{geron2019ml}. À partir du datamart produit par la chaîne
+ETL, elle regroupe
 automatiquement les agences en profils homogènes afin d'appuyer le ciblage,
 l'allocation des ressources et la définition d'objectifs différenciés.
 
@@ -576,7 +579,8 @@ taux\_presence & Taux de présence (issu du pointage)\\
 \subsection{Prétraitement}
 Les variables étant exprimées dans des ordres de grandeur très différents (un
 effectif de quelques dizaines face à des milliers de comptes), une
-\textbf{standardisation} (centrage-réduction, \texttt{StandardScaler}) est
+\textbf{standardisation} (centrage-réduction, \texttt{StandardScaler} de la
+bibliothèque \textbf{scikit-learn}~\cite{scikitlearn}) est
 appliquée. Sans elle, les variables de forte amplitude domineraient le calcul des
 distances et fausseraient le regroupement.
 
@@ -597,9 +601,9 @@ $k=3$} et le score de silhouette y atteint son \textbf{maximum}
 ($\approx 0{,}74$). La segmentation en \textbf{trois clusters} est donc retenue.
 
 \subsection{Comparaison des modèles de clustering}
-Quatre algorithmes ont été comparés : \textbf{K-Means}, \textbf{classification
-ascendante hiérarchique} (agglomératif), \textbf{modèle de mélange gaussien} (GMM)
-et \textbf{DBSCAN}, à l'aide de trois indices internes
+Quatre algorithmes~\cite{geron2019ml} ont été comparés : \textbf{K-Means},
+\textbf{classification ascendante hiérarchique} (agglomératif), \textbf{modèle de
+mélange gaussien} (GMM) et \textbf{DBSCAN}, à l'aide de trois indices internes
 (tableau~\ref{tab:comparaison_clustering}, figure~\ref{fig:comparaison_clustering}).
 
 \begin{table}[htbp]

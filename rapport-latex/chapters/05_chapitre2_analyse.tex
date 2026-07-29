@@ -90,8 +90,9 @@ Portabilité & Application Jakarta EE standard, déployable sur serveur compatib
 % ----------------------------------------------------------------------
 \section{Diagramme de cas d'utilisation global}
 La figure~\ref{fig:uc_global} présente le \textbf{diagramme de cas d'utilisation
-global}, qui représente d'un point de vue fonctionnel les interactions entre les
-acteurs et les services offerts par le système.
+global}, formalisé selon la notation \textbf{UML}~\cite{roques2018uml}, qui
+représente d'un point de vue fonctionnel les interactions entre les acteurs et les
+services offerts par le système.
 
 \begin{figure}[p]
   \centering
@@ -287,15 +288,17 @@ le meilleur modèle, projette en PCA et restitue le profil de chaque segment.}
 % ----------------------------------------------------------------------
 \section{Environnement technique}
 La réalisation de la solution s'appuie sur un ensemble cohérent de technologies,
-réparties entre le développement de l'application, la base de données et le volet
-décisionnel. Le tableau~\ref{tab:env_technique} en récapitule les principales et
-précise le rôle de chacune.
+réparties entre le développement de l'application avec \textbf{Jakarta
+EE}~\cite{jakartaee}, la base de données \textbf{Oracle}~\cite{oracle} et le volet
+décisionnel sous \textbf{Power BI}~\cite{powerbi}. Le
+tableau~\ref{tab:env_technique} en récapitule les principales et précise le rôle de
+chacune.
 
-\begin{table}[htbp]
-\centering
+\begin{table}[!htb]
+\centering\small
 \caption{Environnement technique du projet}
 \label{tab:env_technique}
-\renewcommand{\arraystretch}{1.25}
+\renewcommand{\arraystretch}{1.15}
 \begin{tabularx}{\textwidth}{|>{\bfseries}p{3.1cm}|>{\ttfamily}p{3.5cm}|X|}
 \hline
 \textmd{\textbf{Catégorie}} & \textmd{\textbf{Technologie}} & \textbf{Rôle}\\
