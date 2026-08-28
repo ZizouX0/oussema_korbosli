@@ -538,17 +538,19 @@ l'allocation des ressources et la définition d'objectifs différenciés.
 \subsection{Données et variables}
 Les données ne sont pas extraites directement de la base opérationnelle : elles
 proviennent du \textbf{datamart} produit par la chaîne ETL (table de faits
-\texttt{fait\_agence}). Chaque agence y est décrite par sept indicateurs agrégés
-(tableau~\ref{tab:variables_clustering}), ce qui garantit la cohérence entre le
-tableau de bord, Power BI et l'analyse non supervisée.
+\texttt{fait\_agence}), ce qui garantit la cohérence entre le tableau de bord,
+Power BI et l'analyse non supervisée. La segmentation porte sur les
+\textbf{données réelles du réseau BTK} : les 49 entités remontées par la requête
+d'extraction, chacune décrite par six indicateurs agrégés
+(tableau~\ref{tab:variables_clustering}).
 
-\medskip\noindent\emph{Remarque.} En l'absence d'un export des données de
-production, la segmentation présentée ici est \textbf{illustrée sur un jeu de
-données représentatif} du réseau, généré par la chaîne ETL pour reproduire la
-structure et les ordres de grandeur des agences ; le pipeline bascule
-automatiquement sur les données réelles dès qu'un export est fourni
-(\texttt{etl/source/}). Les résultats ci-dessous illustrent donc la
-\emph{démarche} et restent reproductibles sur les données réelles.
+Deux précautions ont été prises avant l'analyse. D'une part, le \textbf{siège}
+--- 540 collaborateurs, sans portefeuille de clientèle --- est une structure
+centrale et non une agence : conservé dans le datamart, il est \textbf{écarté de
+la segmentation}, où il constituerait un point atypique écrasant toute autre
+structure. D'autre part, le taux de présence n'est pas retenu comme variable : le
+pointage n'étant déployé qu'au siège, l'indicateur n'est pas encore renseigné pour
+l'ensemble du réseau.
 
 \begin{table}[htbp]
 \centering
@@ -571,8 +573,6 @@ production\_credits & Production de crédits\\
 \hline
 collecte\_epargne & Collecte d'épargne\\
 \hline
-taux\_presence & Taux de présence (issu du pointage)\\
-\hline
 \end{tabularx}
 \end{table}
 
@@ -583,6 +583,12 @@ effectif de quelques dizaines face à des milliers de comptes), une
 bibliothèque \textbf{scikit-learn}~\cite{scikitlearn}) est
 appliquée. Sans elle, les variables de forte amplitude domineraient le calcul des
 distances et fausseraient le regroupement.
+
+Les montants et la taille du portefeuille présentent en outre une distribution
+très \textbf{asymétrique} : quelques agences concentrent une production de crédits
+d'un ordre de grandeur supérieur au reste du réseau. Une \textbf{transformation
+logarithmique} leur est donc appliquée avant la standardisation, afin qu'une agence
+extrême ne détermine pas à elle seule la structure des groupes.
 
 \subsection{Détermination du nombre de clusters}
 Le nombre de clusters $k$ étant inconnu a priori, il est déterminé en combinant la
@@ -596,9 +602,12 @@ silhouette} (figure~\ref{fig:choix_k}).
   \label{fig:choix_k}
 \end{figure}
 
-Les deux indicateurs concordent : l'inertie présente un \textbf{coude marqué à
-$k=3$} et le score de silhouette y atteint son \textbf{maximum}
-($\approx 0{,}74$). La segmentation en \textbf{trois clusters} est donc retenue.
+L'inertie présente un \textbf{coude marqué à $k=3$}. Le score de silhouette
+atteint certes sa valeur la plus élevée en $k=2$, mais cette solution se contente
+d'isoler les entités sans activité du reste du réseau : elle est statistiquement
+commode et sans portée opérationnelle. La solution à \textbf{$k=3$}, qui conserve
+un score élevé ($0{,}604$) tout en distinguant trois comportements exploitables,
+est donc retenue.
 
 \subsection{Comparaison des modèles de clustering}
 Quatre algorithmes~\cite{geron2019ml} ont été comparés : \textbf{K-Means},
@@ -616,13 +625,13 @@ mélange gaussien} (GMM) et \textbf{DBSCAN}, à l'aide de trois indices internes
 \textmd{\textbf{Modèle}} & \textbf{Nb clusters} & \textbf{Silhouette $\uparrow$} &
 \textbf{Davies-Bouldin $\downarrow$} & \textbf{Calinski-Harabasz $\uparrow$}\\
 \hline
-K-Means        & 3 & \textbf{0,736} & \textbf{0,350} & \textbf{391}\\
+K-Means        & 3 & \textbf{0,604} & 0,709 & \textbf{95,2}\\
 \hline
-Agglomératif   & 3 & 0,736 & 0,350 & 391\\
+Agglomératif   & 3 & 0,417 & 0,841 & 90,8\\
 \hline
-GMM            & 3 & 0,736 & 0,350 & 391\\
+GMM            & 3 & 0,446 & 0,770 & 89,1\\
 \hline
-DBSCAN         & 3 & 0,736 & 0,350 & 391\\
+DBSCAN         & 3 & 0,658 & \textbf{0,409} & 92,5\\
 \hline
 \end{tabularx}
 \end{table}
@@ -634,19 +643,26 @@ DBSCAN         & 3 & 0,736 & 0,350 & 391\\
   \label{fig:comparaison_clustering}
 \end{figure}
 
-Les quatre algorithmes \textbf{convergent vers la même segmentation} : ils
-identifient les trois mêmes clusters et obtiennent des indices identiques
-(silhouette $0{,}736$, Davies-Bouldin $0{,}350$, Calinski-Harabasz $391$). Cette
-concordance, y compris pour des approches de nature différente (partitionnement,
-hiérarchique, probabiliste et à base de densité), confirme la \textbf{robustesse}
-des trois segments. Le \textbf{K-Means} est retenu : il atteint le meilleur score
-tout en restant simple et interprétable.
+Les quatre approches aboutissent à des résultats \textbf{sensiblement différents},
+ce qui justifie la comparaison. \textbf{DBSCAN} obtient les meilleurs indices de
+séparation (silhouette $0{,}658$, Davies-Bouldin $0{,}409$), mais au prix d'un
+\textbf{rejet} : l'agence CENTRALE, atypique par sa production de crédits, n'est
+affectée à aucun groupe et se trouve classée comme « bruit ». Les approches
+hiérarchique et probabiliste (GMM) produisent des groupes moins nettement séparés
+(silhouette $0{,}417$ et $0{,}446$).
+
+Le \textbf{K-Means} est retenu : il obtient le meilleur score de silhouette parmi
+les modèles qui \textbf{classent l'ensemble des agences} ($0{,}604$) et la
+meilleure cohésion globale (Calinski-Harabasz $95{,}2$), tout en restant simple à
+interpréter et à réexécuter --- une qualité essentielle pour un outil destiné au
+pilotage opérationnel.
 
 \subsection{Résultats et interprétation}
 La figure~\ref{fig:clusters_pca} projette les agences dans le plan des deux
-premières composantes principales (PCA), colorées selon leur cluster ; la première
-composante, qui résume la \emph{taille} de l'agence, explique l'essentiel de la
-variance. Les trois segments sont nettement séparés.
+premières composantes principales (PCA), colorées selon leur cluster. La première
+composante, qui résume le \emph{niveau d'activité} de l'entité, explique à elle
+seule \textbf{80~\%} de la variance ; les trois segments y apparaissent nettement
+séparés.
 
 \begin{figure}[htbp]
   \centering
@@ -663,24 +679,40 @@ les caractériser.
 \caption{Profil moyen des segments d'agences}
 \label{tab:profils_clusters}
 \renewcommand{\arraystretch}{1.25}
-\begin{tabularx}{\textwidth}{|>{\bfseries}X|c|c|c|c|c|c|}
+\begin{tabularx}{\textwidth}{|>{\bfseries}X|c|c|c|c|c|}
 \hline
 \textmd{\textbf{Segment}} & \textbf{Nb} & \textbf{Effectif} & \textbf{Clients} &
-\textbf{Comptes} & \textbf{Prod. crédits} & \textbf{Présence}\\
+\textbf{Comptes} & \textbf{Prod. crédits}\\
 \hline
-Grandes agences   & 7  & 116 & 908 & 2\,333 & 1\,734 & 0,98\\
+Agences d'exploitation & 34 & 12 & 880 & 559 & 7,80~MDT\\
 \hline
-Moyennes agences  & 16 & 54  & 438 & 1\,076 & 823  & 0,94\\
+Entités de production & 6 & 4 & 2 & 285 & 14,61~MDT\\
 \hline
-Petites agences   & 22 & 21  & 160 & 431  & 321  & 0,87\\
+Entités sans activité & 8 & 3 & 0 & 0 & 0\\
 \hline
 \end{tabularx}
 \end{table}
 
-On distingue ainsi un segment de \textbf{grandes agences} (pôles majeurs à fort
-effectif et forte production), un segment d'\textbf{agences moyennes} (activité
-intermédiaire) et un segment de \textbf{petites agences} (effectif et activité
-réduits, taux de présence plus faible).
+Les trois segments correspondent à des \textbf{régimes d'activité distincts}, et
+non à un simple classement par taille.
+
+Le premier réunit les \textbf{agences d'exploitation} : 34 agences qui portent
+l'essentiel du réseau, avec un portefeuille moyen de 880 clients, une douzaine de
+collaborateurs et une production de crédits de l'ordre de 7,8~MDT. C'est le
+\textbf{cœur commercial} de la banque.
+
+Le deuxième regroupe six \textbf{entités de production} --- dont les agences
+régionales de Tunis Nord et Sud et l'agence LAC~2 --- qui affichent une production
+de crédits élevée (14,6~MDT en moyenne, soit près du double des agences
+d'exploitation) alors qu'elles ne détiennent pratiquement \textbf{aucun
+portefeuille de clientèle}. Elles réalisent des opérations de financement sans
+activité de guichet.
+
+Le troisième rassemble huit \textbf{entités sans activité enregistrée} (agences
+Premium, agence Internationale, structures récentes) : ni clientèle, ni comptes,
+ni production sur la période observée. Leur identification constitue en soi un
+\textbf{résultat utile} : elle signale des unités à ouvrir, à rattacher ou dont
+les données restent à intégrer au système d'information.
 
 \subsection{Apport décisionnel}
 Cette segmentation constitue un outil d'\textbf{aide à la décision} : elle permet
@@ -696,21 +728,25 @@ recommandations de pilotage par segment.
 \hline
 \textmd{\textbf{Segment}} & \textbf{Recommandations}\\
 \hline
-Grandes agences & Capitaliser sur la performance ; fixer des objectifs ambitieux ;
-en faire des agences de référence et diffuser leurs bonnes pratiques.\\
+Agences d'exploitation & Fixer des objectifs commerciaux différenciés selon le
+portefeuille ; diffuser les bonnes pratiques des agences les plus performantes ;
+suivre l'effort d'équipement et la collecte d'épargne.\\
 \hline
-Moyennes agences & Fort potentiel de croissance ; renforcer l'effort d'équipement
-(EER) et la collecte ; assigner des objectifs progressifs.\\
+Entités de production & Analyser la rentabilité de ces financements réalisés hors
+guichet ; vérifier le rattachement des dossiers ; envisager le développement d'un
+portefeuille de clientèle en accompagnement.\\
 \hline
-Petites agences & Accompagnement ciblé ; suivi rapproché de l'assiduité (taux de
-présence plus faible) ; mutualisation des ressources et montée en compétence.\\
+Entités sans activité & Statuer sur leur situation : ouverture effective,
+rattachement à une agence voisine, ou intégration de leurs données au système
+d'information si l'activité existe sans être enregistrée.\\
 \hline
 \end{tabularx}
 \end{table}
 
-En résumé, la segmentation permet d'\textbf{allouer les ressources} selon la
-taille, de \textbf{différencier les objectifs} et d'\textbf{accompagner
-spécifiquement} les agences les plus fragiles. Elle prolonge le volet décisionnel
+En résumé, la segmentation permet de \textbf{différencier les objectifs} selon le
+régime d'activité réel de chaque entité, d'\textbf{interroger} les financements
+réalisés hors guichet et de \textbf{fiabiliser le référentiel} en révélant les
+unités sans activité enregistrée. Elle prolonge le volet décisionnel
 et illustre l'apport de l'\textbf{intelligence artificielle} au pilotage du réseau.
 
 \section*{Conclusion}
