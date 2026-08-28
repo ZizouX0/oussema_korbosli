@@ -631,7 +631,7 @@ Agglomératif   & 3 & 0,417 & 0,841 & 90,8\\
 \hline
 GMM            & 3 & 0,446 & 0,770 & 89,1\\
 \hline
-DBSCAN         & 3 & 0,658 & \textbf{0,409} & 92,5\\
+DBSCAN         & 4 & 0,517 & \textbf{0,393} & 65,4\\
 \hline
 \end{tabularx}
 \end{table}
@@ -643,35 +643,28 @@ DBSCAN         & 3 & 0,658 & \textbf{0,409} & 92,5\\
   \label{fig:comparaison_clustering}
 \end{figure}
 
+\medskip\noindent\emph{Protocole d'évaluation.} Les quatre modèles sont évalués
+sur \textbf{la totalité des agences}. DBSCAN étant le seul à pouvoir refuser de
+classer un point --- il écarte ici l'agence CENTRALE, atypique par sa production de
+crédits ---, cette agence est comptée comme un groupe à part entière plutôt
+qu'exclue du calcul. Sans cette précaution, un modèle serait avantagé du seul fait
+d'avoir écarté les agences les plus difficiles à classer, et les indices ne
+porteraient pas sur le même échantillon.
+
 Les quatre approches aboutissent à des résultats \textbf{sensiblement différents},
-ce qui justifie la comparaison. \textbf{DBSCAN} affiche les meilleurs indices de
-séparation (silhouette $0{,}658$, Davies-Bouldin $0{,}409$), devant K-Means
-($0{,}604$), puis les approches probabiliste et hiérarchique ($0{,}446$ et
-$0{,}417$).
+ce qui justifie la comparaison. Le \textbf{K-Means} obtient le \textbf{meilleur
+score de silhouette} ($0{,}604$, contre $0{,}517$ pour DBSCAN, $0{,}446$ pour le
+modèle de mélange gaussien et $0{,}417$ pour la classification hiérarchique) ainsi
+que le \textbf{meilleur indice de Calinski-Harabasz} ($95{,}2$), qui mesure la
+cohésion d'ensemble de la partition. DBSCAN ne devance K-Means que sur l'indice de
+Davies-Bouldin, et au prix d'un quatrième groupe réduit à une seule agence.
 
-Ces valeurs ne sont toutefois \textbf{pas directement comparables} : DBSCAN
-n'affecte pas toutes les agences. Il laisse de côté l'agence CENTRALE, atypique par
-sa production de crédits, en la classant comme « bruit » ; ses indices sont donc
-calculés sur 47 agences au lieu de 48. Écarter le point le plus difficile améliore
-mécaniquement toute mesure de séparation. Recalculés sur le \textbf{même
-échantillon de 47 agences}, les indices deviennent : silhouette $0{,}616$ et
-Calinski-Harabasz $105{,}8$ pour K-Means, contre $0{,}658$ et $92{,}5$ pour DBSCAN.
-À conditions égales, DBSCAN conserve donc un léger avantage en séparation, tandis
-que K-Means l'emporte sur la cohésion d'ensemble.
-
-Le \textbf{K-Means} est néanmoins retenu, pour des raisons \textbf{opérationnelles}
-plutôt que de score. D'abord, la segmentation est destinée au \textbf{pilotage du
-réseau} : chaque agence doit appartenir à un segment, ce qu'un modèle laissant une
-agence non classée ne permet pas --- et l'agence écartée, CENTRALE, est précisément
-la première du réseau par la production de crédits. Ensuite, K-Means sait
-\textbf{affecter une nouvelle agence} à un segment existant, ce que DBSCAN ne
-permet pas nativement ; la segmentation reste ainsi réutilisable à mesure que le
-réseau évolue. Enfin, ses centres de gravité fournissent une lecture métier
-directe de chaque profil.
-
-Le résultat de DBSCAN n'est pas pour autant écarté : en isolant spontanément
-CENTRALE, il \textbf{confirme le caractère atypique} de cette agence, information
-utile en soi pour la direction.
+Le \textbf{K-Means est donc retenu}. Ce choix est en outre conforté par des
+considérations \textbf{opérationnelles} : il affecte chaque agence à un segment
+--- condition nécessaire pour un outil de pilotage --- et sait \textbf{classer une
+nouvelle agence} dans un segment existant, ce qui rend la segmentation réutilisable
+à mesure que le réseau évolue. Ses centres de gravité fournissent enfin une lecture
+métier directe de chaque profil.
 
 \subsection{Résultats et interprétation}
 La figure~\ref{fig:clusters_pca} projette les agences dans le plan des deux

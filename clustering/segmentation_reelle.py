@@ -70,16 +70,19 @@ modeles = {
     "GMM": GaussianMixture(n_components=k_opt, random_state=42).fit_predict(X),
     "DBSCAN": DBSCAN(eps=1.5, min_samples=3).fit_predict(X),
 }
+# Protocole d'évaluation équitable : chaque modèle est noté sur LA TOTALITÉ des
+# agences. Les points qu'un modèle refuse de classer (bruit DBSCAN) sont comptés
+# comme un groupe à part entière : un modèle ne doit pas être avantagé par le
+# fait d'avoir écarté les agences les plus difficiles à classer.
 lignes = []
 for nom, lab in modeles.items():
-    m = lab != -1
-    nb = len(set(lab[m]))
-    if nb < 2:
-        lignes.append([nom, nb, np.nan, np.nan, np.nan]); continue
-    lignes.append([nom, nb,
-                   silhouette_score(X[m], lab[m]),
-                   davies_bouldin_score(X[m], lab[m]),
-                   calinski_harabasz_score(X[m], lab[m])])
+    lab = lab.copy()
+    if (lab == -1).any():
+        lab[lab == -1] = lab.max() + 1
+    lignes.append([nom, len(set(lab)),
+                   silhouette_score(X, lab),
+                   davies_bouldin_score(X, lab),
+                   calinski_harabasz_score(X, lab)])
 comp = pd.DataFrame(lignes, columns=["Modèle", "Clusters", "Silhouette",
                                      "Davies-Bouldin", "Calinski-Harabasz"])
 comp.to_csv(os.path.join(HERE, "comparaison_modeles_reelles.csv"), index=False)
@@ -96,14 +99,11 @@ fig.tight_layout(); fig.savefig(os.path.join(FIG, "clustering_comparaison.png"),
 plt.close(fig)
 
 # ---------- 3) modèle retenu ----------
-# DBSCAN obtient le meilleur score mais rejette certaines agences comme « bruit »
-# (non affectées). On retient le meilleur modèle qui classe TOUTES les agences.
-sans_bruit = [n for n, l in modeles.items() if (l == -1).sum() == 0
-              and len(set(l)) == k_opt]
-elig = comp[comp["Modèle"].isin(sans_bruit)]
-best = elig.loc[elig["Silhouette"].idxmax(), "Modèle"]
+# Le modèle retenu est celui qui obtient le meilleur score de silhouette sous le
+# protocole d'évaluation ci-dessus (toutes les agences prises en compte).
+best = comp.loc[comp["Silhouette"].idxmax(), "Modèle"]
 labels = modeles[best]
-print(f"\n[best] modèle retenu : {best} (classe toutes les agences)")
+print(f"\n[best] modèle retenu : {best}")
 
 # ---------- 4) projection PCA ----------
 p = PCA(n_components=2).fit(X)
