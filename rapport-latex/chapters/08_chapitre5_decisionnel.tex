@@ -644,18 +644,34 @@ DBSCAN         & 3 & 0,658 & \textbf{0,409} & 92,5\\
 \end{figure}
 
 Les quatre approches aboutissent à des résultats \textbf{sensiblement différents},
-ce qui justifie la comparaison. \textbf{DBSCAN} obtient les meilleurs indices de
-séparation (silhouette $0{,}658$, Davies-Bouldin $0{,}409$), mais au prix d'un
-\textbf{rejet} : l'agence CENTRALE, atypique par sa production de crédits, n'est
-affectée à aucun groupe et se trouve classée comme « bruit ». Les approches
-hiérarchique et probabiliste (GMM) produisent des groupes moins nettement séparés
-(silhouette $0{,}417$ et $0{,}446$).
+ce qui justifie la comparaison. \textbf{DBSCAN} affiche les meilleurs indices de
+séparation (silhouette $0{,}658$, Davies-Bouldin $0{,}409$), devant K-Means
+($0{,}604$), puis les approches probabiliste et hiérarchique ($0{,}446$ et
+$0{,}417$).
 
-Le \textbf{K-Means} est retenu : il obtient le meilleur score de silhouette parmi
-les modèles qui \textbf{classent l'ensemble des agences} ($0{,}604$) et la
-meilleure cohésion globale (Calinski-Harabasz $95{,}2$), tout en restant simple à
-interpréter et à réexécuter --- une qualité essentielle pour un outil destiné au
-pilotage opérationnel.
+Ces valeurs ne sont toutefois \textbf{pas directement comparables} : DBSCAN
+n'affecte pas toutes les agences. Il laisse de côté l'agence CENTRALE, atypique par
+sa production de crédits, en la classant comme « bruit » ; ses indices sont donc
+calculés sur 47 agences au lieu de 48. Écarter le point le plus difficile améliore
+mécaniquement toute mesure de séparation. Recalculés sur le \textbf{même
+échantillon de 47 agences}, les indices deviennent : silhouette $0{,}616$ et
+Calinski-Harabasz $105{,}8$ pour K-Means, contre $0{,}658$ et $92{,}5$ pour DBSCAN.
+À conditions égales, DBSCAN conserve donc un léger avantage en séparation, tandis
+que K-Means l'emporte sur la cohésion d'ensemble.
+
+Le \textbf{K-Means} est néanmoins retenu, pour des raisons \textbf{opérationnelles}
+plutôt que de score. D'abord, la segmentation est destinée au \textbf{pilotage du
+réseau} : chaque agence doit appartenir à un segment, ce qu'un modèle laissant une
+agence non classée ne permet pas --- et l'agence écartée, CENTRALE, est précisément
+la première du réseau par la production de crédits. Ensuite, K-Means sait
+\textbf{affecter une nouvelle agence} à un segment existant, ce que DBSCAN ne
+permet pas nativement ; la segmentation reste ainsi réutilisable à mesure que le
+réseau évolue. Enfin, ses centres de gravité fournissent une lecture métier
+directe de chaque profil.
+
+Le résultat de DBSCAN n'est pas pour autant écarté : en isolant spontanément
+CENTRALE, il \textbf{confirme le caractère atypique} de cette agence, information
+utile en soi pour la direction.
 
 \subsection{Résultats et interprétation}
 La figure~\ref{fig:clusters_pca} projette les agences dans le plan des deux
