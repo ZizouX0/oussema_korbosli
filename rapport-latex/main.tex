@@ -23,6 +23,11 @@
 % identifiants de code (\texttt) non sécables, en autorisant un léger relâchement.
 \tolerance=2000
 \emergencystretch=3em
+% Empêche qu'une ligne isolée d'un paragraphe soit rejetée seule en haut ou en
+% bas de page (évite les mots détachés de leur phrase lors d'un saut de page).
+\widowpenalty=10000
+\clubpenalty=10000
+\displaywidowpenalty=10000
 
 % ---- Graphiques, couleurs, tableaux ----
 \usepackage{graphicx}

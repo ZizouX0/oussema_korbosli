@@ -23,9 +23,9 @@ l'application web déployée sur \textbf{WildFly}, structurée en couches
 vues \texttt{V\_BI\_*} et, d'autre part, la \textbf{chaîne décisionnelle Python}
 (ETL puis segmentation).
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.92\textwidth]{archi_globale.png}
+  \includegraphics[width=0.50\textwidth]{archi_globale.png}
   \caption{Architecture globale du système}
   \label{fig:archi_globale}
 \end{figure}
@@ -38,9 +38,9 @@ L'architecture physique (figure~\ref{fig:archi_physique}) représente le
 \texttt{OracleDS}), le serveur de base de données Oracle (\texttt{FREEPDB1}) et le
 poste décisionnel exécutant Power BI.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth]{archi_physique.png}
+  \includegraphics[width=0.52\textwidth]{archi_physique.png}
   \caption{Architecture physique (diagramme de déploiement 3-tiers)}
   \label{fig:archi_physique}
 \end{figure}
@@ -54,9 +54,9 @@ le filtre \texttt{NotificationFilter}), la couche \emph{métier} (services EJB) 
 la couche \emph{persistance} (entités JPA et Hibernate~\cite{hibernate} dialoguant
 avec Oracle via l'\texttt{EntityManager}).
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.62\textwidth]{archi_logique.png}
+  \includegraphics[width=0.46\textwidth]{archi_logique.png}
   \caption{Architecture logique en couches de l'application}
   \label{fig:archi_logique}
 \end{figure}
