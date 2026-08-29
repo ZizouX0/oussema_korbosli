@@ -50,9 +50,13 @@ Le système doit permettre :
   \item le \textbf{pointage (présence) des employés} : saisie de l'heure d'arrivée
         et de départ, statut (présent / retard / absent), en mode automatique
         (bouton) ou manuel (administrateur) ;
-  \item la soumission et la validation des demandes (clients, employés,
-        modifications) selon le cycle \texttt{EN\_ATTENTE} $\rightarrow$
-        \texttt{EN\_COURS} $\rightarrow$ \texttt{EFFECTUE}/\texttt{REFUSE} ;
+  \item la soumission et la validation des demandes : les \emph{demandes de
+        modification} suivent une \textbf{double validation}
+        (\texttt{EN\_ATTENTE} $\rightarrow$ \texttt{EN\_COURS} après approbation
+        du directeur commercial $\rightarrow$ \texttt{EFFECTUE} après exécution
+        par l'administrateur, ou \texttt{REFUSE}), tandis que les demandes de
+        création (clients, employés, agences) sont directement approuvées ou
+        refusées par l'administrateur ;
   \item la notification des demandes en attente et la journalisation des actions ;
   \item la consolidation des données par une chaîne \textbf{ETL} et la restitution
         d'indicateurs via un tableau de bord et Power BI ;
@@ -102,13 +106,19 @@ services offerts par le système.
   \label{fig:uc_global}
 \end{figure}
 
-On y distingue les trois acteurs et leurs cas d'utilisation respectifs. Le cas
-\emph{S'authentifier} est commun à tous ; il est relié aux autres par une relation
+On y distingue les trois acteurs du tableau~\ref{tab:acteurs} et les treize cas
+d'utilisation du système. Le cas \emph{S'authentifier} est commun à tous : chacun
+des douze autres cas lui est relié par une relation
 \texttt{\guillemotleft include\guillemotright}, l'accès aux fonctionnalités exigeant une
-authentification préalable. L'\textbf{administrateur} concentre les cas de gestion
-et de validation ; le \textbf{directeur commercial} soumet les demandes et consulte
-les indicateurs ; l'\textbf{utilisateur} se limite à la consultation, au pointage
-et aux demandes le concernant.
+authentification préalable ; c'est pourquoi aucun acteur ne lui est directement
+associé. L'\textbf{administrateur} concentre les cas de gestion, de validation et
+de supervision du volet décisionnel (\emph{Gérer les rôles et les droits d'accès},
+\emph{Alimenter le datamart}, \emph{Segmenter les agences}) ; le \textbf{directeur
+commercial} soumet les demandes, suit les objectifs et valide, conformément au
+tableau~\ref{tab:acteurs}, les seules demandes de modification des données des
+employés --- restriction portée par la note attachée au cas \emph{Valider une
+demande} ; l'\textbf{utilisateur} se limite au pointage, aux notifications et aux
+demandes le concernant.
 
 % ----------------------------------------------------------------------
 \section{Description textuelle des cas d'utilisation}
@@ -217,14 +227,16 @@ détermination automatique du statut.
 \cudesc{tab:cu_pointage}{Pointer la présence}
 {Permettre à l'employé d'enregistrer son arrivée et son départ, avec
 détermination automatique du statut.}
-{Utilisateur (employé)}
+{Utilisateur (employé) / Administrateur (saisie ou correction manuelle)}
 {L'employé doit être authentifié.}
-{Le pointage du jour est enregistré avec son statut (\texttt{PRESENT} ou
-\texttt{RETARD}).}
+{Le pointage du jour est enregistré avec son heure d'arrivée, son heure de départ
+et son statut (\texttt{PRESENT} ou \texttt{RETARD}).}
 {(1) L'employé clique sur « Pointer » ; (2) le \texttt{PointageService} relève
 l'heure courante et recherche le pointage du jour ; (3) s'il n'existe pas, il
-détermine le statut (\texttt{RETARD} au-delà de 9 h) et l'enregistre ; (4) sinon,
-il met à jour l'enregistrement existant.}
+enregistre l'\textbf{heure d'arrivée} et détermine le statut (\texttt{RETARD}
+au-delà de 9 h) ; (4) sinon, il complète l'enregistrement existant par
+l'\textbf{heure de départ} ; (5) l'administrateur peut, en mode
+\texttt{MANUEL}, saisir ou corriger ces deux heures.}
 
 Au-delà du pointage, les opérations sensibles suivent un circuit de validation : le
 second cas, \emph{Valider une demande} (tableau~\ref{tab:cu_demande}), en formalise
@@ -232,13 +244,18 @@ l'approbation ou le refus.
 
 \cudesc{tab:cu_demande}{Valider une demande}
 {Permettre à l'administrateur d'approuver ou de refuser une demande soumise.}
-{Administrateur}
+{Administrateur (toutes les demandes) / Directeur commercial (demandes de
+modification des données des employés)}
 {Une demande au statut \texttt{EN\_ATTENTE} doit exister.}
 {Le statut de la demande évolue vers \texttt{EFFECTUE} ou \texttt{REFUSE} et
 l'action est journalisée.}
-{(1) L'administrateur consulte les demandes en attente ; (2) il sélectionne une
-demande ; (3) il l'approuve ou la refuse avec un commentaire ; (4) le service met
-à jour le statut, applique la modification le cas échéant et journalise l'action.}
+{(1) L'acteur consulte les demandes en attente ; (2) il sélectionne une demande ;
+(3) pour une demande de modification, le directeur commercial l'approuve
+(statut \texttt{EN\_COURS}) ou la refuse avec un commentaire, puis
+l'administrateur l'exécute (statut \texttt{EFFECTUE}) ; (4) pour une demande de
+création, l'administrateur l'approuve ou la refuse directement ; (5) le service
+applique la modification le cas échéant, journalise l'action et notifie le
+demandeur.}
 
 \subsection{Volet décisionnel}
 Ce dernier module rassemble les cas d'utilisation du volet décisionnel, de la
@@ -248,7 +265,7 @@ opérationnelles par la chaîne ETL.
 
 \cudesc{tab:cu_etl}{Alimenter le datamart (ETL)}
 {Consolider les données opérationnelles en un datamart agrégé par agence.}
-{Processus ETL / Administrateur}
+{Administrateur (supervision du volet décisionnel)}
 {Les données sources (agences, employés, clients, objectifs, pointage) doivent
 être disponibles.}
 {Le datamart en étoile est produit et mis à la disposition de la restitution et de
@@ -277,11 +294,11 @@ apprentissage non supervisé.
 \cudesc{tab:cu_clustering}{Segmenter les agences}
 {Regrouper automatiquement les agences en profils homogènes à partir de leurs
 indicateurs d'activité.}
-{Analyste décisionnel / Administrateur}
+{Administrateur (supervision du volet décisionnel)}
 {Le datamart agrégé par agence (\texttt{fait\_agence}) doit être disponible.}
 {Les agences sont réparties en segments cohérents, caractérisés et exploitables
 pour la décision.}
-{(1) L'analyste lance la segmentation ; (2) le script standardise les variables ;
+{(1) L'administrateur lance la segmentation ; (2) le script standardise les variables ;
 (3) il détermine le nombre de clusters puis compare les modèles ; (4) il retient
 le meilleur modèle, projette en PCA et restitue le profil de chaque segment.}
 

@@ -3,54 +3,95 @@
 skinparam dpi 150
 skinparam shadowing false
 skinparam DefaultFontName Arial
-skinparam DefaultFontSize 13
+skinparam DefaultFontSize 14
 skinparam ArrowColor #14507A
 skinparam roundCorner 6
 
 skinparam linetype ortho
+skinparam nodesep 34
+skinparam ranksep 85
 skinparam class {
   BackgroundColor #FFF3DC
   BorderColor #C8861A
 }
+skinparam legendBackgroundColor #FBFCFE
+skinparam legendBorderColor #A9C0DA
 hide circle
 hide methods
-entity "DIM_AGENCE" as DA #EAF3FA {
+
+' ===================== Dimensions conformes =====================
+entity "AGENCE\n<<dimension>>" as DA #EAF3FA {
+  *SK_AGENCE <<PK>>
+  --
   LIBELLE_AGENCE
   DISTRICT
+  ADRESSE_AGENCE
 }
-entity "DIM_GESTIONNAIRE" as DG #EAF3FA {
-  NOM_GESTIONNAIRE
+entity "B_UTILISATEURS\n<<dimension>>" as DG #EAF3FA {
+  *SK_UTILISATEUR <<PK>>
+  --
+  LIBELLE_UTILISATEUR
+  EST_GESTIONNAIRE
+  #SK_AGENCE <<FK>>
 }
-entity "DIM_PERIODE" as DP #EAF3FA {
-  ANNEE_MOIS
-}
-entity "DIM_CLIENT" as DCx #EAF3FA {
-  TYPE_CLIENT
-  STATUT
-}
-entity "V_BI_OBJECTIFS\n(production)" as F1 {
+
+' ===================== Vues d'analyse (faits) =====================
+entity "V_BI_OBJECTIFS\n<<production>>" as F1 {
+  ID_OBJECTIF
+  ANNEE_MOIS  <<dim. dégénérée>>
+  NOM_AGENCE / NOM_GESTIONNAIRE
+  --
   TOTAL_OUVERTURE_COMPTES
   CREDITS_CONSO / IMMO / INVEST
+  CARTES_COMMANDES
   COLLECTE_EPARGNE
 }
-entity "V_BI_EMPLOYES\n(effectifs)" as F2 {
+entity "V_BI_EMPLOYES\n<<effectifs>>" as F2 {
+  ID_EMPLOYE
+  NOM_AGENCE / DISTRICT_AGENCE
+  --
   ROLE_LABEL
   STATUT
 }
-entity "V_BI_CLIENTS\n(portefeuille)" as F3 {
+entity "V_BI_CLIENTS\n<<portefeuille>>" as F3 {
+  ID_CLIENT
+  TYPE_CLIENT <<dim. dégénérée>>
+  NOM_AGENCE / DISTRICT_AGENCE
+  --
   NOM_COMPLET
+  SEXE
+  STATUT
 }
-entity "V_BI_POINTAGE\n(présence)" as F4 {
+entity "V_BI_POINTAGE\n<<présence>>" as F4 {
+  ID_POINTAGE
+  ANNEE_MOIS  <<dim. dégénérée>>
+  NOM_AGENCE / NOM_EMPLOYE
+  --
+  STATUT
   EST_PRESENT
   EST_RETARD
   EST_ABSENT
 }
+
+' ------- placement : les deux dimensions côte à côte, les vues en dessous -------
+DA -[hidden]right- DG
+F2 -[hidden]right- F1
+F3 -[hidden]right- F4
+
+' ===================== Relations (1 -- *) =====================
+' Toutes les vues sont reliées à la dimension AGENCE par SK_AGENCE.
 DA ||--o{ F1
-DG ||--o{ F1
-DP ||--o{ F1
 DA ||--o{ F2
 DA ||--o{ F3
-DCx ||--o{ F3
 DA ||--o{ F4
-DP ||--o{ F4
+DA ||--o{ DG
+DG ||--o{ F1 : SK_UTILISATEUR (gestionnaire)
+DG ||--o{ F4 : SK_UTILISATEUR (employé)
+
+legend bottom
+  Les quatre vues sont reliées à la dimension conforme AGENCE par SK_AGENCE.
+  Les axes « période » (ANNEE_MOIS) et « type de client » sont des
+  dimensions dégénérées : ils sont portés par les vues elles-mêmes,
+  résolus par les jointures internes à chaque vue.
+endlegend
 @enduml

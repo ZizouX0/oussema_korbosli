@@ -44,6 +44,7 @@
 \usepackage{enumitem}
 \usepackage{ragged2e}
 \usepackage{float}
+\usepackage{placeins}                 % \FloatBarrier : borne la dérive des flottants
 % Placement des flottants : réduit les grands espaces blancs (les figures se
 % placent au plus près de leur appel et remplissent mieux les pages).
 \renewcommand{\topfraction}{0.92}
@@ -61,6 +62,15 @@
 % cellule au lieu de déborder hors du tableau.
 \let\origunderscore\_
 \renewcommand{\_}{\origunderscore\allowbreak}
+
+% ---- Paragraphes d'interprétation des tableaux de bord ----
+% Détache visuellement le titre « Interprétation » du texte qui précède et
+% empêche qu'il reste seul en bas de page (réserve 4 lignes).
+\usepackage{needspace}
+\newcommand{\interpretation}{%
+  \par\addvspace{1.1\baselineskip}%
+  \Needspace*{4\baselineskip}%
+  \noindent\textbf{Interprétation.}\enspace\ignorespaces}
 
 % ---- Légendes : « Figure 1.1 – ... » (numérotation par chapitre native) ----
 \usepackage{caption}

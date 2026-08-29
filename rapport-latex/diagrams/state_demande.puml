@@ -11,13 +11,12 @@ skinparam state {
   BackgroundColor #EAF3FA
   BorderColor #1B6CA8
 }
-[*] --> EN_ATTENTE : création (directeur)
-EN_ATTENTE --> EN_COURS : prise en charge (admin)
-EN_ATTENTE --> REFUSE : refus
-EN_COURS --> EFFECTUE : validation
-EN_COURS --> REFUSE : refus
+[*] --> EN_ATTENTE : soumission\n(utilisateur)
+EN_ATTENTE --> EN_COURS : approbation\n(directeur commercial)
+EN_ATTENTE --> REFUSE : refus\n(directeur commercial)
+EN_COURS --> EFFECTUE : exécution\n(administrateur)
 EFFECTUE --> [*]
 REFUSE --> [*]
-note right of EN_ATTENTE : statut initial\n(table DEMANDES_*)
-note right of EFFECTUE : action appliquée\n+ journalisée
+note right of EN_ATTENTE : statut initial\n(table DEMANDES_MODIFICATION)
+note right of EFFECTUE : modification appliquée,\njournalisée et notifiée
 @enduml

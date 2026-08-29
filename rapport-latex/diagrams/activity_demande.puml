@@ -13,19 +13,36 @@ skinparam activity {
   DiamondBackgroundColor #DCEAF5
   DiamondBorderColor #14507A
 }
+skinparam swimlane {
+  BorderColor #1B6CA8
+  TitleBackgroundColor #EAF3FA
+}
+
+|Utilisateur|
 start
-:Le directeur soumet une demande;
-:Enregistrer la demande (statut EN_ATTENTE);
-:Notifier l'administrateur;
-:L'administrateur consulte la demande;
-if (Décision ?) then (Valider)
-  :Statut = EFFECTUE;
+:Soumettre une demande de modification;
+:Enregistrer la demande\n(statut EN_ATTENTE);
+:Notifier le directeur commercial;
+
+|Directeur commercial|
+:Consulter la demande;
+if (Décision ?) then (Approuver)
+  :Statut = EN_COURS;
+  :Notifier l'administrateur;
+  |Administrateur|
+  :Exécuter la demande;
   :Appliquer la modification en base;
+  :Statut = EFFECTUE;
 else (Refuser)
+  |Directeur commercial|
   :Statut = REFUSE;
   :Enregistrer le commentaire;
 endif
+
+|Administrateur|
 :Journaliser l'action (audit);
-:Notifier le demandeur;
+
+|Utilisateur|
+:Recevoir la notification;
 stop
 @enduml

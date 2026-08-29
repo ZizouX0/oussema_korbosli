@@ -11,45 +11,86 @@ skinparam actorStyle awesome
 skinparam usecaseBackgroundColor #EAF3FA
 skinparam usecaseBorderColor #1B6CA8
 skinparam actorBorderColor #14507A
-skinparam nodesep 6
-skinparam ranksep 220
+skinparam noteBackgroundColor #FFF6DC
+skinparam noteBorderColor #C8861A
+skinparam noteFontSize 12
+skinparam nodesep 14
+skinparam ranksep 190
 
 actor "Administrateur" as ADM
 actor "Directeur commercial" as DIR
 actor "Utilisateur" as USR
+
 rectangle "Application de gestion des agences bancaires" {
   usecase "S'authentifier" as UC0
-  usecase "Consulter le\ntableau de bord" as UC1
+
+  ' --- Sécurité ---
+  usecase "Gérer les rôles et\nles droits d'accès" as UC1
+  ' --- Référentiel ---
   usecase "Gérer les agences" as UC2
   usecase "Gérer les employés" as UC3
+  ' --- Commercial ---
   usecase "Gérer les clients" as UC4
-  usecase "Consulter les\nobjectifs" as UC5
-  usecase "Soumettre une\ndemande" as UC6
-  usecase "Valider / refuser\nune demande" as UC7
-  usecase "Consulter le\njournal d'audit" as UC8
+  usecase "Suivre les objectifs\ncommerciaux" as UC5
+  ' --- Pointage et demandes ---
+  usecase "Pointer la présence\n(arrivée / départ)" as UC6
+  usecase "Soumettre une\ndemande" as UC7
+  usecase "Valider une\ndemande" as UC8
   usecase "Recevoir des\nnotifications" as UC9
-  usecase "Pointer\n(arrivée / départ)" as UC10
-  usecase "Gérer les\npointages" as UC11
+  usecase "Consulter le\njournal d'audit" as UC10
+  ' --- Volet décisionnel ---
+  usecase "Consulter le\ntableau de bord" as UC11
+  usecase "Alimenter le\ndatamart (ETL)" as UC12
+  usecase "Segmenter\nles agences" as UC13
 }
+
+' ===================== Associations acteurs / cas =====================
+' (« S'authentifier » n'est relié à aucun acteur : il est atteint par les
+'  relations «include» de tous les autres cas d'utilisation.)
 ADM --> UC1
 ADM --> UC2
 ADM --> UC3
 ADM --> UC4
+ADM --> UC5
+ADM --> UC6
 ADM --> UC7
 ADM --> UC8
 ADM --> UC9
+ADM --> UC10
 ADM --> UC11
-DIR --> UC1
+ADM --> UC12
+ADM --> UC13
+
 DIR --> UC5
 DIR --> UC6
-USR --> UC1
+DIR --> UC7
+DIR --> UC9
+DIR --> UC11
+DIR --> UC8
+
 USR --> UC6
+USR --> UC7
 USR --> UC9
-USR --> UC10
-ADM --> UC10
-UC1 ..> UC0 : <<include>>
-UC2 ..> UC0 : <<include>>
-UC6 ..> UC0 : <<include>>
-UC7 ..> UC0 : <<include>>
+
+' Périmètre de validation par rôle (tableaux 2.1 et 3.2)
+note bottom of UC8
+  Administrateur : toutes les demandes
+  Directeur commercial : demandes de
+  modification des données des employés
+end note
+
+' ===================== Relations «include» =====================
+UC1  ..> UC0 : <<include>>
+UC2  ..> UC0 : <<include>>
+UC3  ..> UC0 : <<include>>
+UC4  ..> UC0 : <<include>>
+UC5  ..> UC0 : <<include>>
+UC6  ..> UC0 : <<include>>
+UC7  ..> UC0 : <<include>>
+UC8  ..> UC0 : <<include>>
+UC9  ..> UC0 : <<include>>
 UC10 ..> UC0 : <<include>>
+UC11 ..> UC0 : <<include>>
+UC12 ..> UC0 : <<include>>
+UC13 ..> UC0 : <<include>>
 @enduml

@@ -3,17 +3,20 @@
 skinparam dpi 150
 skinparam shadowing false
 skinparam DefaultFontName Arial
-skinparam DefaultFontSize 13
+skinparam DefaultFontSize 14
 skinparam ArrowColor #14507A
 skinparam roundCorner 6
 
 skinparam linetype ortho
+skinparam nodesep 30
+skinparam ranksep 60
 skinparam class {
   BackgroundColor #EAF3FA
   BorderColor #1B6CA8
 }
 hide circle
 hide methods
+
 entity "AGENCE" as AGENCE {
   *SK_AGENCE <<PK>>
   --
@@ -30,12 +33,20 @@ entity "B_UTILISATEURS" as USR {
   EST_SUSPENDU
   #SK_AGENCE <<FK>>
 }
+entity "GESTIONNAIRE" as GES {
+  *SK_UTILISATEUR <<PK>>
+  --
+  NOM_COMPLET
+  EMAIL
+  #SK_AGENCE <<FK>>
+}
 entity "CLIENT" as CLI {
   *SK_CLIENT <<PK>>
   --
   NOM_CLIENT
   TYPE_CLIENT
   STATUT_CLIENT
+  SECTEUR_ACTIVITE
   #SK_AGENCE <<FK>>
   #SK_GESTIONNAIRE <<FK>>
 }
@@ -43,7 +54,20 @@ entity "B_OBJECTIF" as OBJ {
   *ID_OBJECTIF <<PK>>
   --
   ANNEE_MOIS
+  SOUSCRIPTION_COMPTE_*_OA
+  PRODUCTION_CREDITS_*_OA
+  EPARGNE_ADD_OA
   #SK_AGENCE <<FK>>
+  #SK_UTILISATEUR <<FK>>
+}
+entity "POINTAGE" as PT {
+  *ID_POINTAGE <<PK>>
+  --
+  DATE_POINTAGE
+  HEURE_ARRIVEE
+  HEURE_DEPART
+  STATUT
+  SOURCE
   #SK_UTILISATEUR <<FK>>
 }
 entity "SECURITY_USERS" as SEC {
@@ -58,6 +82,7 @@ entity "DEMANDE_CLIENT" as DC {
   --
   NOM_CLIENT
   STATUT
+  DATE_CREATION
   #ID_DIRECTEUR <<FK>>
 }
 entity "DEMANDE_EMPLOYE" as DE {
@@ -71,30 +96,62 @@ entity "DEMANDES_MODIFICATION" as DM {
   *ID <<PK>>
   --
   CHAMP
+  ANCIENNE_VAL
   NOUVELLE_VAL
   STATUT
   #ID_USER <<FK>>
+}
+entity "DEMANDE_AGENCE" as DA {
+  *ID_DEMANDE <<PK>>
+  --
+  TYPE_DEMANDE
+  NOM_AGENCE_PROP
+  STATUT
+  #ID_DIRECTEUR <<FK>>
+}
+entity "DEMANDE_AGENCE_UTILISATEUR" as DAU {
+  #ID_DEMANDE <<FK>>
+  #SK_UTILISATEUR <<FK>>
 }
 entity "JOURNAL_ACTION" as JA {
   *ID_JOURNAL <<PK>>
   --
   ACTION_CODE
+  ENTITE
+  DATE_ACTION
   #ID_UTILISATEUR <<FK>>
 }
-entity "POINTAGE" as PT {
-  *ID_POINTAGE <<PK>>
+entity "NOTIFICATION" as NO {
+  *ID_NOTIFICATION <<PK>>
   --
-  DATE_POINTAGE
-  STATUT
-  #SK_UTILISATEUR <<FK>>
+  TYPE_NOTIF
+  MESSAGE
+  LUE
+  #ID_UTILISATEUR <<FK>>
 }
-AGENCE ||--o{ USR
-AGENCE ||--o{ CLI
-AGENCE ||--o{ OBJ
-USR ||--o{ OBJ
-USR ||--o{ DC
-USR ||--o{ DE
-USR ||--o{ DM
-USR ||--o{ JA
-USR ||--o{ PT
+
+' ------- placement : compacte le schéma sur deux niveaux -------
+DC -[hidden]down- DM
+DE -[hidden]down- DA
+JA -[hidden]down- SEC
+
+' ------------------ rattachements au référentiel ------------------
+AGENCE ||--o{ USR   : SK_AGENCE
+AGENCE ||--o{ GES   : SK_AGENCE
+AGENCE ||--o{ CLI   : SK_AGENCE
+AGENCE ||--o{ OBJ   : SK_AGENCE
+GES    ||--o{ CLI   : SK_GESTIONNAIRE
+
+' ------------------ associations portées par l'utilisateur ------------------
+USR ||--o{ OBJ : SK_UTILISATEUR
+USR ||--o{ PT  : SK_UTILISATEUR
+USR ||--o{ DC  : ID_DIRECTEUR
+USR ||--o{ DE  : ID_DIRECTEUR
+USR ||--o{ DM  : ID_USER
+USR ||--o{ DA  : ID_DIRECTEUR
+USR ||--o{ JA  : ID_UTILISATEUR
+USR ||--o{ NO  : ID_UTILISATEUR
+USR ||--o{ DAU : SK_UTILISATEUR
+DA  ||--o{ DAU : ID_DEMANDE
+SEC ||..|| USR : authentification
 @enduml

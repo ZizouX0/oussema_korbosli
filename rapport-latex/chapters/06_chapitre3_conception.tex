@@ -75,6 +75,12 @@ leurs attributs et les associations qui les relient.
   \label{fig:class}
 \end{figure}
 
+Pour en faciliter la lecture, les classes sont regroupées en cinq paquetages
+fonctionnels --- \emph{référentiel du réseau}, \emph{gestion commerciale},
+\emph{présence}, \emph{workflows de demandes} et \emph{sécurité et traçabilité}
+--- et les associations sont tracées orthogonalement, de manière à éviter les
+croisements et les lignes traversant les classes.
+
 L'entité \textbf{\texttt{Utilisateur}} occupe une position centrale. Le
 rattachement d'un \texttt{Utilisateur}, d'un \texttt{Client} ou d'un
 \texttt{Objectif} à son \texttt{Agence}, ainsi que d'un \texttt{Client} à son
@@ -89,7 +95,10 @@ demande (\texttt{DemandeClient}, \texttt{DemandeEmploye},
 est relié à \texttt{Utilisateur} par une dépendance d'authentification. Le modèle
 ne comporte ni héritage ni composition : les liens sont des associations, dont
 certaines sont implémentées par des clés étrangères et d'autres par des relations
-JPA explicites.
+JPA explicites. La classe \texttt{Pointage} porte enfin les deux horodatages
+exigés par le cahier des charges --- \texttt{heureArrivee} et
+\texttt{heureDepart} --- ainsi que l'attribut \texttt{source}, qui distingue le
+pointage automatique de la saisie manuelle.
 
 % ----------------------------------------------------------------------
 \section{Modèle physique de données}
@@ -99,19 +108,25 @@ Oracle~\cite{oracle}, chaque attribut en une colonne et chaque association en un
 \textbf{clé étrangère}. La figure~\ref{fig:er} présente ce schéma relationnel, obtenu
 par \emph{mapping} objet-relationnel (JPA/Hibernate) à partir des entités du domaine.
 
-\begin{figure}[htbp]
+\begin{figure}[p]
   \centering
-  \includegraphics[width=\textwidth]{er.png}
+  \rotatebox{90}{%
+    \includegraphics[width=0.92\textheight,height=\textwidth,keepaspectratio]{er.png}}
   \caption{Schéma relationnel de la base de données}
   \label{fig:er}
 \end{figure}
 
-La table \texttt{AGENCE} constitue le référentiel central autour duquel gravitent
-les employés (\texttt{B\_UTILISATEURS}), les clients (\texttt{B\_CLIENTS}) et les
+Le schéma reprend, table pour table, les treize classes du
+diagramme~\ref{fig:class}. La table \texttt{AGENCE} constitue le référentiel
+central autour duquel gravitent les employés (\texttt{B\_UTILISATEURS}), les
+gestionnaires (\texttt{GESTIONNAIRE}), les clients (\texttt{CLIENT}) et les
 objectifs (\texttt{B\_OBJECTIF}), reliés par la clé \texttt{SK\_AGENCE}. La table
-\texttt{B\_UTILISATEURS} est à son tour référencée par les pointages, les demandes
-et le journal d'audit. Le tableau~\ref{tab:tables} décrit le rôle des principales
-tables du schéma.
+\texttt{B\_UTILISATEURS} est à son tour référencée par les pointages, les quatre
+tables de demandes, le journal d'audit et les notifications. L'association
+\emph{plusieurs-à-plusieurs} entre \texttt{DEMANDE\_AGENCE} et
+\texttt{B\_UTILISATEURS} est matérialisée par la table de jonction
+\texttt{DEMANDE\_AGENCE\_UTILISATEUR}. Le tableau~\ref{tab:tables} décrit le rôle
+des principales tables du schéma.
 
 \begin{table}[htbp]
 \centering
@@ -126,11 +141,13 @@ AGENCE & Référentiel des agences du réseau (libellé, adresse, district). & \
 \hline
 B\_UTILISATEURS & Employés et utilisateurs de l'application. & \texttt{SK\_UTILISATEUR}\\
 \hline
-B\_CLIENTS & Portefeuille clients (type, statut, secteur, adresse). & \texttt{SK\_CLIENT}\\
+CLIENT & Portefeuille clients géré par l'application (type, statut, secteur). & \texttt{SK\_CLIENT}\\
+\hline
+B\_CLIENTS & Table client alimentant le schéma décisionnel et le tableau de bord. & \texttt{SK\_CLIENT}\\
 \hline
 B\_OBJECTIF & Objectifs commerciaux et production par période. & \texttt{ID\_OBJECTIF}\\
 \hline
-POINTAGE & Pointages de présence des employés. & \texttt{ID\_POINTAGE}\\
+POINTAGE & Pointages de présence : heures d'arrivée et de départ, statut, source. & \texttt{ID\_POINTAGE}\\
 \hline
 GESTIONNAIRE & Gestionnaires et rattachement de portefeuille. & \texttt{SK\_UTILISATEUR}\\
 \hline
@@ -141,6 +158,8 @@ DEMANDE\_CLIENT & Demandes de création de clients. & \texttt{ID\_DEMANDE}\\
 DEMANDE\_EMPLOYE & Demandes de création d'employés. & \texttt{ID\_DEMANDE}\\
 \hline
 DEMANDES\_MODIF. & Demandes de modification de données. & \texttt{ID}\\
+\hline
+DEMANDE\_AGENCE & Demandes de création ou de modification d'agences. & \texttt{ID\_DEMANDE}\\
 \hline
 JOURNAL\_ACTION & Journal d'audit des actions. & \texttt{ID\_JOURNAL}\\
 \hline
@@ -264,13 +283,21 @@ La figure~\ref{fig:seq_pointage} décrit le scénario de pointage.
 \end{figure}
 
 Le \texttt{PointageServlet} transmet l'action au \texttt{PointageService}, qui
-recherche le pointage du jour. Le fragment \texttt{alt} distingue l'\texttt{INSERT}
-(premier pointage, statut \texttt{PRESENT}/\texttt{RETARD} au-delà de 9 h) de
-l'\texttt{UPDATE} (pointage déjà existant).
+recherche le pointage du jour. Le fragment \texttt{alt} extérieur sépare les deux
+actions attendues par le cahier des charges : à l'\textbf{arrivée}, un
+\texttt{INSERT} enregistre l'heure d'arrivée et le statut
+(\texttt{PRESENT}/\texttt{RETARD} au-delà de 9 h) ; au \textbf{départ}, un
+\texttt{UPDATE} complète le même enregistrement par l'heure de départ. Ces deux
+horodatages sont portés par les attributs \texttt{heureArrivee} et
+\texttt{heureDepart} de la classe \texttt{Pointage} (figure~\ref{fig:class}) et par
+les colonnes \texttt{HEURE\_ARRIVEE} et \texttt{HEURE\_DEPART} de la table
+\texttt{POINTAGE} (figure~\ref{fig:er}). L'attribut \texttt{source}
+(\texttt{AUTO} / \texttt{MANUEL}) distingue enfin le pointage par bouton de la
+saisie manuelle effectuée par l'administrateur.
 
 \subsection{Valider une demande}
-La figure~\ref{fig:seq_demande} détaille le traitement d'une demande par
-l'administrateur.
+La figure~\ref{fig:seq_demande} détaille le traitement d'une demande de
+modification, qui repose sur une \textbf{double validation}.
 
 \begin{figure}[htbp]
   \centering
@@ -279,9 +306,18 @@ l'administrateur.
   \label{fig:seq_demande}
 \end{figure}
 
-Le \texttt{GestionModificationsServlet} transmet la décision au service métier,
-qui charge la demande, met à jour son statut, persiste la modification puis
-journalise l'action via le \texttt{JournalService}.
+Le \texttt{GestionModificationsServlet} oriente l'action selon le rôle de
+l'appelant. Dans un \textbf{premier temps}, le \textbf{directeur commercial}
+approuve la demande : le \texttt{DemandeModificationService} la fait passer de
+\texttt{EN\_ATTENTE} à \texttt{EN\_COURS} et notifie l'administrateur ; en cas de
+refus, le statut devient directement \texttt{REFUSE} et le demandeur est prévenu.
+Dans un \textbf{second temps}, l'\textbf{administrateur} exécute la demande
+approuvée : la modification est appliquée à l'\texttt{Utilisateur}, le statut
+passe à \texttt{EFFECTUE} et l'action est journalisée via le
+\texttt{JournalService}. Ce partage des responsabilités traduit fidèlement le
+tableau~\ref{tab:permissions} : le directeur commercial ne valide que les
+demandes de modification des données des employés, l'exécution restant du ressort
+de l'administrateur.
 
 % ----------------------------------------------------------------------
 \section{Cycle de vie d'une demande}
@@ -299,26 +335,36 @@ La figure~\ref{fig:state_demande} modélise le cycle de vie d'une demande.
   \label{fig:state_demande}
 \end{figure}
 
-Une demande naît à l'état \texttt{EN\_ATTENTE}, passe en \texttt{EN\_COURS} lors de
-sa prise en charge, puis atteint un état final \texttt{EFFECTUE} ou
-\texttt{REFUSE}, en cohérence avec la contrainte de la table des demandes.
+Une demande naît à l'état \texttt{EN\_ATTENTE} lors de sa soumission par
+l'utilisateur. Elle passe en \texttt{EN\_COURS} lorsque le \textbf{directeur
+commercial} l'approuve, puis atteint l'état final \texttt{EFFECTUE} une fois
+\textbf{exécutée par l'administrateur} ; un refus du directeur la mène
+directement à \texttt{REFUSE}. Ces quatre états correspondent exactement à la
+contrainte \texttt{CHK\_MODIF\_STATUT} de la table
+\texttt{DEMANDES\_MODIFICATION}. Les demandes de \emph{création} (clients,
+employés, agences) suivent, elles, un circuit à une seule étape : soumises par le
+directeur commercial, elles sont directement approuvées ou refusées par
+l'administrateur.
 
 \subsection{Diagramme d'activité}
 La figure~\ref{fig:activity_demande} représente le processus métier de traitement
 d'une demande.
 
-\begin{figure}[htbp]
+\begin{figure}[!htb]
   \centering
-  \includegraphics[width=0.6\textwidth]{activity_demande.png}
+  \includegraphics[width=0.9\textwidth]{activity_demande.png}
   \caption{Diagramme d'activité -- Traitement d'une demande}
   \label{fig:activity_demande}
 \end{figure}
 
-Le directeur soumet une demande, notifiée à l'administrateur. Le nœud de décision
-oriente le flux : en cas de validation, le statut passe à \texttt{EFFECTUE} et la
-modification est appliquée ; en cas de refus, le statut passe à \texttt{REFUSE}
-avec un commentaire. Les deux branches convergent vers la journalisation et la
-notification du demandeur.
+Les trois \textbf{couloirs d'activité} (\emph{swimlanes}) font apparaître le
+partage des responsabilités. L'utilisateur soumet sa demande, enregistrée au
+statut \texttt{EN\_ATTENTE} et notifiée au directeur commercial. Le nœud de
+décision oriente ensuite le flux : en cas d'approbation, le statut passe à
+\texttt{EN\_COURS} et l'administrateur, alerté, exécute la modification en base
+(statut \texttt{EFFECTUE}) ; en cas de refus, le directeur porte le statut à
+\texttt{REFUSE} avec un commentaire. Les deux branches convergent vers la
+journalisation de l'action et la notification du demandeur.
 
 \section*{Conclusion}
 Ce chapitre a défini l'architecture du système, son modèle de classes, son schéma

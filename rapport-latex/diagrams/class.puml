@@ -3,106 +3,140 @@
 skinparam dpi 150
 skinparam shadowing false
 skinparam DefaultFontName Arial
-skinparam DefaultFontSize 13
+skinparam DefaultFontSize 16
 skinparam ArrowColor #14507A
 skinparam roundCorner 6
 
 skinparam classBackgroundColor #EAF3FA
 skinparam classBorderColor #1B6CA8
 skinparam classArrowColor #14507A
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam packageBackgroundColor #FBFCFE
+skinparam packageBorderColor #A9C0DA
+skinparam packageFontColor #14507A
+skinparam packageFontSize 13
 hide empty members
-left to right direction
-skinparam ranksep 170
-skinparam nodesep 8
 
-class Agence {
-  -id : Long
-  -nom : String
-  -adresse : String
-  -district : String
-}
-class Utilisateur {
-  -id : Long
-  -libelleUtilisateur : String
-  -emailUtilisateur : String
-  -estGestionnaire : Double
-  -estSuspendu : Integer
-  +getRoleLabel() : String
-}
-class Client {
-  -id : Long
-  -nomClient : String
-  -typeClient : String
-  -secteurActivite : String
-  -statutClient : String
-}
-class Gestionnaire {
-  -id : Long
-  -nomComplet : String
-  -email : String
-}
-class Objectif {
-  -id : Long
-  -anneeMois : String
-  -productionCreditsConso : Double
-  -souscriptionCompteCheques : Double
-}
-class SecurityUser {
-  -id : Long
-  -username : String
-  -password : String
-  -role : String
-}
-class DemandeClient {
-  -id : Long
-  -statut : String
-  -dateCreation : Instant
-}
-class DemandeEmploye {
-  -id : Long
-  -nom : String
-  -statut : String
-}
-class DemandeModification {
-  -id : Long
-  -champ : String
-  -nouvelleVal : String
-  -statut : String
-}
-class DemandeAgence {
-  -id : Long
-  -typeDemande : String
-  -statut : String
-}
-class JournalAction {
-  -id : Long
-  -actionCode : String
-  -dateAction : Instant
-}
-class Notification {
-  -id : Long
-  -typeNotif : String
-  -lue : String
-}
-class Pointage {
-  -id : Long
-  -datePointage : LocalDate
-  -heureArrivee : LocalDateTime
-  -statut : String
+' Mise en page : classes regroupées par module, associations orientées
+' de haut en bas pour limiter les croisements autour d'Utilisateur.
+skinparam linetype ortho
+skinparam nodesep 42
+skinparam ranksep 100
+
+package "Référentiel du réseau" as P1 {
+  class Agence {
+    -id : Long
+    -nom : String
+    -adresse : String
+    -district : String
+  }
+  class Utilisateur {
+    -id : Long
+    -libelleUtilisateur : String
+    -emailUtilisateur : String
+    -estGestionnaire : Double
+    -estSuspendu : Integer
+    +getRoleLabel() : String
+  }
 }
 
+package "Gestion commerciale" as P2 {
+  class Gestionnaire {
+    -id : Long
+    -nomComplet : String
+    -email : String
+  }
+  class Client {
+    -id : Long
+    -nomClient : String
+    -typeClient : String
+    -secteurActivite : String
+    -statutClient : String
+  }
+  class Objectif {
+    -id : Long
+    -anneeMois : String
+    -productionCreditsConso : Double
+    -souscriptionCompteCheques : Double
+  }
+}
+
+package "Présence" as P3 {
+  class Pointage {
+    -id : Long
+    -datePointage : LocalDate
+    -heureArrivee : LocalDateTime
+    -heureDepart : LocalDateTime
+    -statut : String
+    -source : String
+  }
+}
+
+package "Workflows de demandes" as P4 {
+  class DemandeClient {
+    -id : Long
+    -statut : String
+    -dateCreation : Instant
+  }
+  class DemandeEmploye {
+    -id : Long
+    -nom : String
+    -statut : String
+  }
+  class DemandeModification {
+    -id : Long
+    -champ : String
+    -nouvelleVal : String
+    -statut : String
+  }
+  class DemandeAgence {
+    -id : Long
+    -typeDemande : String
+    -statut : String
+  }
+}
+
+package "Sécurité et traçabilité" as P5 {
+  class SecurityUser {
+    -id : Long
+    -username : String
+    -password : String
+    -role : String
+  }
+  class JournalAction {
+    -id : Long
+    -actionCode : String
+    -dateAction : Instant
+  }
+  class Notification {
+    -id : Long
+    -typeNotif : String
+    -lue : String
+  }
+}
+
+' ---- Contraintes de placement : compacte les paquets sur deux niveaux ----
+DemandeClient  -[hidden]down- DemandeAgence
+DemandeEmploye -[hidden]down- DemandeModification
+JournalAction  -[hidden]down- SecurityUser
+Objectif       -[hidden]down- Client
+
+' ---------------- Rattachements au référentiel ----------------
 Agence "1" -- "0..*" Utilisateur : SK_AGENCE >
-Agence "1" -- "0..*" Client : SK_AGENCE >
-Agence "1" -- "0..*" Objectif : SK_AGENCE >
+Agence "1" -- "0..*" Client      : SK_AGENCE >
+Agence "1" -- "0..*" Objectif    : SK_AGENCE >
 Gestionnaire "1" -- "0..*" Client : SK_GESTIONNAIRE >
-Utilisateur "1" -- "0..*" Objectif : SK_UTILISATEUR >
-DemandeClient "0..*" --> "1" Utilisateur : directeur
-DemandeEmploye "0..*" --> "1" Utilisateur : directeur
-DemandeModification "0..*" --> "1" Utilisateur : utilisateur
-DemandeAgence "0..*" --> "1" Utilisateur : directeur
-DemandeAgence "0..*" -- "0..*" Utilisateur : utilisateursDemandes
-JournalAction "0..*" --> "1" Utilisateur
-Notification "0..*" --> "1" Utilisateur : destinataire
-Pointage "0..*" --> "1" Utilisateur : employe
+
+' ---------------- Associations portées par Utilisateur ----------------
+Utilisateur "1" -- "0..*" Objectif  : SK_UTILISATEUR >
+Utilisateur "1" -- "0..*" Pointage  : employe >
+Utilisateur "1" -- "0..*" JournalAction
+Utilisateur "1" -- "0..*" Notification : destinataire >
+Utilisateur "1" -- "0..*" DemandeClient       : directeur >
+Utilisateur "1" -- "0..*" DemandeEmploye      : directeur >
+Utilisateur "1" -- "0..*" DemandeModification : utilisateur >
+Utilisateur "1" -- "0..*" DemandeAgence       : directeur >
+Utilisateur "0..*" -- "0..*" DemandeAgence    : utilisateursDemandes
 SecurityUser ..> Utilisateur : <<authentifie>>
 @enduml

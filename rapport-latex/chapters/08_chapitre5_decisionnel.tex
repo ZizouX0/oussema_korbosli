@@ -82,11 +82,16 @@ directes entre la table de faits et ses dimensions garantissent un filtrage croi
 immédiat.
 
 \subsection{Structure du modèle retenu}
-L'entrepôt est organisé selon une logique en \textbf{étoile}
-(figure~\ref{fig:bi}) : autour de tables de faits (production, effectifs, clients,
-présence), des dimensions descriptives (agence, gestionnaire, période, type de
-client) permettent l'analyse multidimensionnelle. Les vues \texttt{V\_BI\_*}
-matérialisent cette couche sémantique pour l'outil de restitution.
+Le volet décisionnel s'appuie sur \textbf{deux niveaux} complémentaires, tous deux
+organisés en étoile. Le premier est le \textbf{datamart chargé par la chaîne ETL}
+(section~\ref{sec:etl}) : une unique table de faits \texttt{fait\_agence} au
+\textbf{grain de l'agence}, accompagnée de la dimension \texttt{dim\_agence} ;
+c'est lui qui alimente la segmentation de la section~\ref{sec:segmentation}. Le
+second est la \textbf{couche sémantique} exposée à Power BI, constituée des vues
+\texttt{V\_BI\_*} : quatre vues d'analyse (production, effectifs, clients,
+présence) reliées à la \textbf{dimension conforme} \texttt{AGENCE} par la clé
+\texttt{SK\_AGENCE}, ainsi qu'à la dimension \texttt{B\_UTILISATEURS} par
+\texttt{SK\_UTILISATEUR}. La figure~\ref{fig:bi} présente ce second niveau.
 
 \begin{figure}[htbp]
   \centering
@@ -95,31 +100,57 @@ matérialisent cette couche sémantique pour l'outil de restitution.
   \label{fig:bi}
 \end{figure}
 
-Au centre du schéma, la \textbf{table de faits} porte les mesures numériques
-agrégées ; autour d'elle, les \textbf{tables de dimensions} fournissent les axes
-d'analyse. Le tableau~\ref{tab:etoile} en précise le rôle.
+Dans chaque étoile, les \textbf{tables de faits} portent les mesures numériques et
+les \textbf{dimensions} fournissent les axes d'analyse. Le
+tableau~\ref{tab:etoile} précise, pour les deux niveaux, le rôle de chaque table
+ou vue.
 
 \begin{table}[htbp]
-\centering
+\centering\small
 \caption{Table de faits et tables de dimensions du modèle en étoile}
 \label{tab:etoile}
-\renewcommand{\arraystretch}{1.25}
-\begin{tabularx}{\textwidth}{|>{\bfseries}p{2.5cm}|>{\ttfamily}p{2.9cm}|X|}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{|>{\bfseries}p{2.9cm}|>{\ttfamily}p{3cm}|X|}
 \hline
-\textmd{\textbf{Rôle}} & \textmd{\textbf{Table}} & \textbf{Description}\\
+\textmd{\textbf{Rôle}} & \textmd{\textbf{Table ou vue}} & \textbf{Description}\\
+\hline
+\multicolumn{3}{|l|}{\cellcolor{black!8}\textit{Datamart chargé par la chaîne ETL --- grain « agence » (section~\ref{sec:etl})}}\\
 \hline
 Table de faits & fait\_agence & Mesures agrégées par agence : effectif, nombre de gestionnaires, portefeuille clients, comptes ouverts, production de crédits, collecte d'épargne et taux de présence.\\
 \hline
 Dimension & dim\_agence & Axe « agence » : libellé et district --- analyse géographique par agence et par région.\\
 \hline
-Dimension & période & Axe temporel (\texttt{ANNEE\_MOIS}) : analyse par mois et par exercice.\\
+\multicolumn{3}{|l|}{\cellcolor{black!8}\textit{Couche sémantique exposée à Power BI --- vues \texttt{V\_BI\_*} (section~\ref{sec:pbi})}}\\
 \hline
-Dimension & gestionnaire & Axe « responsable » : analyse par gestionnaire de portefeuille.\\
+Faits & V\_BI\_OBJECTIFS & Production : ouvertures de comptes, crédits (conso, immobilier, investissement), cartes et collecte d'épargne.\\
 \hline
-Dimension & type\_client & Axe « portefeuille » : analyse par type de client (particulier, professionnel, entreprise).\\
+Faits & V\_BI\_EMPLOYES & Effectifs : rôle calculé (gestionnaire, conseiller, hors commercial) et statut.\\
+\hline
+Faits & V\_BI\_CLIENTS & Portefeuille : identité, sexe, type et statut du client.\\
+\hline
+Faits & V\_BI\_POINTAGE & Présence : statut du pointage, indicateurs de présence, de retard et d'absence.\\
+\hline
+Dimension conforme & AGENCE & Axe « agence » (\texttt{SK\_AGENCE}) : libellé, district et adresse ; partagé par les quatre vues.\\
+\hline
+Dimension conforme & B\_UTILISATEURS & Axe « gestionnaire / employé » (\texttt{SK\_UTILISATEUR}), alimenté par les jointures internes de \texttt{V\_BI\_OBJECTIFS} et \texttt{V\_BI\_POINTAGE}.\\
+\hline
+Dimension dégénérée & ANNEE\_MOIS & Axe temporel porté directement par \texttt{V\_BI\_OBJECTIFS} et \texttt{V\_BI\_POINTAGE} : analyse par mois et par exercice.\\
+\hline
+Dimension dégénérée & TYPE\_CLIENT & Axe « portefeuille » porté directement par \texttt{V\_BI\_CLIENTS} (particulier, société, entreprise).\\
 \hline
 \end{tabularx}
 \end{table}
+
+Cette distinction est importante pour la lecture du chapitre. L'axe
+\textbf{gestionnaire} n'existe qu'au niveau de la couche sémantique : il est
+résolu par la jointure \texttt{B\_OBJECTIF.SK\_UTILISATEUR
+$\rightarrow$ B\_UTILISATEURS}, qui produit la colonne
+\texttt{NOM\_GESTIONNAIRE} de la vue \texttt{V\_BI\_OBJECTIFS} et le rend
+exploitable dans Power BI. Le datamart de la chaîne ETL, lui, agrège
+\texttt{B\_OBJECTIF} \textbf{par agence} : il ne retient que
+\texttt{SK\_AGENCE} et les mesures consolidées, et ne porte donc \emph{pas} l'axe
+gestionnaire --- ce qui est cohérent avec son objet, la segmentation des agences,
+qui raisonne au grain de l'agence.
 
 Le tableau~\ref{tab:kpi} récapitule les principaux indicateurs (KPI) retenus.
 
@@ -151,6 +182,7 @@ Taux de présence & Présents, retards et absences par agence et période & \tex
 
 % ----------------------------------------------------------------------
 \section{Mise en œuvre de la chaîne ETL en Python}
+\label{sec:etl}
 
 \subsection{Export des données sources}
 La chaîne ETL peut se connecter directement à Oracle ou, à défaut, consommer des
@@ -159,7 +191,11 @@ fichiers CSV. Pour ce second mode, un script \textbf{SQLcl}
 agences, employés, clients, objectifs et pointages --- vers des fichiers CSV,
 placés ensuite dans le répertoire \texttt{etl/source/}. Les indicateurs
 d'objectifs (comptes, crédits, épargne) y sont déjà consolidés à partir des
-colonnes correspondantes de la table \texttt{B\_OBJECTIF}.
+colonnes correspondantes de la table \texttt{B\_OBJECTIF}. Conformément au grain
+retenu, cette extraction ne conserve de \texttt{B\_OBJECTIF} que la clé
+\texttt{SK\_AGENCE} et les trois mesures consolidées : l'axe gestionnaire
+(\texttt{SK\_UTILISATEUR}) n'est pas repris ici, puisqu'il relève de la couche
+sémantique Power BI et non du datamart agrégé par agence.
 
 \subsection{Détail des étapes de traitement}
 La chaîne ETL est implémentée en \textbf{Python} (bibliothèque
@@ -271,6 +307,7 @@ présente le tableau de bord embarqué.
 
 % ----------------------------------------------------------------------
 \section{Intégration du modèle en étoile dans Power BI}
+\label{sec:pbi}
 Le modèle en étoile décrit précédemment est \textbf{matérialisé dans Power
 BI}~\cite{powerbi} pour servir de socle aux rapports. Les tables et vues
 décisionnelles sont d'abord
@@ -284,9 +321,9 @@ dimension centrale \texttt{AGENCE} et les tables de faits, sur les clés de
 substitution (\texttt{SK\_AGENCE} et \texttt{SK\_UTILISATEUR}). La
 figure~\ref{fig:pbi_modele} présente le modèle obtenu.
 
-\begin{figure}[htbp]
+\begin{figure}[!htb]
   \centering
-  \includegraphics[width=0.92\textwidth]{etl/pbi_modele.png}
+  \includegraphics[width=0.88\textwidth]{etl/pbi_modele.png}
   \caption{Modèle de données Power BI : relations en étoile autour de la dimension \texttt{AGENCE}}
   \label{fig:pbi_modele}
 \end{figure}
@@ -300,7 +337,7 @@ tableau~\ref{tab:relations} en récapitule le détail.
 \caption{Relations du modèle Power BI et leur cardinalité}
 \label{tab:relations}
 \renewcommand{\arraystretch}{1.25}
-\begin{tabularx}{\textwidth}{|>{\ttfamily}p{3cm}|>{\ttfamily}p{3cm}|>{\ttfamily}p{3.1cm}|c|}
+\begin{tabularx}{\textwidth}{|>{\ttfamily}X|>{\ttfamily}X|>{\ttfamily}X|>{\centering\arraybackslash}p{2.2cm}|}
 \hline
 \textmd{\textbf{Table (côté 1)}} & \textmd{\textbf{Table (côté *)}} &
 \textmd{\textbf{Clé de jointure}} & \textbf{Cardinalité}\\
@@ -316,6 +353,7 @@ B\_UTILISATEURS & POINTAGE & SK\_UTILISATEUR & 1 -- *\\
 \end{tabularx}
 \end{table}
 
+\FloatBarrier
 \subsection{Exploitation dans les visualisations}
 Ces relations sont le \textbf{moteur de l'interactivité} du rapport. Le filtre se
 propageant du côté « 1 » vers le côté « plusieurs » (de la dimension vers les
@@ -406,6 +444,7 @@ Segmentation des agences & Profils d'agences : ciblage des actions et fixation d
 \end{tabularx}
 \end{table}
 
+\FloatBarrier
 \subsection{Page de synthèse}
 La page \emph{Résumé} (figure~\ref{fig:pbi_resume}) offre une vue d'ensemble du
 réseau. Une rangée de \textbf{cartes d'indicateurs} présente les chiffres clés
@@ -416,14 +455,14 @@ et un \textbf{tableau} classe les agences selon leur performance. Les trois
 \textbf{segments} de l'en-tête (district, période, type de client) et le bouton
 \textbf{RÉINITIALISER} pilotent l'ensemble.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{screens/pbi_resume.png}
   \caption{Rapport Power BI --- page « Résumé » (synthèse du réseau)}
   \label{fig:pbi_resume}
 \end{figure}
 
-\textbf{Interprétation.} Le réseau compte environ \textbf{30\,000 clients} et
+\interpretation Le réseau compte environ \textbf{30\,000 clients} et
 \textbf{105\,000 comptes}, pour une production de crédits de \textbf{1,40 milliard}
 et un \textbf{taux de présence de 87,9\,\%}. La répartition des présences révèle
 toutefois que près d'un pointage sur trois est un \textbf{retard} (25\,\%) ou une
@@ -435,6 +474,7 @@ suivi d'un tassement, que le décideur peut interpréter comme un effet de campa
 reconduire. Enfin, le classement des agences traduit une \textbf{forte hétérogénéité}
 du réseau --- que les trois pages suivantes approfondissent.
 
+\FloatBarrier
 \subsection{Analyse des clients}
 La page \emph{Clients} (figure~\ref{fig:pbi_clients}) segmente le portefeuille selon
 plusieurs axes : le \textbf{type de client}, le \textbf{sexe}, la \textbf{région}
@@ -443,14 +483,14 @@ un classement des agences selon leur nombre de clients. Elle offre une lecture
 \textbf{géographique et démographique} du portefeuille, absente du tableau de bord
 opérationnel.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{screens/pbi_clients.png}
   \caption{Rapport Power BI --- page « Clients » (segmentation et territoire)}
   \label{fig:pbi_clients}
 \end{figure}
 
-\textbf{Interprétation.} Le portefeuille est très majoritairement composé de
+\interpretation Le portefeuille est très majoritairement composé de
 \textbf{particuliers} (88\,\%), les segments \emph{société} et \emph{entreprise} ne
 pesant qu'environ 12\,\% : il existe donc une réelle \textbf{marge de développement}
 sur la clientèle professionnelle, à plus forte valeur ajoutée. La clientèle est par
@@ -461,6 +501,7 @@ les régions sous-représentées} (Centre, Sud) et à rééquilibrer la conquêt
 classement des agences par nombre de clients aide, quant à lui, à prioriser les
 efforts commerciaux.
 
+\FloatBarrier
 \subsection{Performance commerciale}
 La page \emph{Commercial} (figure~\ref{fig:pbi_commercial}) détaille les
 \textbf{objectifs} : les ouvertures de comptes par type, la production de crédits
@@ -468,14 +509,14 @@ par nature, l'effort d'équipement (EER), l'\textbf{évolution mensuelle} de la
 production et un classement des agences par production. Elle constitue l'outil de
 \textbf{pilotage commercial} du réseau.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{screens/pbi_commercial.png}
   \caption{Rapport Power BI --- page « Commercial » (objectifs et production)}
   \label{fig:pbi_commercial}
 \end{figure}
 
-\textbf{Interprétation.} La production de crédits (1,40 milliard) se répartit de
+\interpretation La production de crédits (1,40 milliard) se répartit de
 manière assez \textbf{équilibrée} entre l'immobilier (0,53\,Md), la consommation
 (0,46\,Md) et l'investissement (0,41\,Md), l'immobilier restant en tête. Côté
 équipement, les \textbf{comptes chèques} dominent les ouvertures (47\,K, devant
@@ -487,6 +528,7 @@ ses bonnes pratiques peuvent être diffusées au réseau. Le décideur dispose a
 d'une base factuelle pour \textbf{diversifier la production} vers l'investissement et
 le segment entreprise.
 
+\FloatBarrier
 \subsection{Suivi de la présence}
 La page \emph{Présence} (figure~\ref{fig:pbi_presence}) suit l'\textbf{assiduité}
 des employés : le taux de présence, la répartition des statuts (présent, retard,
@@ -495,14 +537,14 @@ mensuelle} du taux de présence et la liste des \textbf{agences à surveiller}
 (présence la plus faible). Elle prolonge le module de pointage par une vue
 \textbf{ressources humaines} consolidée.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{screens/pbi_presence.png}
   \caption{Rapport Power BI --- page « Présence » (assiduité et suivi RH)}
   \label{fig:pbi_presence}
 \end{figure}
 
-\textbf{Interprétation.} Avec un taux global de \textbf{87,9\,\%}, l'assiduité reste
+\interpretation Avec un taux global de \textbf{87,9\,\%}, l'assiduité reste
 correcte mais perfectible : les \textbf{retards} représentent un quart des pointages
 (25\,\%) et les absences 12\,\%. Le pointage est majoritairement \textbf{automatique}
 (72\,\% en mode « auto » contre 28\,\% de saisies manuelles), signe d'une bonne
