@@ -27,7 +27,7 @@ package "ETL  -  Python / pandas\n(etl_agences.py)" as ETL #FFF3DC {
 }
 
 package "Entrepot / datamart\n(schema en etoile)" as DWH #EAF3FA {
-  database "dim_agence\nfait_agence\n(7 indicateurs / agence)" as DM
+  database "dim_agence / fait_agence\n(7 indicateurs par agence)\ndim_gestionnaire / fait_objectif\n(production par gestionnaire)" as DM
 }
 
 package "Restitution & analyse" as REST #E8F5E9 {

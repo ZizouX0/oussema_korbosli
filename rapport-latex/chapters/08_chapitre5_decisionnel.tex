@@ -18,7 +18,7 @@ figure~\ref{fig:etl_chaine} présente cette chaîne décisionnelle.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{etl_chaine.png}
+  \includegraphics[width=0.70\textwidth]{etl_chaine.png}
   \caption{Chaîne décisionnelle : du système opérationnel au datamart et à sa restitution}
   \label{fig:etl_chaine}
 \end{figure}
@@ -26,10 +26,10 @@ figure~\ref{fig:etl_chaine} présente cette chaîne décisionnelle.
 Trois étapes s'enchaînent : \textbf{Extract} (lecture des sources
 \texttt{AGENCE}, \texttt{B\_UTILISATEURS}, \texttt{CLIENT\_BTK}, \texttt{B\_OBJECTIF},
 \texttt{POINTAGE}), \textbf{Transform} (nettoyage, typage et agrégation par agence)
-et \textbf{Load} (chargement du datamart en étoile). Ce datamart constitue une
-\textbf{source unique consolidée}, partagée par la restitution (tableau de bord et
-Power BI) et par la segmentation des agences présentée à la
-section~\ref{sec:segmentation}.
+et \textbf{Load} (chargement du datamart en étoile, au grain de l'agence puis au
+grain \emph{agence $\times$ gestionnaire}). Ce datamart constitue une \textbf{source
+unique consolidée}, partagée par la restitution (tableau de bord et Power BI) et
+par la segmentation des agences présentée à la section~\ref{sec:segmentation}.
 
 % ----------------------------------------------------------------------
 \section{Modèle en étoile de l'entrepôt}
@@ -70,9 +70,10 @@ réservé aux entrepôts de grande ampleur.\\
 \end{tabularx}
 \end{table}
 
-Pour ce projet, le \textbf{modèle en étoile} a été retenu. Le besoin porte sur un
-\textbf{grain unique et homogène} --- l'agence --- et sur un \textbf{nombre réduit
-de dimensions} (agence, période, gestionnaire, type de client) : la normalisation
+Pour ce projet, le \textbf{modèle en étoile} a été retenu. Le besoin porte sur des
+\textbf{grains homogènes} --- l'agence, puis le couple agence--gestionnaire --- et
+sur un \textbf{nombre réduit de dimensions} (agence, période, gestionnaire, type
+de client) : la normalisation
 en flocon n'apporterait ici aucun gain significatif d'espace tout en alourdissant
 les requêtes, et la constellation, pensée pour plusieurs processus de faits, serait
 surdimensionnée. L'étoile offre en revanche la \textbf{simplicité}, la
@@ -83,15 +84,21 @@ immédiat.
 
 \subsection{Structure du modèle retenu}
 Le volet décisionnel s'appuie sur \textbf{deux niveaux} complémentaires, tous deux
-organisés en étoile. Le premier est le \textbf{datamart chargé par la chaîne ETL}
-(section~\ref{sec:etl}) : une unique table de faits \texttt{fait\_agence} au
-\textbf{grain de l'agence}, accompagnée de la dimension \texttt{dim\_agence} ;
-c'est lui qui alimente la segmentation de la section~\ref{sec:segmentation}. Le
-second est la \textbf{couche sémantique} exposée à Power BI, constituée des vues
-\texttt{V\_BI\_*} : quatre vues d'analyse (production, effectifs, clients,
-présence) reliées à la \textbf{dimension conforme} \texttt{AGENCE} par la clé
-\texttt{SK\_AGENCE}, ainsi qu'à la dimension \texttt{B\_UTILISATEURS} par
-\texttt{SK\_UTILISATEUR}. La figure~\ref{fig:bi} présente ce second niveau.
+organisés en étoile et articulés autour des \textbf{mêmes axes d'analyse}. Le
+premier est le \textbf{datamart chargé par la chaîne ETL}
+(section~\ref{sec:etl}) : la table de faits \texttt{fait\_agence} au \textbf{grain
+de l'agence} --- celle qui alimente la segmentation de la
+section~\ref{sec:segmentation} --- accompagnée de sa dimension
+\texttt{dim\_agence}, ainsi que la table \texttt{fait\_objectif}, au grain
+\emph{agence $\times$ gestionnaire}, et sa dimension \texttt{dim\_gestionnaire}.
+Ces deux dernières sont obtenues en reprenant la clé \texttt{SK\_UTILISATEUR} de
+la table \texttt{B\_OBJECTIF}, qui rattache chaque ligne d'objectifs au
+gestionnaire responsable. Le second niveau est la \textbf{couche sémantique}
+exposée à Power BI, constituée des vues \texttt{V\_BI\_*} : quatre vues d'analyse
+(production, effectifs, clients, présence) reliées à la \textbf{dimension
+conforme} \texttt{AGENCE} par la clé \texttt{SK\_AGENCE}, ainsi qu'à la dimension
+\texttt{B\_UTILISATEURS} par cette même clé \texttt{SK\_UTILISATEUR}. La
+figure~\ref{fig:bi} présente ce second niveau.
 
 \begin{figure}[htbp]
   \centering
@@ -114,11 +121,15 @@ ou vue.
 \hline
 \textmd{\textbf{Rôle}} & \textmd{\textbf{Table ou vue}} & \textbf{Description}\\
 \hline
-\multicolumn{3}{|l|}{\cellcolor{black!8}\textit{Datamart chargé par la chaîne ETL --- grain « agence » (section~\ref{sec:etl})}}\\
+\multicolumn{3}{|l|}{\cellcolor{black!8}\textit{Datamart chargé par la chaîne ETL (section~\ref{sec:etl})}}\\
 \hline
 Table de faits & fait\_agence & Mesures agrégées par agence : effectif, nombre de gestionnaires, portefeuille clients, comptes ouverts, production de crédits, collecte d'épargne et taux de présence.\\
 \hline
 Dimension & dim\_agence & Axe « agence » : libellé et district --- analyse géographique par agence et par région.\\
+\hline
+Table de faits & fait\_objectif & Production par gestionnaire (comptes, crédits, épargne), au grain \emph{agence $\times$ gestionnaire}.\\
+\hline
+Dimension & dim\_gestionnaire & Axe « gestionnaire » (\texttt{SK\_UTILISATEUR}) : identité et agence de rattachement.\\
 \hline
 \multicolumn{3}{|l|}{\cellcolor{black!8}\textit{Couche sémantique exposée à Power BI --- vues \texttt{V\_BI\_*} (section~\ref{sec:pbi})}}\\
 \hline
@@ -132,7 +143,7 @@ Faits & V\_BI\_POINTAGE & Présence : statut du pointage, indicateurs de présen
 \hline
 Dimension conforme & AGENCE & Axe « agence » (\texttt{SK\_AGENCE}) : libellé, district et adresse ; partagé par les quatre vues.\\
 \hline
-Dimension conforme & B\_UTILISATEURS & Axe « gestionnaire / employé » (\texttt{SK\_UTILISATEUR}), alimenté par les jointures internes de \texttt{V\_BI\_OBJECTIFS} et \texttt{V\_BI\_POINTAGE}.\\
+Dimension conforme & B\_UTILISATEURS & Axe « gestionnaire / employé » (\texttt{SK\_UTILISATEUR}), résolu par les jointures internes de \texttt{V\_BI\_OBJECTIFS} et \texttt{V\_BI\_POINTAGE}.\\
 \hline
 Dimension dégénérée & ANNEE\_MOIS & Axe temporel porté directement par \texttt{V\_BI\_OBJECTIFS} et \texttt{V\_BI\_POINTAGE} : analyse par mois et par exercice.\\
 \hline
@@ -141,16 +152,16 @@ Dimension dégénérée & TYPE\_CLIENT & Axe « portefeuille » porté directeme
 \end{tabularx}
 \end{table}
 
-Cette distinction est importante pour la lecture du chapitre. L'axe
-\textbf{gestionnaire} n'existe qu'au niveau de la couche sémantique : il est
-résolu par la jointure \texttt{B\_OBJECTIF.SK\_UTILISATEUR
-$\rightarrow$ B\_UTILISATEURS}, qui produit la colonne
-\texttt{NOM\_GESTIONNAIRE} de la vue \texttt{V\_BI\_OBJECTIFS} et le rend
-exploitable dans Power BI. Le datamart de la chaîne ETL, lui, agrège
-\texttt{B\_OBJECTIF} \textbf{par agence} : il ne retient que
-\texttt{SK\_AGENCE} et les mesures consolidées, et ne porte donc \emph{pas} l'axe
-gestionnaire --- ce qui est cohérent avec son objet, la segmentation des agences,
-qui raisonne au grain de l'agence.
+L'axe \textbf{gestionnaire} est ainsi alimenté aux deux niveaux à partir de la
+même clé. Au niveau du datamart, l'étape d'extraction reprend
+\texttt{B\_OBJECTIF.SK\_UTILISATEUR} et agrège la production par
+\emph{agence $\times$ gestionnaire} dans \texttt{fait\_objectif} ; au niveau de la
+couche sémantique, la jointure \texttt{B\_OBJECTIF.SK\_UTILISATEUR $\rightarrow$
+B\_UTILISATEURS} produit la colonne \texttt{NOM\_GESTIONNAIRE} de la vue
+\texttt{V\_BI\_OBJECTIFS}, exploitable comme axe d'analyse dans Power BI. La table
+\texttt{fait\_agence}, elle, reste volontairement au \textbf{grain de l'agence} :
+c'est le grain attendu par la segmentation de la
+section~\ref{sec:segmentation}, qui raisonne sur des profils d'agences.
 
 Le tableau~\ref{tab:kpi} récapitule les principaux indicateurs (KPI) retenus.
 
@@ -191,11 +202,11 @@ fichiers CSV. Pour ce second mode, un script \textbf{SQLcl}
 agences, employés, clients, objectifs et pointages --- vers des fichiers CSV,
 placés ensuite dans le répertoire \texttt{etl/source/}. Les indicateurs
 d'objectifs (comptes, crédits, épargne) y sont déjà consolidés à partir des
-colonnes correspondantes de la table \texttt{B\_OBJECTIF}. Conformément au grain
-retenu, cette extraction ne conserve de \texttt{B\_OBJECTIF} que la clé
-\texttt{SK\_AGENCE} et les trois mesures consolidées : l'axe gestionnaire
-(\texttt{SK\_UTILISATEUR}) n'est pas repris ici, puisqu'il relève de la couche
-sémantique Power BI et non du datamart agrégé par agence.
+colonnes correspondantes de la table \texttt{B\_OBJECTIF}. L'extraction en reprend
+les \textbf{deux clés de rattachement} --- \texttt{SK\_AGENCE} et
+\texttt{SK\_UTILISATEUR} --- ainsi que les trois mesures consolidées : c'est cette
+seconde clé qui permet, à l'étape de chargement, de construire l'axe
+\textbf{gestionnaire} du datamart.
 
 \subsection{Détail des étapes de traitement}
 La chaîne ETL est implémentée en \textbf{Python} (bibliothèque
@@ -255,7 +266,9 @@ taux\_presence & Proportion de pointages « présent » ou « retard » sur le t
 
 \paragraph{4. Intégration.} Les indicateurs agrégés issus des différentes sources
 (effectifs, portefeuille, production, présence) sont \textbf{fusionnés} sur la clé
-\texttt{SK\_AGENCE} en une table unique décrivant chaque agence. La
+\texttt{SK\_AGENCE} en une table unique décrivant chaque agence ; en parallèle, la
+production est regroupée sur le couple (\texttt{SK\_AGENCE},
+\texttt{SK\_UTILISATEUR}) afin de constituer la table de faits par gestionnaire. La
 figure~\ref{fig:etl_cell2} présente cette agrégation sur les \textbf{données réelles
 du réseau BTK} (49 agences) : elle détaille, pour chaque agence, l'effectif, le
 nombre de gestionnaires, le portefeuille clients et la production commerciale
@@ -283,7 +296,9 @@ manquante} et récapitule les statistiques du datamart (figure~\ref{fig:etl_cell
 
 \paragraph{Chargement (\emph{Load}).} Le datamart en étoile est enfin écrit sous
 \texttt{etl/entrepot/} : la dimension \texttt{dim\_agence} et la table de faits
-\texttt{fait\_agence}. Un fichier consolidé (\texttt{clustering/data/agences.csv})
+\texttt{fait\_agence} au grain de l'agence, complétées par la dimension
+\texttt{dim\_gestionnaire} et la table de faits \texttt{fait\_objectif} au grain
+\emph{agence $\times$ gestionnaire}. Un fichier consolidé (\texttt{clustering/data/agences.csv})
 est également produit pour alimenter la segmentation. Le pipeline étant
 \textbf{rejouable}, il bascule automatiquement sur les données réelles dès qu'un
 export est fourni.

@@ -45,11 +45,11 @@ def extract_oracle(dsn=None, user=None, password=None):
         password=password or os.environ.get("BTK_DB_PWD", ""),
         dsn=dsn or os.environ.get("BTK_DB_DSN", "localhost:1521/FREEPDB1"))
     ag = pd.read_sql("SELECT SK_AGENCE, LIBELLE_AGENCE, DISTRICT FROM AGENCE", cn)
-    emp = pd.read_sql("SELECT SK_UTILISATEUR, SK_AGENCE, EST_GESTIONNAIRE "
-                      "FROM B_UTILISATEURS", cn)
+    emp = pd.read_sql("SELECT SK_UTILISATEUR, LIBELLE_UTILISATEUR, SK_AGENCE, "
+                      "  EST_GESTIONNAIRE FROM B_UTILISATEURS", cn)
     cli = pd.read_sql("SELECT SK_CLIENT, SK_AGENCE FROM CLIENT_BTK", cn)
     obj = pd.read_sql(
-        "SELECT SK_AGENCE, "
+        "SELECT SK_AGENCE, SK_UTILISATEUR, "
         "  NVL(SOUSCRIPTION_COMPTE_CHEQUES_OA,0)+NVL(SOUSCRIPTION_COMPTE_EPARGNES_OA,0)"
         "  +NVL(SOUSCRIPTION_COMPTE_COURANTS_OA,0) AS COMPTES, "
         "  NVL(PRODUCTION_CREDITS_CONSO_OA,0)+NVL(PRODUCTION_CREDITS_IMMO_OA,0)"
@@ -75,10 +75,14 @@ def _synthese_source():
             agences.append({"SK_AGENCE": sk_ag, "LIBELLE_AGENCE": f"Agence {sk_ag:02d}",
                             "DISTRICT": rng.choice(["Nord", "Centre", "Sud"])})
             p_pres = {"grande": 0.93, "moyenne": 0.89, "petite": 0.82}[nom]
+            gestionnaires = []                         # gestionnaires de l'agence
             for _ in range(eff):                       # employés de l'agence
                 gest = 1 if rng.random() < 0.30 else 0
-                employes.append({"SK_UTILISATEUR": sk_emp, "SK_AGENCE": sk_ag,
-                                 "EST_GESTIONNAIRE": gest})
+                if gest:
+                    gestionnaires.append(sk_emp)
+                employes.append({"SK_UTILISATEUR": sk_emp,
+                                 "LIBELLE_UTILISATEUR": f"Employe {sk_emp:04d}",
+                                 "SK_AGENCE": sk_ag, "EST_GESTIONNAIRE": gest})
                 for _ in range(20):                    # ~20 jours de pointage / employé
                     r = rng.random()
                     statut = "PRESENT" if r < p_pres else ("RETARD" if r < p_pres + 0.05 else "ABSENT")
@@ -89,6 +93,8 @@ def _synthese_source():
             for _ in range(6):                          # 6 périodes d'objectifs / agence
                 objectifs.append({
                     "SK_AGENCE": sk_ag,
+                    "SK_UTILISATEUR": (int(rng.choice(gestionnaires))
+                                       if gestionnaires else None),
                     "COMPTES": max(0, rng.normal(eff * 20 / 6, eff * 0.4)),
                     "CREDITS": max(0, rng.normal(eff * 15 / 6, eff * 0.3)),
                     "EPARGNE": max(0, rng.normal(eff * 10 / 6, eff * 0.25)),
@@ -114,6 +120,34 @@ def extract(source="auto"):
 
 
 # ============================ TRANSFORM ====================================
+def transform_gestionnaire(employes, objectifs):
+    """Axe « gestionnaire » du datamart.
+
+    Le portefeuille d'objectifs de B_OBJECTIF est rattaché à un gestionnaire par
+    SK_UTILISATEUR : on en tire la dimension `dim_gestionnaire` et la table de
+    faits `fait_objectif`, au grain (agence, gestionnaire).
+    """
+    if "SK_UTILISATEUR" not in objectifs.columns:
+        return None, None                     # source sans axe gestionnaire
+    obj = objectifs.dropna(subset=["SK_UTILISATEUR"]).copy()
+    if obj.empty:
+        return None, None
+    obj["SK_UTILISATEUR"] = obj["SK_UTILISATEUR"].astype(int)
+
+    dim = employes[employes["EST_GESTIONNAIRE"].fillna(0).astype(int) == 1].copy()
+    cols = [c for c in ["SK_UTILISATEUR", "LIBELLE_UTILISATEUR", "SK_AGENCE"]
+            if c in dim.columns]
+    dim = dim[cols].drop_duplicates(subset=["SK_UTILISATEUR"]).reset_index(drop=True)
+
+    fait = obj.groupby(["SK_AGENCE", "SK_UTILISATEUR"]).agg(
+        total_comptes=("COMPTES", "sum"),
+        production_credits=("CREDITS", "sum"),
+        collecte_epargne=("EPARGNE", "sum")).reset_index()
+    for c in ["total_comptes", "production_credits", "collecte_epargne"]:
+        fait[c] = fait[c].fillna(0).round(1)
+    return dim, fait
+
+
 def transform(agences, employes, clients, objectifs, pointages):
     """Nettoie et agrège les sources par agence (calcul des indicateurs)."""
     # nettoyage minimal
@@ -146,15 +180,20 @@ def transform(agences, employes, clients, objectifs, pointages):
 
 
 # ============================ LOAD =========================================
-def load(dm):
+def load(dm, dim_gestionnaire=None, fait_objectif=None):
     """Charge le datamart en étoile (entrepôt) et le fichier pour le clustering."""
     dim_agence = dm[["SK_AGENCE", "agence", "DISTRICT"]]
     fait_agence = dm[["SK_AGENCE"] + FEATURES]
     dim_agence.to_csv(os.path.join(ENTREPOT, "dim_agence.csv"), index=False)
     fait_agence.to_csv(os.path.join(ENTREPOT, "fait_agence.csv"), index=False)
-    # fichier consommé par la segmentation (clustering)
+    tables = ["dim_agence", "fait_agence"]
+    if dim_gestionnaire is not None and fait_objectif is not None:
+        dim_gestionnaire.to_csv(os.path.join(ENTREPOT, "dim_gestionnaire.csv"), index=False)
+        fait_objectif.to_csv(os.path.join(ENTREPOT, "fait_objectif.csv"), index=False)
+        tables += ["dim_gestionnaire", "fait_objectif"]
+    # fichier consommé par la segmentation (clustering), au grain de l'agence
     dm[["agence"] + FEATURES].to_csv(DATAMART, index=False)
-    print(f"[load] Entrepôt -> {ENTREPOT}/ (dim_agence, fait_agence)")
+    print(f"[load] Entrepôt -> {ENTREPOT}/ ({', '.join(tables)})")
     print(f"[load] Datamart clustering -> {DATAMART}")
 
 
@@ -166,7 +205,11 @@ def main():
           f"{len(pointages)} pointages.")
     dm = transform(agences, employes, clients, objectifs, pointages)
     print(f"[transform] datamart agrégé : {len(dm)} agences x {len(FEATURES)} indicateurs.")
-    load(dm)
+    dim_g, fait_o = transform_gestionnaire(employes, objectifs)
+    if dim_g is not None:
+        print(f"[transform] axe gestionnaire : {len(dim_g)} gestionnaires, "
+              f"{len(fait_o)} lignes de faits (agence x gestionnaire).")
+    load(dm, dim_g, fait_o)
     print("\n[ok] Chaîne ETL terminée. Aperçu du datamart :")
     print(dm[["agence"] + FEATURES].head(6).to_string(index=False))
 

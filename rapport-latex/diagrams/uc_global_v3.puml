@@ -26,33 +26,54 @@ skinparam rectangleFontSize 16
 skinparam nodesep 22
 skinparam ranksep 210
 
+actor "Directeur commercial" as DIR
+actor "Utilisateur" as USR
 actor "Administrateur" as ADM
 
 rectangle "Application de gestion des agences bancaires" {
-  ' --- cas propres à l'administrateur ---
+  usecase "Gérer les employés" as UC07
+  usecase "Suivre les objectifs\ncommerciaux" as UC08
+  usecase "Valider une\ndemande" as UC09
+  usecase "Consulter le\ntableau de bord" as UC10
+  usecase "Soumettre une\ndemande" as UC11
+  usecase "Pointer la présence\n(arrivée / départ)" as UC12
+  usecase "Recevoir des\nnotifications" as UC13
   usecase "Gérer les rôles et\nles droits d'accès" as UC01
   usecase "Gérer les agences" as UC02
   usecase "Gérer les clients" as UC03
   usecase "Consulter le\njournal d'audit" as UC04
   usecase "Alimenter le\ndatamart (ETL)" as UC05
   usecase "Segmenter\nles agences" as UC06
-  ' --- cas partagés avec le directeur commercial ---
-  usecase "Gérer les employés" as UC07
-  usecase "Suivre les objectifs\ncommerciaux" as UC08
-  usecase "Valider une\ndemande" as UC09
-  usecase "Consulter le\ntableau de bord" as UC10
-  ' --- cas partagés avec l'utilisateur ---
-  usecase "Soumettre une\ndemande" as UC11
-  usecase "Pointer la présence\n(arrivée / départ)" as UC12
-  usecase "Recevoir des\nnotifications" as UC13
-  ' --- cas inclus par tous ---
   usecase "S'authentifier" as UC00
 }
 
-actor "Directeur commercial" as DIR
-actor "Utilisateur" as USR
+' ---- ordre vertical imposé de la colonne des cas d'utilisation ----
+UC07 -[hidden]- UC08
+UC08 -[hidden]- UC09
+UC09 -[hidden]- UC10
+UC10 -[hidden]- UC11
+UC11 -[hidden]- UC12
+UC12 -[hidden]- UC13
+UC13 -[hidden]- UC01
+UC01 -[hidden]- UC02
+UC02 -[hidden]- UC03
+UC03 -[hidden]- UC04
+UC04 -[hidden]- UC05
+UC05 -[hidden]- UC06
 
-' ===================== Administrateur : les 13 cas =====================
+' ---- Directeur commercial : 5 cas ----
+DIR --> UC07 : consultation
+DIR --> UC08
+DIR --> UC09
+DIR --> UC10
+DIR --> UC11
+
+' ---- Utilisateur : 3 cas ----
+USR --> UC11
+USR --> UC12
+USR --> UC13
+
+' ---- Administrateur : les 13 cas ----
 ADM --> UC01
 ADM --> UC02
 ADM --> UC03
@@ -67,25 +88,7 @@ ADM --> UC11
 ADM --> UC12
 ADM --> UC13
 
-' ===================== Directeur commercial : 5 cas =====================
-UC07 <-- DIR : consultation
-UC08 <-- DIR
-UC09 <-- DIR
-UC10 <-- DIR
-UC11 <-- DIR
-
-' ===================== Utilisateur : 3 cas =====================
-UC11 <-- USR
-UC12 <-- USR
-UC13 <-- USR
-
-' ===================== Relations «include» =====================
-UC01 ..> UC00 : <<include>>
-UC02 ..> UC00 : <<include>>
-UC03 ..> UC00 : <<include>>
-UC04 ..> UC00 : <<include>>
-UC05 ..> UC00 : <<include>>
-UC06 ..> UC00 : <<include>>
+' ---- relations «include» ----
 UC07 ..> UC00 : <<include>>
 UC08 ..> UC00 : <<include>>
 UC09 ..> UC00 : <<include>>
@@ -93,4 +96,10 @@ UC10 ..> UC00 : <<include>>
 UC11 ..> UC00 : <<include>>
 UC12 ..> UC00 : <<include>>
 UC13 ..> UC00 : <<include>>
+UC01 ..> UC00 : <<include>>
+UC02 ..> UC00 : <<include>>
+UC03 ..> UC00 : <<include>>
+UC04 ..> UC00 : <<include>>
+UC05 ..> UC00 : <<include>>
+UC06 ..> UC00 : <<include>>
 @enduml

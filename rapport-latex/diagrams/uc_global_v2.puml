@@ -27,6 +27,8 @@ skinparam nodesep 22
 skinparam ranksep 210
 
 actor "Administrateur" as ADM
+actor "Directeur commercial" as DIR
+actor "Utilisateur" as USR
 
 rectangle "Application de gestion des agences bancaires" {
   ' --- cas propres à l'administrateur ---
@@ -49,9 +51,6 @@ rectangle "Application de gestion des agences bancaires" {
   usecase "S'authentifier" as UC00
 }
 
-actor "Directeur commercial" as DIR
-actor "Utilisateur" as USR
-
 ' ===================== Administrateur : les 13 cas =====================
 ADM --> UC01
 ADM --> UC02
@@ -68,16 +67,16 @@ ADM --> UC12
 ADM --> UC13
 
 ' ===================== Directeur commercial : 5 cas =====================
-UC07 <-- DIR : consultation
-UC08 <-- DIR
-UC09 <-- DIR
-UC10 <-- DIR
-UC11 <-- DIR
+DIR --> UC07 : consultation
+DIR --> UC08
+DIR --> UC09
+DIR --> UC10
+DIR --> UC11
 
 ' ===================== Utilisateur : 3 cas =====================
-UC11 <-- USR
-UC12 <-- USR
-UC13 <-- USR
+USR --> UC11
+USR --> UC12
+USR --> UC13
 
 ' ===================== Relations «include» =====================
 UC01 ..> UC00 : <<include>>

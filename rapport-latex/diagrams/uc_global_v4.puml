@@ -29,6 +29,8 @@ skinparam ranksep 210
 actor "Administrateur" as ADM
 
 rectangle "Application de gestion des agences bancaires" {
+  ' --- cas inclus par tous ---
+  usecase "S'authentifier" as UC00
   ' --- cas propres à l'administrateur ---
   usecase "Gérer les rôles et\nles droits d'accès" as UC01
   usecase "Gérer les agences" as UC02
@@ -45,8 +47,6 @@ rectangle "Application de gestion des agences bancaires" {
   usecase "Soumettre une\ndemande" as UC11
   usecase "Pointer la présence\n(arrivée / départ)" as UC12
   usecase "Recevoir des\nnotifications" as UC13
-  ' --- cas inclus par tous ---
-  usecase "S'authentifier" as UC00
 }
 
 actor "Directeur commercial" as DIR
