@@ -321,9 +321,9 @@ divider("02", "Spécifications des besoins");
 {
   const s = slide("Identification des acteurs");
   const act = [
-    ["Administrateur", "ADMIN", "Gère les agences, les employés et les clients · valide les demandes · consulte le journal d'audit · supervise le volet décisionnel"],
-    ["Directeur commercial", "DIRECTEUR_COMMERCIAL", "Soumet les demandes de création · valide les modifications des employés · consulte les objectifs et les indicateurs"],
-    ["Utilisateur", "USER", "Consulte les données autorisées · effectue son pointage · soumet les demandes le concernant"],
+    ["Administrateur", "ADMIN", "Couvre les 13 cas d'utilisation : rôles et droits · agences, employés, clients · demandes · pointage · journal d'audit · volet décisionnel"],
+    ["Directeur commercial", "DIRECTEUR_COMMERCIAL", "Consulte les employés, les objectifs et le tableau de bord · soumet les demandes de création · valide les modifications des employés"],
+    ["Utilisateur", "USER", "Pointe son arrivée et son départ · soumet les demandes de modification de ses propres informations · reçoit ses notifications"],
   ];
   act.forEach((a, i) => {
     const x = M + i * 4.13;
@@ -353,7 +353,7 @@ divider("02", "Spécifications des besoins");
     ["Gestion du référentiel", "CRUD des agences, des employés et des clients"],
     ["Objectifs commerciaux", "Suivi de la production par agence et par période"],
     ["Pointage des employés", "Arrivée / départ, statut présent · retard · absent"],
-    ["Circuits de validation", "Demandes soumises, validées ou refusées, journalisées"],
+    ["Circuits de validation", "Double validation : approbation du directeur puis exécution par l'admin"],
     ["Volet décisionnel", "Chaîne ETL, tableaux de bord et segmentation des agences"],
   ];
   bf.forEach((b, i) => {
@@ -450,11 +450,11 @@ divider("03", "Conception & architecture");
   s.addText("LECTURE DU DIAGRAMME", { x: 9.45, y: 1.72, w: 3.3, h: 0.3, fontFace: BF,
     fontSize: 10.5, bold: true, color: LITE, charSpacing: 2, margin: 0 });
   bullets(s, 9.45, 2.08, 3.3, [
-    "Trois acteurs distincts",
-    "« S'authentifier » commun à tous (include)",
-    "L'administrateur concentre la gestion",
-    "Le directeur soumet et consulte",
-    "L'utilisateur pointe et consulte",
+    "Trois acteurs, treize cas d'utilisation",
+    "Chaque cas inclut « S'authentifier » (include)",
+    "Administrateur : les 13 cas, sans exception",
+    "Directeur commercial : 5 cas, dont les employés en consultation",
+    "Utilisateur : 3 cas — pointage, demandes, notifications",
   ], 11.5);
 }
 
@@ -474,22 +474,22 @@ divider("03", "Conception & architecture");
     s.addText(c[1], { x: M + 0.3, y: y + 0.46, w: 5.3, h: 0.36, fontFace: BF, fontSize: 11.5,
       color: c[2] ? "CBD8EE" : MUTED, margin: 0, valign: "middle" });
   });
-  s.addText("Un grain unique — l'agence — et peu de dimensions : le modèle en étoile offre la lisibilité attendue par un outil libre-service comme Power BI.",
+  s.addText("Des grains homogènes — l'agence, puis le couple agence × gestionnaire — et peu de dimensions : l'étoile offre la lisibilité attendue par un outil libre-service comme Power BI.",
     { x: M, y: 5.2, w: 5.9, h: 0.9, fontFace: BF, fontSize: 12.5, color: INK, margin: 0,
       lineSpacing: 18, valign: "top" });
   card(s, 7.15, 1.98, 5.6, 4.2);
-  s.addText("fait_agence", { x: 7.45, y: 2.18, w: 5.1, h: 0.4, fontFace: "Consolas",
-    fontSize: 14, bold: true, color: NAVY, margin: 0, valign: "middle" });
-  s.addText("Effectif · gestionnaires · clients · comptes ouverts · production de crédits · collecte d'épargne · taux de présence",
-    { x: 7.45, y: 2.6, w: 5.1, h: 0.8, fontFace: BF, fontSize: 12, color: INK, margin: 0,
-      lineSpacing: 17, valign: "top" });
-  s.addText("TABLES DE DIMENSIONS", { x: 7.45, y: 3.5, w: 5.1, h: 0.28, fontFace: BF,
+  s.addText("DATAMART CHARGÉ PAR L'ETL", { x: 7.45, y: 2.16, w: 5.1, h: 0.28, fontFace: BF,
     fontSize: 10, bold: true, color: LITE, charSpacing: 2, margin: 0 });
-  bullets(s, 7.45, 3.8, 5.1, [
-    "dim_agence — libellé, district, région",
-    "période — analyse par mois et exercice",
-    "gestionnaire — portefeuille par responsable",
-    "type_client — particulier, société, entreprise",
+  bullets(s, 7.45, 2.46, 5.1, [
+    "fait_agence / dim_agence — 7 indicateurs au grain de l'agence",
+    "fait_objectif / dim_gestionnaire — production au grain agence × gestionnaire",
+  ], 11.5);
+  s.addText("COUCHE SÉMANTIQUE POWER BI", { x: 7.45, y: 4.06, w: 5.1, h: 0.28, fontFace: BF,
+    fontSize: 10, bold: true, color: LITE, charSpacing: 2, margin: 0 });
+  bullets(s, 7.45, 4.36, 5.1, [
+    "4 vues V_BI_* : production, effectifs, clients, présence",
+    "Dimensions conformes AGENCE (SK_AGENCE) et B_UTILISATEURS (SK_UTILISATEUR)",
+    "Période et type de client : dimensions dégénérées portées par les vues",
   ], 11.5);
 }
 
@@ -502,7 +502,7 @@ divider("04", "Volet décisionnel & réalisation");
   const steps = [["Collecte", "Lecture des 5 tables sources Oracle"],
                  ["Nettoyage", "Lignes incomplètes écartées, typage des colonnes"],
                  ["Transformation", "Agrégation par agence des 7 indicateurs"],
-                 ["Intégration", "Fusion des sources sur la clé SK_AGENCE"],
+                 ["Intégration", "Fusion sur SK_AGENCE, puis regroupement sur SK_UTILISATEUR"],
                  ["Contrôle qualité", "Valeurs manquantes, arrondis et journal"]];
   steps.forEach((st, i) => {
     const x = M + i * 2.44;
@@ -520,13 +520,13 @@ divider("04", "Volet décisionnel & réalisation");
   card(s, M, 4.15, 5.9, 2.15, NAVY);
   s.addText("Sources Oracle", { x: M + 0.35, y: 4.35, w: 5.2, h: 0.36, fontFace: HF,
     fontSize: 14.5, bold: true, color: WHITE, margin: 0, valign: "middle" });
-  s.addText("AGENCE · B_UTILISATEURS · B_CLIENTS\nB_OBJECTIF · POINTAGE",
+  s.addText("AGENCE · B_UTILISATEURS · CLIENT_BTK\nB_OBJECTIF · POINTAGE",
     { x: M + 0.35, y: 4.76, w: 5.2, h: 0.8, fontFace: "Consolas", fontSize: 11.5,
       color: "CBD8EE", margin: 0, lineSpacing: 18, valign: "top" });
   s.addText("Chaîne rejouable, exécutée sur les données réelles du réseau.",
     { x: M + 0.35, y: 5.62, w: 5.2, h: 0.4, fontFace: BF, fontSize: 11.5, color: LITE,
       italic: true, margin: 0, valign: "middle" });
-  stat(s, 7.15, 4.15, 2.7, 2.15, "45", "agences consolidées");
+  stat(s, 7.15, 4.15, 2.7, 2.15, "49", "entités consolidées");
   stat(s, 10.05, 4.15, 2.7, 2.15, "7", "indicateurs par agence");
 }
 
