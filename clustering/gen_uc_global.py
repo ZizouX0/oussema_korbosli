@@ -49,8 +49,8 @@ BOXL, BOXR, BOXB, BOXT = -2.80, 7.75, -8.35, 8.35
 
 fig, ax = plt.subplots(figsize=(16.2, 12.6))
 fig.patch.set_facecolor("white")
-ax.set_xlim(-11.3, 12.4)
-ax.set_ylim(-10.1, 9.3)
+ax.set_xlim(-11.3, 14.9)
+ax.set_ylim(-9.0, 9.3)
 ax.set_aspect("equal")
 ax.axis("off")
 
@@ -132,9 +132,9 @@ ax.text(7.35, 6.28, "consultation", ha="center", va="center", color=NAVY,
 #   « Soumettre une demande » : contournement par la droite, hors de la
 #   frontière du système, pour n'entrer dans aucune autre bulle
 ys = Y["soumettre"]
-verts = [(XD - 0.30, YD - 1.75),
-         (11.7, 1.5), (11.7, -6.6), (8.7, -8.8),      # segment 1
-         (6.0, -9.6), (3.45, -7.8), (RW + 0.02, ys - 0.12)]   # segment 2
+verts = [(XD + 0.15, YD - 1.55),
+         (13.4, 4.2), (13.4, -4.4), (11.2, -5.05),   # couloir vertical à droite
+         (8.6, -5.6), (5.2, -5.35), (RW + 0.03, ys - 0.16)]
 codes = [Path.MOVETO] + [Path.CURVE4] * 6
 ax.add_patch(FancyArrowPatch(
     path=Path(verts, codes), arrowstyle="-|>", mutation_scale=12,
