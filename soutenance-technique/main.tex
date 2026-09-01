@@ -1,0 +1,174 @@
+% =====================================================================
+%  Dossier technique de soutenance — Gestion des agences bancaires (BTK)
+%  Oussema Korbosli — Esprit School of Business — Business Intelligence
+%  Compilation : latexmk -pdf main.tex
+%
+%  Toutes les informations de ce dossier sont relevées dans le code du
+%  projet (servlets, services, entités, JSP, SQL, scripts Power BI et ETL).
+% =====================================================================
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[sfdefault]{carlito}
+\usepackage[french]{babel}
+\usepackage{csquotes}
+\usepackage[a4paper,margin=2.1cm,top=2.4cm,bottom=2.2cm]{geometry}
+\usepackage{microtype}
+% Autorise la coupure des longs identifiants en police à chasse fixe :
+% sans cela, « securityService.authenticate » déborde dans la marge.
+\usepackage[htt]{hyphenat}
+\tolerance=2000
+\emergencystretch=3em
+\widowpenalty=10000
+\clubpenalty=10000
+
+\usepackage{graphicx}
+\graphicspath{{../rapport-latex/images/}{../powerbi/}{../rapport-latex/diagrams/}}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{ragged2e}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{tcolorbox}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{btkblue}{HTML}{14507A}
+\definecolor{btklight}{HTML}{1B6CA8}
+\definecolor{btkpale}{HTML}{EAF3FA}
+\definecolor{btkgris}{HTML}{F4F6F9}
+\definecolor{btkvert}{HTML}{2E7D5B}
+\definecolor{btkrouge}{HTML}{B03A3A}
+\definecolor{codegris}{HTML}{FAFBFD}
+
+% ---- colonnes de tableau ----
+\renewcommand{\tabularxcolumn}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\newcolumntype{T}[1]{>{\ttfamily\RaggedRight\arraybackslash}p{#1}}
+\renewcommand{\arraystretch}{1.25}
+% coupure autorisée après « _ » et « / » dans les identifiants de code
+\catcode`\_=12
+\catcode`\_=8
+
+% ---- titres ----
+\titleformat{\section}{\Large\bfseries\color{btkblue}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\large\bfseries\color{btklight}}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}{\bfseries\color{btkblue}}{\thesubsubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{2.2ex plus 1ex}{1.2ex}
+\titlespacing*{\subsection}{0pt}{1.8ex plus .8ex}{0.9ex}
+
+% ---- en-tête / pied ----
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{btklight}\leaders\hrule height \headrulewidth\hfill}}
+\fancyhead[L]{\small\color{btkblue}Dossier technique — Gestion des agences BTK}
+\fancyhead[R]{\small\color{btkblue}Oussema Korbosli}
+\fancyfoot[C]{\small\thepage}
+
+% ---- code ----
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codegris},
+  frame=leftline, framerule=1.6pt, rulecolor=\color{btklight},
+  framexleftmargin=4pt, xleftmargin=8pt,
+  breaklines=true, breakatwhitespace=false, columns=fullflexible,
+  keywordstyle=\color{btkblue}\bfseries,
+  commentstyle=\color{btkvert}\itshape,
+  stringstyle=\color{btkrouge},
+  showstringspaces=false, aboveskip=8pt, belowskip=8pt,
+  literate={é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1 {ù}{{\`u}}1
+           {ç}{{\c c}}1 {É}{{\'E}}1 {î}{{\^\i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+           {œ}{{\oe}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1
+}
+\lstdefinestyle{java}{language=Java}
+\lstdefinestyle{sql}{language=SQL}
+\lstdefinestyle{xml}{language=XML, morestring=[b]"}
+\lstdefinestyle{jsp}{language=HTML, morekeywords={c:if,c:forEach,c:choose}}
+\lstdefinestyle{shell}{language=bash}
+
+% ---- encadré « à retenir » ----
+\newtcolorbox{retenir}[1][]{
+  colback=btkpale, colframe=btklight, boxrule=0.9pt, arc=2pt,
+  left=7pt, right=7pt, top=5pt, bottom=5pt, #1}
+\newtcolorbox{attention}[1][]{
+  colback=white, colframe=btkrouge, boxrule=0.9pt, arc=2pt,
+  left=7pt, right=7pt, top=5pt, bottom=5pt, #1}
+
+% ---- fiche de fonctionnalité ----
+% \fiche{titre}{URL}{rôles autorisés}
+\newcommand{\fiche}[3]{%
+  \subsection{#1}%
+  \noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}}L{2.4cm}|X|}
+  \hline
+  \textbf{URL} & \texttt{#2}\\
+  \hline
+  \textbf{Rôles} & #3\\
+  \hline
+  \end{tabularx}\par\vspace{0.5em}}
+
+\begin{document}
+
+% ============================ PAGE DE GARDE ============================
+\begin{titlepage}
+\centering
+\vspace*{1.2cm}
+{\color{btkblue}\rule{\textwidth}{2.5pt}}\\[0.4cm]
+{\Huge\bfseries\color{btkblue} Dossier technique de soutenance\par}
+\vspace{0.5cm}
+{\LARGE Application de gestion des agences bancaires\par}
+\vspace{0.25cm}
+{\Large\color{btklight} et volet décisionnel Power BI\par}
+\vspace{0.35cm}
+{\color{btkblue}\rule{\textwidth}{2.5pt}}\\[1.4cm]
+
+{\large Chaque fonctionnalité de l'application, sa mise en œuvre côté\\
+présentation, contrôle, métier et persistance, puis la chaîne décisionnelle\par}
+\vspace{1.8cm}
+
+\begin{tabularx}{0.86\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4.4cm}|X|}
+\hline
+Projet & Système intelligent de gestion des rôles et de pointage avec tableau de bord décisionnel\\
+\hline
+Organisme d'accueil & BTK --- Banque Tuniso-Koweïtienne\\
+\hline
+Étudiant & Oussema Korbosli\\
+\hline
+Parcours & Licence Business Computing --- Business Intelligence\\
+\hline
+Établissement & Esprit School of Business\\
+\hline
+Année & 2025 / 2026\\
+\hline
+\end{tabularx}
+
+\vfill
+\begin{retenir}
+\small Ce dossier est un \textbf{support de préparation à la soutenance
+technique}. Tout ce qu'il contient est relevé dans le code du projet :
+servlets, services, entités, pages JSP, scripts SQL, chaîne ETL et fichiers
+Power BI. Les chiffres cités (18 servlets, 16 services, 16 entités,
+17 pages JSP) sont issus d'un inventaire automatique du dépôt.
+\end{retenir}
+\vspace{0.6cm}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\input{01_vue_ensemble}
+\input{02_socle}
+\input{03_fonctionnalites}
+\input{04_front_back}
+\input{05_decisionnel}
+\input{06_deploiement}
+\input{07_questions}
+
+\end{document}

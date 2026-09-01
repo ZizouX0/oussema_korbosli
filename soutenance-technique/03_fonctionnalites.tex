@@ -1,0 +1,270 @@
+% =====================================================================
+\section{Les fonctionnalités, une par une}
+
+Chaque fiche suit le même plan : ce que la fonctionnalité fait, ce qui se passe
+côté \textbf{front}, ce qui se passe côté \textbf{back}, et les données
+touchées. Les fiches sont dans l'ordre du parcours d'un utilisateur.
+
+% ---------------------------------------------------------------------
+\fiche{Authentification}{/login, /logout, /forgot-password}{tous (pages ouvertes)}
+
+\textbf{Ce que ça fait.} Contrôle l'identifiant et le mot de passe contre la
+table \texttt{SECURITY\_USERS}, ouvre une session et oriente vers le tableau de
+bord.
+
+\textbf{Front.} \texttt{index.jsp} --- la seule page hors de \texttt{WEB-INF}
+avec \texttt{forgot-password.jsp}, puisqu'il faut pouvoir l'atteindre sans être
+connecté. Formulaire en \texttt{POST}, message d'erreur affiché depuis
+l'attribut \texttt{error}.
+
+\textbf{Back.} \texttt{LoginServlet} : \texttt{doGet} transfère vers
+\texttt{index.jsp} ; \texttt{doPost} appelle
+\texttt{securityService.authenticate(\dots)}, puis
+\texttt{utilisateurService.findOrCreate(\dots)} pour rattacher le compte de
+sécurité à l'employé métier de \texttt{B\_UTILISATEURS}. Les trois attributs de
+session sont posés, et une \textbf{redirection} envoie vers \texttt{/home}.
+\texttt{LogoutServlet} appelle \texttt{session.invalidate()}.
+
+\textbf{Données.} \texttt{SECURITY\_USERS} (lecture), \texttt{B\_UTILISATEURS}
+(lecture, création si le compte métier n'existe pas encore).
+
+\begin{attention}
+\textbf{Limite assumée, à annoncer avant qu'on vous la pose.} Le mot de passe
+est comparé \textbf{en clair} dans la requête JPQL. En production il faudrait
+un condensat salé (BCrypt ou Argon2) et une comparaison en Java, pas en SQL.
+Le choix a été fait pour rester dans le périmètre du stage ; la correction est
+localisée dans une seule méthode, \texttt{SecurityService.authenticate}.
+\end{attention}
+
+% ---------------------------------------------------------------------
+\fiche{Tableau de bord}{/home}{tous les utilisateurs connectés}
+
+\textbf{Ce que ça fait.} Page d'accueil après connexion : cartes d'indicateurs,
+trois graphiques, et les \enquote{actions requises} propres au rôle.
+
+\textbf{Front.} \texttt{home.jsp}. Trois graphiques \textbf{ApexCharts}
+construits en JavaScript à partir de valeurs injectées par le servlet :
+\texttt{\#agencyChart} (histogramme des effectifs par agence),
+\texttt{\#roleChart} (anneau de la répartition par rôle) et
+\texttt{\#pointageChart} (anneau présents / retards / absents). Les blocs
+\enquote{actions requises} sont conditionnés par \texttt{<c:if>} sur le rôle.
+
+\textbf{Back.} \texttt{HomeServlet} n'a qu'un \texttt{doGet}, mais il agrège
+\textbf{sept services} pour composer la page : effectifs et répartition par
+rôle, portefeuille clients, demandes en attente, et la présence du jour ---
+calculée à partir de \texttt{countByStatutBetween} pour chacun des trois
+statuts, dont il déduit le taux de présence.
+
+\textbf{Données.} \texttt{B\_UTILISATEURS}, \texttt{CLIENT\_BTK},
+\texttt{POINTAGE}, les trois tables de demandes.
+
+\begin{retenir}
+\textbf{Question classique : pourquoi le tableau de bord ne fait-il pas de
+requête SQL ?} Parce que chaque chiffre vient d'une méthode de service
+(\texttt{countTotal}, \texttt{countGestionnaires}, \texttt{countPresentsToday}\dots).
+Le servlet ne fait qu'assembler. C'est ce qui permet de réutiliser les mêmes
+compteurs dans le filtre de notifications sans les réécrire.
+\end{retenir}
+
+% ---------------------------------------------------------------------
+\fiche{Annuaire des employés}{/employes}{tout utilisateur connecté}
+
+\textbf{Ce que ça fait.} Liste des employés de \texttt{B\_UTILISATEURS} avec
+leur rôle calculé (gestionnaire, conseiller, hors commercial) et leur agence.
+
+\textbf{Front.} \texttt{employes.jsp} : tableau parcouru par
+\texttt{<c:forEach>}, avec recherche et filtre par agence.
+
+\textbf{Back.} \texttt{BUtilisateurServlet}, un seul \texttt{doGet}, appuyé sur
+\texttt{UtilisateurService} --- le service le plus fourni du projet
+(16 méthodes : \texttt{findGestionnaires}, \texttt{findConseillers},
+\texttt{findHorsCommercial}, \texttt{findByAgence}\dots).
+
+\textbf{Données.} \texttt{B\_UTILISATEURS}, jointe à \texttt{AGENCE}.
+
+% ---------------------------------------------------------------------
+\fiche{Portefeuille clients}{/clients-btk}{ADMIN}
+
+\textbf{Ce que ça fait.} Consultation du portefeuille et \textbf{soumission
+d'une demande de création de client} par le directeur commercial.
+
+\textbf{Front.} \texttt{clients-btk.jsp} : liste paginée, recherche,
+formulaire de création.
+
+\textbf{Back.} \texttt{BClientServlet} mobilise six services :
+\texttt{BClientService} pour la lecture, \texttt{DemandeClientService} pour le
+circuit de validation, plus \texttt{Notification}, \texttt{Journal},
+\texttt{Security} et \texttt{Utilisateur}.
+
+\textbf{Données.} \texttt{B\_CLIENTS}, \texttt{CLIENT\_BTK},
+\texttt{DEMANDE\_CLIENT}.
+
+% ---------------------------------------------------------------------
+\fiche{Référentiel des agences}{/banques (consultation), /agences (administration)}{ADMIN}
+
+\textbf{Ce que ça fait.} Deux écrans distincts : \texttt{/banques} présente le
+réseau et les employés d'une agence ; \texttt{/agences} est le CRUD complet du
+référentiel.
+
+\textbf{Front.} \texttt{banques.jsp} et \texttt{agences.jsp}. Dans le menu,
+seul \texttt{/agences} est réservé à l'administrateur par un \texttt{<c:if>}.
+
+\textbf{Back.} \texttt{BanqueServlet} (7 méthodes de service, dont
+\texttt{findUtilisateursByAgence}) et \texttt{AgenceServlet}, qui expose les
+cinq opérations \texttt{findAll}, \texttt{findById}, \texttt{create},
+\texttt{update}, \texttt{delete} et journalise chaque écriture.
+
+\textbf{Données.} \texttt{AGENCE}, \texttt{B\_BANQUE}, \texttt{B\_UTILISATEURS}.
+
+% ---------------------------------------------------------------------
+\fiche{Objectifs commerciaux}{/objectifs-btk}{tout utilisateur connecté}
+
+\textbf{Ce que ça fait.} Affiche la production commerciale par agence et par
+gestionnaire : ouvertures de comptes, crédits, épargne.
+
+\textbf{Front.} \texttt{objectifs-btk.jsp}, tableau filtrable.
+
+\textbf{Back.} \texttt{BObjectifServlet} et \texttt{BObjectifService}
+(\texttt{findAll}, \texttt{findByAgence}, \texttt{findByGestionnaire},
+\texttt{countTotal}).
+
+\textbf{Données.} \texttt{B\_OBJECTIF}, dont les colonnes servent aussi de
+socle à la vue \texttt{V\_BI\_OBJECTIFS} et aux mesures DAX de Power BI.
+
+% ---------------------------------------------------------------------
+\fiche{Pointage de la présence}{/pointage}{ADMIN pour la saisie manuelle ; tout employé pour son propre pointage}
+
+\textbf{Ce que ça fait.} L'employé enregistre son arrivée puis son départ d'un
+clic ; l'administrateur peut saisir ou corriger un pointage.
+
+\textbf{Front.} \texttt{pointage.jsp} : deux boutons (arrivée, départ), la
+liste des cinquante derniers pointages, et un formulaire de saisie manuelle
+visible seulement pour l'administrateur.
+
+\textbf{Back.} \texttt{PointageServlet} route sur le paramètre
+\texttt{action} : \texttt{pointerArrivee}, \texttt{pointerDepart} ou
+\texttt{saveManuel}. Chaque action est journalisée, puis le servlet
+\textbf{redirige} vers \texttt{/pointage}.
+
+La règle métier est dans le service, pas dans le servlet :
+
+\begin{lstlisting}[style=java]
+private static final LocalTime HEURE_LIMITE = LocalTime.of(9, 0);
+...
+p.setStatut(now.toLocalTime().isAfter(HEURE_LIMITE) ? "RETARD" : "PRESENT");
+\end{lstlisting}
+
+Le champ \texttt{SOURCE} distingue \texttt{AUTO} (bouton) de \texttt{MANUEL}
+(saisie administrateur) : la traçabilité de la correction est conservée.
+
+\textbf{Données.} \texttt{POINTAGE} (\texttt{HEURE\_ARRIVEE},
+\texttt{HEURE\_DEPART}, \texttt{STATUT}, \texttt{SOURCE},
+\texttt{COMMENTAIRE}), \texttt{JOURNAL\_ACTION}.
+
+\begin{retenir}
+\textbf{Trois garde-fous à citer.} Un deuxième clic sur \enquote{arrivée}
+n'écrase pas l'heure déjà enregistrée ; un départ sans arrivée préalable ne
+crée rien ; le statut est calculé par le serveur, jamais envoyé par le
+formulaire.
+\end{retenir}
+
+% ---------------------------------------------------------------------
+\fiche{Demandes de création}{/demandes-agence puis /demandes-admin}{soumission : DIRECTEUR\_COMMERCIAL ; validation : ADMIN}
+
+\textbf{Ce que ça fait.} Le directeur commercial demande la création d'une
+agence, d'un employé ou d'un client ; l'administrateur approuve ou refuse. À
+l'approbation, l'objet est \textbf{réellement créé}.
+
+\textbf{Front.} \texttt{demandes-agence.jsp} côté soumission,
+\texttt{demandes-admin.jsp} côté validation, avec un bloc par type de demande.
+
+\textbf{Back.} \texttt{DemandeAgenceServlet} crée la demande, notifie son
+auteur, puis notifie \textbf{tous les administrateurs}
+(\texttt{securityService.findAllAdmins()}). \texttt{DemandeAgenceAdminServlet}
+traite trois circuits dans le même \texttt{doPost}, distingués par le nom du
+paramètre : \texttt{action} (agence), \texttt{actionEmp} (employé),
+\texttt{actionCli} (client). À l'approbation d'un employé, le servlet
+construit et enregistre l'objet \texttt{Utilisateur} ; à celle d'un client, un
+\texttt{BClient} avec le statut \texttt{ACTIF}.
+
+\textbf{Données.} \texttt{DEMANDE\_AGENCE}, \texttt{DEMANDE\_EMPLOYE},
+\texttt{DEMANDE\_CLIENT}, puis \texttt{B\_UTILISATEURS} / \texttt{B\_CLIENTS},
+\texttt{NOTIFICATION}, \texttt{JOURNAL\_ACTION}.
+
+% ---------------------------------------------------------------------
+\fiche{Demandes de modification --- la double validation}{/mes-demandes puis /gestion-demandes}{soumission : tout employé ; approbation : DIRECTEUR\_COMMERCIAL ; exécution : ADMIN}
+
+\textbf{Ce que ça fait.} C'est le circuit le plus intéressant à présenter :
+la modification d'une donnée personnelle passe par \textbf{deux validations
+successives}, portées par deux rôles différents.
+
+\begin{center}
+\small
+\begin{tabular}{ccccccc}
+\colorbox{btkpale}{\texttt{EN\_ATTENTE}} & $\rightarrow$ &
+\colorbox{btkpale}{\texttt{EN\_COURS}} & $\rightarrow$ &
+\colorbox{btkpale}{\texttt{EFFECTUE}} \\[3pt]
+\footnotesize soumission & \footnotesize directeur & \footnotesize approuvée &
+\footnotesize administrateur & \footnotesize appliquée
+\end{tabular}\\[6pt]
+\footnotesize Le directeur peut aussi refuser : l'état devient \texttt{REFUSE} et le circuit s'arrête.
+\end{center}
+
+\textbf{Front.} \texttt{profil.jsp} pour soumettre ;
+\texttt{gestion-demandes.jsp} pour traiter. Les boutons sont conditionnés par
+le rôle \emph{et} par l'état, ce qui garantit qu'une demande ne peut pas être
+approuvée deux fois :
+
+\begin{lstlisting}[style=jsp]
+<c:if test="${sessionScope.role == 'DIRECTEUR_COMMERCIAL' && d.statut == 'EN_ATTENTE'}">
+    ... Approuver / Refuser ...
+</c:if>
+<c:if test="${sessionScope.role == 'ADMIN' && d.statut == 'EN_COURS'}">
+    ... Appliquer le changement ...
+</c:if>
+\end{lstlisting}
+
+\textbf{Back.} \texttt{GestionModificationsServlet} croise l'action et le rôle,
+et refuse toute combinaison non prévue :
+
+\begin{lstlisting}[style=java]
+if ("approve".equals(action) && "DIRECTEUR_COMMERCIAL".equals(role)) {
+    demandeModificationService.approveRequest(id, comment);
+} else if ("reject".equals(action) && "DIRECTEUR_COMMERCIAL".equals(role)) {
+    demandeModificationService.rejectRequest(id, comment);
+} else if ("execute".equals(action) && "ADMIN".equals(role)) {
+    demandeModificationService.executeRequest(id);
+} else {
+    throw new Exception("Action non autorisee pour votre role.");
+}
+\end{lstlisting}
+
+Le service ajoute une seconde barrière : chaque méthode vérifie l'état de
+départ avant d'agir (\texttt{approveRequest} n'accepte que \texttt{EN\_ATTENTE},
+\texttt{executeRequest} que \texttt{EN\_COURS}). C'est seulement à l'exécution
+que la donnée est réellement modifiée dans \texttt{B\_UTILISATEURS}.
+
+\textbf{Données.} \texttt{DEMANDES\_MODIFICATION}, puis
+\texttt{B\_UTILISATEURS}, \texttt{NOTIFICATION}, \texttt{JOURNAL\_ACTION}.
+
+\begin{retenir}
+\textbf{Le contrôle est fait à trois endroits} --- affichage du bouton (JSP),
+croisement action/rôle (servlet), état de la demande (service). Si on demande
+\enquote{et si quelqu'un forge la requête HTTP ?}, la réponse est : la vue est
+contournable, les deux autres ne le sont pas.
+\end{retenir}
+
+% ---------------------------------------------------------------------
+\fiche{Ajout d'un employé}{/ajouter-employe}{ADMIN}
+
+\textbf{Ce que ça fait.} Création directe d'un employé par l'administrateur,
+avec son compte de connexion.
+
+\textbf{Front.} \texttt{add-effectif.jsp}, formulaire de saisie.
+
+\textbf{Back.} \texttt{AjouterEmployeServlet} coordonne six services : il crée
+l'\texttt{Utilisateur} métier, le \texttt{SecurityUser} associé, notifie et
+journalise.
+
+\textbf{Données.} \texttt{B\_UTILISATEURS}, \texttt{SECURITY\_USERS},
+\texttt{DEMANDE\_EMPLOYE}.

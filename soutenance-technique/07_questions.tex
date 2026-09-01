@@ -1,0 +1,198 @@
+% =====================================================================
+\section{Les questions probables, et quoi répondre}
+
+\subsection{Architecture}
+
+\textbf{\enquote{Pourquoi des servlets et des JSP, et pas Spring Boot ?}}\\
+Le projet reste sur la pile \textbf{Jakarta EE standard} : les servlets, les
+EJB et JPA font partie de la plateforme, et WildFly les fournit. Il n'y a donc
+aucune dépendance de \emph{framework} à gérer dans le \texttt{pom.xml}, et
+l'application se déploie sur n'importe quel serveur compatible. Spring Boot
+aurait apporté de la configuration automatique, au prix d'une pile
+supplémentaire à maîtriser et à justifier.
+
+\textbf{\enquote{Qu'est-ce qui garantit la séparation des couches ?}}\\
+Trois choses vérifiables dans le code : aucun servlet n'injecte
+d'\texttt{EntityManager} --- ils n'ont que des \texttt{@EJB} ; aucun service ne
+manipule \texttt{HttpServletRequest} ; aucune JSP ne contient de scriptlet
+Java. Chaque couche ne connaît que la suivante.
+
+\textbf{\enquote{Pourquoi les JSP sont-elles sous \texttt{WEB-INF} ?}}\\
+Parce que le conteneur en interdit l'accès par URL directe. On ne peut y entrer
+que par un \texttt{forward} depuis un servlet, donc après le contrôle de
+session et de rôle. Les deux exceptions, \texttt{index.jsp} et
+\texttt{forgot-password.jsp}, sont volontaires : elles doivent être
+atteignables sans être connecté.
+
+\subsection{Sécurité}
+
+\textbf{\enquote{Où est contrôlé le rôle ?}}\\
+Au début de \texttt{doGet} et \texttt{doPost} de chaque servlet concerné. Le
+menu masque aussi les entrées interdites, mais ce n'est \textbf{qu'un
+confort} : la vue est contournable, le contrôle serveur ne l'est pas.
+
+\textbf{\enquote{Et si quelqu'un forge une requête HTTP ?}}\\
+Sur le circuit de validation, trois barrières se superposent : la vue
+n'affiche le bouton que pour le bon rôle et le bon état ; le servlet croise
+l'action et le rôle et rejette toute combinaison non prévue ; le service
+vérifie l'état de départ de la demande avant d'agir. Les deux dernières sont
+côté serveur.
+
+\textbf{\enquote{Comment vous protégez-vous de l'injection SQL ?}}\\
+Aucune requête n'est construite par concaténation. Tout passe par JPQL avec
+\texttt{setParameter}, donc par des variables liées : la valeur n'est jamais
+interprétée comme du code SQL.
+
+\textbf{\enquote{Le mot de passe est-il protégé ?}} --- \emph{à annoncer
+soi-même plutôt que de le subir}\\
+Non : il est comparé en clair dans \texttt{SecurityService.authenticate}. C'est
+la limite principale du projet. La correction est localisée : stocker un
+condensat salé (BCrypt, Argon2), charger l'utilisateur par son seul
+identifiant, puis comparer en Java. Une seule méthode et une migration de la
+colonne.
+
+\subsection{JPA et transactions}
+
+\textbf{\enquote{Qui ouvre et ferme les transactions ?}}\\
+Le conteneur. L'unité de persistance est en \texttt{transaction-type="JTA"} et
+les services sont des EJB : une transaction est ouverte à l'entrée de chaque
+méthode et validée à la sortie, ou annulée si une exception s'échappe. C'est
+la raison de la présence de \texttt{CMTTxInterceptor} dans les traces.
+
+\textbf{\enquote{Pourquoi \texttt{hbm2ddl.auto = none} ?}}\\
+Pour qu'Hibernate ne touche jamais au schéma. Les tables sont créées par les
+scripts de \texttt{sql/}, et la base fait autorité. Un \texttt{update}
+automatique en production pourrait modifier une structure existante sans
+contrôle.
+
+\textbf{\enquote{Différence entre \texttt{persist} et \texttt{merge} ?}}\\
+\texttt{persist} enregistre une entité nouvelle ; \texttt{merge} réintègre une
+entité détachée et renvoie l'instance gérée. Le projet applique le motif
+classique : \texttt{if (entite.getId() == null) persist else merge}.
+
+\subsection{Front}
+
+\textbf{\enquote{Pourquoi pas de framework front ?}}\\
+Les pages sont des listes et des formulaires, rendus par le serveur : un
+client riche n'apporterait rien et ajouterait une étape de construction, un
+gestionnaire de paquets et des dépendances à suivre. Deux bibliothèques
+suffisent : ApexCharts pour les graphiques, Lucide pour les icônes.
+
+\textbf{\enquote{Comment les données arrivent-elles dans les graphiques ?}}\\
+Le servlet pose des chaînes déjà formatées avec \texttt{setAttribute}, la JSP
+les insère dans la configuration ApexCharts. Pas de sérialisation JSON ni
+d'appel asynchrone. La limite est qu'un libellé contenant une apostrophe
+casserait le script : pour des données saisies par l'utilisateur, il faudrait
+du JSON échappé.
+
+\subsection{Décisionnel}
+
+\textbf{\enquote{Pourquoi des vues \texttt{V\_BI\_*} plutôt que les tables ?}}\\
+Pour poser une \textbf{couche sémantique} : les colonnes techniques deviennent
+des indicateurs métier, les clés deviennent des libellés, les valeurs nulles
+sont ramenées à zéro et les jointures sont faites une fois pour toutes. Power
+BI consomme du sens, pas de la structure. Et si le schéma évolue, seule la vue
+change, pas le rapport.
+
+\textbf{\enquote{Pourquoi une chaîne ETL en plus de Power BI ?}}\\
+Parce que les deux ne servent pas au même usage. Power BI restitue au niveau du
+détail ; la segmentation a besoin d'un \textbf{datamart agrégé par agence},
+avec un contrôle de qualité et une sortie stable, reproductible d'une exécution
+à l'autre. L'ETL produit ce jeu, et le clustering le consomme.
+
+\textbf{\enquote{Mesure ou colonne calculée ?}}\\
+Une colonne calculée est évaluée à l'actualisation et occupe de la mémoire :
+elle sert à \emph{filtrer ou grouper}. Une mesure est évaluée à l'affichage,
+dans le contexte des filtres actifs : elle sert à \emph{agréger}. Dans le
+rapport, \texttt{Rôle} est une colonne, \texttt{Taux Présence} une mesure.
+
+\textbf{\enquote{Pourquoi K-Means et pas un autre modèle ?}}\\
+Parce que c'est celui qui obtient le meilleur score de silhouette (0,604)
+\textbf{sous un protocole équitable} : les quatre modèles sont notés sur la
+totalité des agences, et les points que DBSCAN refuse de classer sont comptés
+comme un groupe. Sans cette précaution, un modèle serait avantagé pour avoir
+écarté les cas difficiles.
+
+\textbf{\enquote{Pourquoi écarter le siège de la segmentation ?}}\\
+540 employés contre une dizaine pour une agence : c'est une structure
+centrale, pas une agence. Le laisser reviendrait à créer un groupe d'un seul
+point et à écraser les distances entre toutes les autres. Il reste dans le
+datamart, il est seulement retiré de l'analyse.
+
+% =====================================================================
+\section{Points ouverts et limites}
+
+Les annoncer soi-même vaut mieux que de les subir. Ils ont été relevés par un
+inventaire du code fait pour ce dossier.
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{3.6cm}|X|}
+\hline
+Mot de passe en clair & Comparé tel quel dans \texttt{SecurityService.authenticate}. Correction : condensat salé, comparaison en Java.\\
+\hline
+Contrôle de rôle partiel & Quatre servlets ne vérifient que l'authentification, sans le rôle : \texttt{BUtilisateurServlet} (\texttt{/employes}), \texttt{BObjectifServlet} (\texttt{/objectifs-btk}), \texttt{ObjectifServlet} (\texttt{/objectifs}) et \texttt{ClientServlet}. Ce sont des écrans de consultation, mais l'application est donc plus permissive que la matrice des droits.\\
+\hline
+Page gestionnaires & \texttt{GestionnaireServlet} transfère vers \texttt{/WEB-INF/gestionnaires.jsp} alors que le fichier s'appelle \texttt{gestionnaire.jsp} : la page échoue. Elle n'est pas dans le menu. Correction : un mot dans le chemin du \texttt{forward}.\\
+\hline
+Reliquat historique & \texttt{ClientServlet} (\texttt{/clients-old}) et \texttt{client.jsp} ne sont atteignables par aucun lien du menu ; \texttt{client.jsp} pointe vers \texttt{/clients}, qui n'est associé à aucun servlet.\\
+\hline
+Pas de tests automatisés & Le projet n'a pas de tests unitaires. Les services étant des EJB sans état, ils s'y prêteraient bien (JUnit + base en mémoire).\\
+\hline
+Graphiques et échappement & Les séries ApexCharts sont injectées comme chaînes ; un libellé contenant une apostrophe casserait le script.\\
+\hline
+\end{tabularx}
+
+\vspace{0.8em}
+\begin{retenir}
+\textbf{Comment présenter une limite.} La formuler, en donner la cause, puis
+la correction et son coût. \enquote{Le mot de passe est comparé en clair ;
+c'est un choix de périmètre, pas un oubli ; la correction tient dans une
+méthode et une migration de colonne.} Une limite reconnue et chiffrée est un
+signe de maîtrise ; une limite découverte par le jury ne l'est pas.
+\end{retenir}
+
+% =====================================================================
+\section{Récapitulatif : la carte des URL}
+
+\noindent\begin{longtable}{|>{\ttfamily\small}L{3.3cm}|>{\small}L{3.9cm}|>{\small}L{3.1cm}|>{\small}L{4.1cm}|}
+\hline
+\rowcolor{btkpale}
+\textmd{\textbf{URL}} & \textbf{Servlet} & \textbf{Rôles} & \textbf{Vue}\\
+\hline
+\endhead
+/login & LoginServlet & ouverte & index.jsp\\
+\hline
+/logout & LogoutServlet & connecté & ---\\
+\hline
+/forgot-password & ForgotPasswordServlet & ouverte & forgot-password.jsp\\
+\hline
+/home & HomeServlet & connecté & home.jsp\\
+\hline
+/employes & BUtilisateurServlet & connecté & employes.jsp\\
+\hline
+/clients-btk & BClientServlet & ADMIN & clients-btk.jsp\\
+\hline
+/banques & BanqueServlet & ADMIN & banques.jsp\\
+\hline
+/agences & AgenceServlet & ADMIN & agences.jsp\\
+\hline
+/objectifs-btk & BObjectifServlet & connecté & objectifs-btk.jsp\\
+\hline
+/objectifs & ObjectifServlet & connecté & objectifs.jsp\\
+\hline
+/pointage & PointageServlet & ADMIN (saisie manuelle) & pointage.jsp\\
+\hline
+/ajouter-employe & AjouterEmployeServlet & ADMIN & add-effectif.jsp\\
+\hline
+/demandes-agence & DemandeAgenceServlet & ADMIN, DIRECTEUR & demandes-agence.jsp\\
+\hline
+/demandes-admin & DemandeAgenceAdminServlet & ADMIN & demandes-admin.jsp\\
+\hline
+/gestion-demandes & GestionModificationsServlet & ADMIN, DIRECTEUR & gestion-demandes.jsp\\
+\hline
+/mes-demandes & MesDemandesServlet & connecté & profil.jsp\\
+\hline
+/gestionnaires & GestionnaireServlet & ADMIN & \textit{transfert erroné}\\
+\hline
+/clients-old & ClientServlet & connecté & \textit{reliquat}\\
+\hline
+\end{longtable}

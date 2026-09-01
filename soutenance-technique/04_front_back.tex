@@ -1,0 +1,177 @@
+% =====================================================================
+\section{Le front en détail}
+
+\subsection{Rien de construit, tout d'écrit}
+
+Le projet n'utilise \textbf{aucun \emph{framework} front} : pas de React,
+pas de Bootstrap, pas d'étape de compilation JavaScript. Le HTML est produit
+par le serveur, la mise en forme tient dans une feuille de style écrite à la
+main, et deux bibliothèques seulement sont chargées depuis un CDN :
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{3.4cm}|X|}
+\hline
+ApexCharts & \texttt{cdn.jsdelivr.net/npm/apexcharts} --- les trois graphiques du tableau de bord\\
+\hline
+Lucide & \texttt{unpkg.com/lucide@latest} --- les icônes (\texttt{<i data-lucide="\dots">})\\
+\hline
+\end{tabularx}
+
+\begin{retenir}
+\textbf{Pourquoi ce choix ?} Une application interne, rendue côté serveur,
+n'a pas besoin d'un client riche : les pages sont des listes et des
+formulaires. Ne pas ajouter de \emph{framework}, c'est aussi ne pas ajouter
+d'étape de construction, de gestionnaire de paquets ni de dépendances à
+maintenir. La contrepartie est qu'il n'y a pas de composants réutilisables :
+le facteur commun est obtenu par les inclusions JSP (\texttt{sidebar},
+\texttt{top-bar}) et par les classes CSS.
+\end{retenir}
+
+\subsection{La feuille de style}
+
+\texttt{css/style.css}, 794 lignes, organisée autour de \textbf{variables CSS}
+déclarées sur \texttt{:root} --- couleurs de la charte BTK, fonds, texte,
+états. Changer la charte se fait en un endroit. Les classes principales sont
+\texttt{card}, \texttt{stat-card-modern}, \texttt{nav-item}, \texttt{btn},
+\texttt{form-control}, \texttt{table}.
+
+\subsection{JSTL et le langage d'expression}
+
+Les vues n'embarquent \textbf{aucun code Java} : pas de scriptlet
+\texttt{<\% \dots \%>}. Tout passe par JSTL et le langage d'expression, ce qui
+garde la vue lisible et sans logique métier.
+
+\noindent\begin{tabularx}{\textwidth}{|>{\ttfamily}L{4.6cm}|X|}
+\hline
+\textmd{\textbf{Balise}} & \textbf{Usage dans le projet}\\
+\hline
+<c:if test="\$\{\dots\}"> & afficher un bloc selon le rôle ou l'état\\
+\hline
+<c:forEach var items> & parcourir une liste posée par le servlet\\
+\hline
+<c:choose> <c:when> & alternative à plusieurs branches\\
+\hline
+<c:set var value> & variable locale de vue\\
+\hline
+\$\{sessionScope.role\} & lire un attribut de session\\
+\hline
+\$\{pageContext.request.\newline contextPath\} & préfixer les liens par \texttt{/gestion-agences}\\
+\hline
+\end{tabularx}
+
+\subsection{Les trois graphiques du tableau de bord}
+
+Le servlet ne fabrique pas de JSON : il pose des \textbf{chaînes déjà
+formatées}, que la JSP insère dans le script.
+
+\begin{lstlisting}[style=java]
+// HomeServlet
+request.setAttribute("chartPointageLabels", "'Presents','Retards','Absents'");
+request.setAttribute("chartPointageData", presentsStricts + "," + retards + "," + absents);
+\end{lstlisting}
+
+\begin{lstlisting}[style=jsp]
+new ApexCharts(document.querySelector("#pointageChart"), {
+    chart: { type: 'donut', height: 320, background: 'transparent' },
+    labels: [${chartPointageLabels}],
+    series: [${chartPointageData}]
+}).render();
+\end{lstlisting}
+
+C'est simple et sans dépendance de sérialisation. La limite est qu'un libellé
+contenant une apostrophe casserait le script : pour des données saisies par
+l'utilisateur, il faudrait passer par du JSON échappé.
+
+% =====================================================================
+\section{Le back en détail}
+
+\subsection{Le motif commun à tous les servlets}
+
+Les dix-huit servlets suivent la même structure, ce qui rend le code
+prévisible :
+
+\begin{enumerate}[leftmargin=*,itemsep=1pt]
+  \item récupérer la session avec \texttt{getSession(false)} ;
+  \item contrôler l'authentification, puis le rôle ;
+  \item lire les paramètres de la requête ;
+  \item appeler un ou plusieurs services ;
+  \item \texttt{setAttribute} puis \texttt{forward} pour afficher, ou
+        \texttt{sendRedirect} après une écriture.
+\end{enumerate}
+
+\subsection{Les EJB}
+
+Quinze services sont \texttt{@Stateless}, un seul est \texttt{@Singleton}.
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{3.2cm}|X|}
+\hline
+\texttt{@Stateless} & Le conteneur gère un réservoir d'instances et en prête une le temps de l'appel. Aucun état conservé entre deux requêtes, donc pas de problème de concurrence.\\
+\hline
+\texttt{@Singleton} & Une seule instance pour toute l'application. Utilisé pour \texttt{SecurityService}, avec \texttt{@Startup} pour qu'elle existe dès le démarrage.\\
+\hline
+\end{tabularx}
+
+\vspace{0.5em}
+L'injection est déclarative --- aucun \texttt{new} sur un service :
+
+\begin{lstlisting}[style=java]
+@EJB
+private DemandeModificationService demandeModificationService;
+\end{lstlisting}
+
+\subsection{JPA et les transactions}
+
+Chaque service reçoit son \texttt{EntityManager} par injection :
+
+\begin{lstlisting}[style=java]
+@PersistenceContext(unitName = "default")
+private EntityManager em;
+\end{lstlisting}
+
+Les requêtes sont écrites en \textbf{JPQL} --- sur les entités, pas sur les
+tables --- et \textbf{toujours paramétrées} :
+
+\begin{lstlisting}[style=java]
+return em.createQuery(
+        "SELECT d FROM DemandeModification d WHERE d.utilisateur = :u "
+      + "ORDER BY d.dateDemande DESC", DemandeModification.class)
+    .setParameter("u", user)
+    .getResultList();
+\end{lstlisting}
+
+\begin{retenir}
+\textbf{Question quasi certaine : et l'injection SQL ?} Aucune requête n'est
+construite par concaténation de chaînes ; les valeurs passent par
+\texttt{setParameter}, donc par une variable liée côté pilote. La valeur n'est
+jamais interprétée comme du SQL.
+\end{retenir}
+
+\textbf{Les transactions ne sont pas écrites.} L'unité de persistance est
+déclarée \texttt{transaction-type="JTA"} et les services sont des EJB : le
+conteneur ouvre une transaction à l'entrée de chaque méthode et la valide à la
+sortie, ou l'annule si une exception s'échappe. C'est la gestion \emph{par le
+conteneur} (CMT). D'où, dans la trace d'erreur de connexion, la présence de
+\texttt{CMTTxInterceptor} : c'est l'intercepteur qui pose la transaction.
+
+\subsection{L'unité de persistance}
+
+\begin{lstlisting}[style=xml]
+<persistence-unit name="default" transaction-type="JTA">
+    <jta-data-source>java:/OracleDS</jta-data-source>
+    ... 16 classes d'entites ...
+    <properties>
+        <property name="hibernate.dialect" value="org.hibernate.dialect.OracleDialect"/>
+        <property name="hibernate.hbm2ddl.auto" value="none"/>
+    </properties>
+</persistence-unit>
+\end{lstlisting}
+
+Deux points méritent d'être signalés au jury :
+
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+  \item \texttt{hbm2ddl.auto = none} : Hibernate ne crée ni ne modifie
+        \textbf{jamais} le schéma. Les tables sont créées par les scripts de
+        \texttt{sql/}, et la base fait autorité.
+  \item aucun identifiant de connexion n'est écrit ici. Ils appartiennent à la
+        datasource \texttt{java:/OracleDS}, configurée dans WildFly. Le même
+        WAR se déploie donc sur plusieurs environnements sans être recompilé.
+\end{itemize}
