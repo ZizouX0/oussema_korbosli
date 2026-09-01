@@ -69,7 +69,11 @@ Résultats attendus : *k* optimal = 3, K-Means retenu (silhouette 0,604) et troi
 segments de 34, 8 et 6 entités. La dernière cellule doit afficher
 `Résultats identiques.`
 
-## Étape 5 (facultatif) — Brancher la base Oracle
+## Étape 5 — Brancher la base Oracle
+
+> Marche à suivre détaillée, avec le diagnostic des erreurs de connexion :
+> **[`etl/CONNEXION_ORACLE.md`](etl/CONNEXION_ORACLE.md)**.
+> Test de connexion en une commande : `python3 etl/test_connexion_oracle.py`.
 
 Par défaut la chaîne tourne sur l'**extrait agrégé réel** des 49 entités du
 réseau, livré avec le projet. Pour lire directement la base :

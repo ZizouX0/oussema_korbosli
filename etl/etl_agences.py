@@ -66,15 +66,66 @@ SQL = {
 }
 TABLES = ["agences", "employes", "clients", "objectifs", "pointages"]
 
+# Causes les plus fréquentes d'un échec de connexion, et la manœuvre à faire.
+DIAGNOSTIC = {
+    "ORA-01017": "identifiant ou mot de passe incorrect.",
+    "ORA-12541": "aucun listener : le service Oracle n'est pas démarré "
+                 "(Windows : services.msc, démarrer OracleServiceFREE et le TNSListener).",
+    "DPY-6005":  "connexion refusée : vérifiez l'hôte et le port du DSN, et que "
+                 "la base est bien démarrée.",
+    "ORA-12514": "nom de service inconnu : essayez XEPDB1 ou ORCLPDB1 à la place "
+                 "de FREEPDB1 (le nom dépend de la version d'Oracle installée).",
+    "ORA-12154": "nom de service introuvable : donnez le DSN complet hote:port/service.",
+    "ORA-28000": "compte verrouillé : ALTER USER ... ACCOUNT UNLOCK.",
+}
+
+
+def conseil(err):
+    """Renvoie la manœuvre à faire pour l'erreur Oracle rencontrée."""
+    for cle, texte in DIAGNOSTIC.items():
+        if cle in str(err):
+            return texte
+    return "vérifiez que la base est démarrée et que le DSN est correct."
+
 
 # ============================ 1. EXTRACT ===================================
 def extract_oracle():
-    """Lit les cinq tables sources directement dans la base Oracle BTK."""
-    import oracledb
-    cn = oracledb.connect(user=os.environ.get("BTK_DB_USER", "system"),
-                          password=os.environ.get("BTK_DB_PWD", ""),
-                          dsn=os.environ.get("BTK_DB_DSN", "localhost:1521/FREEPDB1"))
-    tables = {n: pd.read_sql(SQL[n], cn) for n in TABLES}
+    """Lit les cinq tables sources directement dans la base Oracle BTK.
+
+    POINTAGE est traitée à part : si elle n'a pas encore été créée
+    (sql/setup_pointage.sql), la chaîne continue sans le taux de présence.
+    """
+    try:
+        import oracledb
+    except ImportError:
+        sys.exit("[extract] le pilote « oracledb » n'est pas installé.\n"
+                 "           pip install oracledb")
+    user = os.environ.get("BTK_DB_USER", "SYSTEM")
+    dsn = os.environ.get("BTK_DB_DSN", "localhost:1521/FREEPDB1")
+    try:
+        cn = oracledb.connect(user=user, password=os.environ.get("BTK_DB_PWD", ""),
+                              dsn=dsn)
+    except Exception as err:
+        sys.exit(f"[extract] connexion à {user}@{dsn} impossible : "
+                 f"{str(err).splitlines()[0]}\n           -> {conseil(err)}")
+    print(f"[extract] connecté à {user}@{dsn} — Oracle {cn.version}")
+
+    def q(sql):
+        with cn.cursor() as cur:
+            cur.execute(sql)
+            return pd.DataFrame(cur.fetchall(),
+                                columns=[d[0] for d in cur.description])
+
+    tables = {}
+    for nom in TABLES:
+        try:
+            tables[nom] = q(SQL[nom])
+        except Exception as err:
+            if nom != "pointages":
+                cn.close()
+                raise
+            print(f"[extract] POINTAGE illisible ({str(err).splitlines()[0][:60]}) : "
+                  "le taux de présence ne sera pas calculé.")
     cn.close()
     return tables
 
@@ -120,7 +171,8 @@ def extract(source="auto"):
 def nettoyer(tables):
     """Écarte les enregistrements inexploitables et type les colonnes."""
     retire = {}
-    for nom in ["employes", "clients", "objectifs", "pointages"]:
+    for nom in [n for n in ["employes", "clients", "objectifs", "pointages"]
+                if n in tables]:
         df = tables[nom]
         avant = len(df)
         df = df.dropna(subset=["SK_AGENCE"])
@@ -251,7 +303,8 @@ def main():
 
     mode, tables = extract(args.source)
     if mode == "brut":
-        print("[extract] " + " | ".join(f"{n} : {len(tables[n])}" for n in TABLES))
+        print("[extract] " + " | ".join(f"{n} : {len(tables[n])}"
+                                for n in TABLES if n in tables))
     else:
         print(f"[extract] {len(tables['extrait'])} entités du réseau")
 

@@ -84,22 +84,97 @@ La source est choisie automatiquement, dans cet ordre :
         md("## 0. Préparation"),
         code(AMORCE),
 
-        md("""## 1. Collecte (*Extract*)
+        md("""## 1. Connexion à la base Oracle
 
-Lecture des cinq tables sources `AGENCE`, `B_UTILISATEURS`, `CLIENT_BTK`,
-`B_OBJECTIF` et `POINTAGE`.
+Prérequis, une seule fois, dans l'**invite Anaconda** : `pip install oracledb`.
+Le pilote fonctionne en mode *thin* : aucun client Oracle à installer.
 
-> **Pour lire directement votre base Oracle**, exécuter `pip install oracledb`
-> puis, dans une cellule placée **avant** celle-ci :
-> ```python
-> import os
-> os.environ["BTK_DB_USER"] = "votre_user"
-> os.environ["BTK_DB_PWD"]  = "votre_mot_de_passe"
-> os.environ["BTK_DB_DSN"]  = "localhost:1521/FREEPDB1"
-> ```
-> La collecte bascule alors d'elle-même sur Oracle, et le datamart gagne le taux
-> de présence, le district et l'axe gestionnaire."""),
-        code(GARDE + '''SOURCE  = os.path.join(RACINE, "etl", "source")
+Les paramètres par défaut sont ceux de l'application
+(`src/main/resources/META-INF/persistence.xml`). Le mot de passe n'est pas
+écrit dans le notebook : il est demandé à la saisie.
+
+Si la connexion échoue, la cellule affiche la cause probable et **le notebook
+continue** sur l'extrait agrégé réel livré avec le projet."""),
+        code(GARDE + r"""UTILISER_ORACLE = True   # False -> travailler sur l'extrait livré, sans invite
+
+BTK_USER = os.environ.get("BTK_DB_USER", "SYSTEM")
+BTK_DSN  = os.environ.get("BTK_DB_DSN",  "localhost:1521/FREEPDB1")
+BTK_PWD  = os.environ.get("BTK_DB_PWD")
+
+DIAGNOSTIC = {
+    "ORA-01017": "identifiant ou mot de passe incorrect.",
+    "ORA-12541": "aucun listener : le service Oracle n'est pas démarré "
+                 "(Windows : services.msc, démarrer OracleServiceFREE et le TNSListener).",
+    "DPY-6005":  "connexion refusée : vérifiez l'hôte et le port du DSN, et que "
+                 "la base est bien démarrée.",
+    "ORA-12514": "nom de service inconnu : essayez XEPDB1 ou ORCLPDB1 à la place "
+                 "de FREEPDB1 (le nom dépend de la version d'Oracle installée).",
+    "ORA-12154": "nom de service introuvable : donnez le DSN complet hote:port/service.",
+    "ORA-28000": "compte verrouillé : ALTER USER ... ACCOUNT UNLOCK.",
+}
+
+CONNEXION = None
+if not UTILISER_ORACLE:
+    print("Oracle désactivé (UTILISER_ORACLE = False).")
+else:
+  try:
+    import oracledb
+  except ImportError:
+    print("Le pilote « oracledb » n'est pas installé.")
+    print("Dans l'invite Anaconda :  pip install oracledb")
+  else:
+    if not BTK_PWD:
+        from getpass import getpass
+        BTK_PWD = getpass(f"Mot de passe Oracle de {BTK_USER}@{BTK_DSN} : ")
+    try:
+        CONNEXION = oracledb.connect(user=BTK_USER, password=BTK_PWD, dsn=BTK_DSN)
+        print(f"Connecté à {BTK_USER}@{BTK_DSN}")
+        print("Serveur Oracle", CONNEXION.version)
+    except Exception as err:
+        print("Connexion impossible :", str(err).splitlines()[0])
+        for cle, conseil in DIAGNOSTIC.items():
+            if cle in str(err):
+                print("  ->", conseil)
+                break
+
+if CONNEXION is None:
+    print("\nLa suite du notebook utilisera l'extrait agrégé réel du réseau.")"""),
+
+        md("""### Inventaire des tables sources
+
+Contrôle de lecture table par table : une table illisible n'interrompt pas
+l'inventaire, ce qui permet de voir d'un coup d'œil ce qui manque."""),
+        code(r"""# Exécute une requête et renvoie un DataFrame (colonnes en majuscules).
+def q(sql):
+    with CONNEXION.cursor() as cur:
+        cur.execute(sql)
+        return pd.DataFrame(cur.fetchall(), columns=[d[0] for d in cur.description])
+
+if CONNEXION is None:
+    print("Pas de connexion : inventaire ignoré.")
+    inventaire = None
+else:
+    lignes = []
+    for t in ["AGENCE", "B_UTILISATEURS", "CLIENT_BTK", "B_OBJECTIF", "POINTAGE"]:
+        try:
+            lignes.append([t, int(q(f"SELECT COUNT(*) AS N FROM {t}")["N"][0]), "OK"])
+        except Exception as err:
+            lignes.append([t, None, str(err).splitlines()[0][:45]])
+    inventaire = pd.DataFrame(lignes, columns=["Table source", "Lignes", "État"])
+inventaire"""),
+
+        md("""## 2. Collecte (*Extract*)
+
+Lecture des cinq tables sources. `POINTAGE` est traitée à part : si elle n'a pas
+encore été créée (`sql/setup_pointage.sql`), la chaîne continue sans le taux de
+présence.
+
+Sans connexion Oracle, la collecte se rabat sur l'export CSV
+(`etl/source/`) puis, à défaut, sur l'extrait agrégé réel."""),
+        code('if "CONNEXION" not in globals():\n'
+             '    raise RuntimeError("Exécutez d\'abord les cellules 0 et 1 "\n'
+             '                       "(Préparation et Connexion).")\n\n'
+             '''SOURCE  = os.path.join(RACINE, "etl", "source")
 EXTRAIT = os.path.join(RACINE, "clustering", "data", "agences_reelles.csv")
 TABLES  = ["agences", "employes", "clients", "objectifs", "pointages"]
 
@@ -121,14 +196,16 @@ SQL = {
                  "JOIN B_UTILISATEURS U ON P.SK_UTILISATEUR = U.SK_UTILISATEUR",
 }
 
-if os.environ.get("BTK_DB_USER"):                       # 1) base Oracle
-    import oracledb
-    cn = oracledb.connect(user=os.environ["BTK_DB_USER"],
-                          password=os.environ.get("BTK_DB_PWD", ""),
-                          dsn=os.environ.get("BTK_DB_DSN", "localhost:1521/FREEPDB1"))
-    tables = {n: pd.read_sql(SQL[n], cn) for n in TABLES}
-    cn.close()
-    mode = "brut"
+if CONNEXION is not None:                               # 1) base Oracle
+    tables, mode = {}, "brut"
+    for n in TABLES:
+        try:
+            tables[n] = q(SQL[n])
+        except Exception as err:
+            if n != "pointages":
+                raise
+            print("POINTAGE illisible :", str(err).splitlines()[0][:60])
+            print("  -> le taux de présence ne sera pas calculé.")
     print("source : base Oracle BTK")
 elif all(os.path.exists(os.path.join(SOURCE, n + ".csv")) for n in TABLES):   # 2) CSV
     tables = {n: pd.read_csv(os.path.join(SOURCE, n + ".csv")) for n in TABLES}
@@ -141,7 +218,7 @@ else:                                                   # 3) extrait agrégé r�
     print("source : extrait agrégé réel —", os.path.relpath(EXTRAIT, RACINE))
 
 if mode == "brut":
-    print(" | ".join(f"{n} : {len(tables[n])}" for n in TABLES))
+    print(" | ".join(f"{n} : {len(tables[n])}" for n in TABLES if n in tables))
     apercu = tables["agences"].head(10)
 else:
     print(len(tables["extrait"]), "entités du réseau")
@@ -156,7 +233,8 @@ Les enregistrements sans agence de rattachement (`SK_AGENCE` manquant) sont
 *Étape sans objet lorsque la source est l'extrait déjà agrégé : il ne contient
 qu'une ligne par agence, sans clé manquante.*"""),
         code('''if mode == "brut":
-    for n in ["employes", "clients", "objectifs", "pointages"]:
+    for n in [x for x in ["employes", "clients", "objectifs", "pointages"]
+              if x in tables]:
         avant = len(tables[n])
         tables[n] = tables[n].dropna(subset=["SK_AGENCE"]).copy()
         tables[n]["SK_AGENCE"] = tables[n]["SK_AGENCE"].astype(int)
@@ -194,15 +272,15 @@ if mode == "brut":
         total_comptes=("COMPTES", "sum"),
         production_credits=("CREDITS", "sum"),
         collecte_epargne=("EPARGNE", "sum")).reset_index()
-    poi = tables["pointages"]
-    pres = poi.assign(present=poi["STATUT"].isin(["PRESENT", "RETARD"]).astype(int)) \\
-              .groupby("SK_AGENCE").agg(taux_presence=("present", "mean")).reset_index()
-
     datamart = (tables["agences"].merge(eff, on="SK_AGENCE", how="left")
                                  .merge(cli, on="SK_AGENCE", how="left")
                                  .merge(obj, on="SK_AGENCE", how="left")
-                                 .merge(pres, on="SK_AGENCE", how="left")
                                  .rename(columns={"LIBELLE_AGENCE": "agence"}))
+    if "pointages" in tables:                    # taux de présence si POINTAGE existe
+        poi = tables["pointages"]
+        pres = poi.assign(present=poi["STATUT"].isin(["PRESENT", "RETARD"]).astype(int)) \\
+                  .groupby("SK_AGENCE").agg(taux_presence=("present", "mean")).reset_index()
+        datamart = datamart.merge(pres, on="SK_AGENCE", how="left")
 else:
     datamart = tables["extrait"].copy()          # déjà au grain de l'agence
 
@@ -249,7 +327,7 @@ cols_dim = ["SK_AGENCE", "agence"] + (["DISTRICT"] if "DISTRICT" in datamart.col
 datamart[cols_dim].to_csv(os.path.join(ENTREPOT, "dim_agence.csv"), index=False)
 datamart[["SK_AGENCE"] + mesures].to_csv(os.path.join(ENTREPOT, "fait_agence.csv"), index=False)
 
-if mode == "brut" and "SK_UTILISATEUR" in tables["objectifs"].columns:
+if mode == "brut" and "SK_UTILISATEUR" in tables.get("objectifs", pd.DataFrame()).columns:
     obj = tables["objectifs"].dropna(subset=["SK_UTILISATEUR"]).copy()
     obj["SK_UTILISATEUR"] = obj["SK_UTILISATEUR"].astype(int)
     colonnes = [c for c in ["SK_UTILISATEUR", "LIBELLE_UTILISATEUR", "SK_AGENCE"]
