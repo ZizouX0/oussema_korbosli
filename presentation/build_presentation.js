@@ -446,7 +446,7 @@ divider("03", "Conception & architecture");
 /* -- cas d'utilisation -- */
 {
   const s = slide("Diagramme de cas d'utilisation global");
-  fit(s, "diagrams/uc_global.png", M, 1.42, 8.6, 5.3);
+  fit(s, "diagrams/uc_global.png", M, 1.30, 8.6, 5.66);
   s.addText("LECTURE DU DIAGRAMME", { x: 9.45, y: 1.72, w: 3.3, h: 0.3, fontFace: BF,
     fontSize: 10.5, bold: true, color: LITE, charSpacing: 2, margin: 0 });
   bullets(s, 9.45, 2.08, 3.3, [

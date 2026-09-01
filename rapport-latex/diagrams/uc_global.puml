@@ -3,7 +3,7 @@
 skinparam dpi 170
 skinparam shadowing false
 skinparam DefaultFontName Arial
-skinparam DefaultFontSize 15
+skinparam DefaultFontSize 18
 skinparam roundCorner 8
 left to right direction
 skinparam packageStyle rectangle
@@ -13,20 +13,22 @@ skinparam ArrowThickness 1.1
 skinparam actorBorderColor #14507A
 skinparam actorBackgroundColor #EAF3FA
 skinparam actorFontStyle bold
-skinparam actorFontSize 15
+skinparam actorFontSize 19
 skinparam usecaseBackgroundColor #EAF3FA
 skinparam usecaseBorderColor #1B6CA8
 skinparam usecaseBorderThickness 1.2
-skinparam usecaseFontSize 14
+skinparam usecaseFontSize 18
 skinparam rectangleBackgroundColor #FBFCFE
 skinparam rectangleBorderColor #1B6CA8
 skinparam rectangleFontColor #14507A
 skinparam rectangleFontStyle bold
-skinparam rectangleFontSize 16
+skinparam rectangleFontSize 20
 skinparam nodesep 22
-skinparam ranksep 210
+skinparam ranksep 175
 
 actor "Administrateur" as ADM
+actor "Directeur commercial" as DIR
+actor "Utilisateur" as USR
 
 rectangle "Application de gestion des agences bancaires" {
   ' --- cas propres à l'administrateur ---
@@ -49,9 +51,6 @@ rectangle "Application de gestion des agences bancaires" {
   usecase "S'authentifier" as UC00
 }
 
-actor "Directeur commercial" as DIR
-actor "Utilisateur" as USR
-
 ' ===================== Administrateur : les 13 cas =====================
 ADM --> UC01
 ADM --> UC02
@@ -68,16 +67,16 @@ ADM --> UC12
 ADM --> UC13
 
 ' ===================== Directeur commercial : 5 cas =====================
-UC07 <-- DIR : consultation
-UC08 <-- DIR
-UC09 <-- DIR
-UC10 <-- DIR
-UC11 <-- DIR
+DIR --> UC07 : consultation
+DIR --> UC08
+DIR --> UC09
+DIR --> UC10
+DIR --> UC11
 
 ' ===================== Utilisateur : 3 cas =====================
-UC11 <-- USR
-UC12 <-- USR
-UC13 <-- USR
+USR --> UC11
+USR --> UC12
+USR --> UC13
 
 ' ===================== Relations «include» =====================
 UC01 ..> UC00 : <<include>>
