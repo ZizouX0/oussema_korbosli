@@ -446,16 +446,17 @@ divider("03", "Conception & architecture");
 /* -- cas d'utilisation -- */
 {
   const s = slide("Diagramme de cas d'utilisation global");
-  fit(s, "diagrams/uc_global.png", M, 1.30, 8.6, 5.66);
-  s.addText("LECTURE DU DIAGRAMME", { x: 9.45, y: 1.72, w: 3.3, h: 0.3, fontFace: BF,
+  // le diagramme est au format portrait : encadré à gauche, lecture élargie à droite
+  fit(s, "diagrams/uc_global.png", 1.05, 1.28, 5.1, 5.70);
+  s.addText("LECTURE DU DIAGRAMME", { x: 7.05, y: 1.86, w: 5.6, h: 0.3, fontFace: BF,
     fontSize: 10.5, bold: true, color: LITE, charSpacing: 2, margin: 0 });
-  bullets(s, 9.45, 2.08, 3.3, [
+  bullets(s, 7.05, 2.28, 5.6, [
     "Trois acteurs, treize cas d'utilisation",
     "Chaque cas inclut \u00ab S'authentifier \u00bb (include)",
     "Administrateur : les 13 cas, sans exception",
     "Directeur commercial : 5 cas, dont les employ\u00e9s en consultation",
     "Utilisateur : 3 cas \u2014 pointage, demandes, notifications",
-  ], 11.5);
+  ], 13);
 }
 
 /* -- modèle en étoile -- */

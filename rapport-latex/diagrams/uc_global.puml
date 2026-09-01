@@ -1,4 +1,8 @@
 @startuml
+' NOTE : cette source PlantUML n'est plus celle qui produit la figure 2.1.
+' graphviz place systematiquement au centre l'acteur relie aux treize cas ;
+' l'administrateur devant figurer en haut, le rendu est desormais produit par
+' clustering/gen_uc_global.py. Cette source est conservee pour reference.
 ' ============ Diagramme de cas d'utilisation global — BTK ============
 skinparam dpi 170
 skinparam shadowing false
@@ -26,9 +30,12 @@ skinparam rectangleFontSize 20
 skinparam nodesep 22
 skinparam ranksep 175
 
-actor "Administrateur" as ADM
-actor "Directeur commercial" as DIR
-actor "Utilisateur" as USR
+' ordre vertical des acteurs : administrateur en haut, puis directeur, puis utilisateur
+together {
+  actor "Administrateur" as ADM
+  actor "Directeur commercial" as DIR
+  actor "Utilisateur" as USR
+}
 
 rectangle "Application de gestion des agences bancaires" {
   ' --- cas propres à l'administrateur ---
