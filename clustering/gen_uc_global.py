@@ -23,16 +23,16 @@ FILL, BOX = "#EAF3FA", "#FBFCFE"
 # ------------------------------------------------------------- cas d'utilisation
 # ordonnés pour rapprocher chaque cas de l'acteur qui le déclenche
 LABELS = [
-    ("employes",  "Gérer les employés"),
-    ("objectifs", "Suivre les objectifs\ncommerciaux"),
-    ("valider",   "Valider une demande"),
-    ("tdb",       "Consulter le\ntableau de bord"),
     ("roles",     "Gérer les rôles et\nles droits d'accès"),
     ("agences",   "Gérer les agences"),
     ("clients",   "Gérer les clients"),
     ("audit",     "Consulter le\njournal d'audit"),
     ("etl",       "Alimenter le\ndatamart (ETL)"),
     ("segment",   "Segmenter les agences"),
+    ("employes",  "Gérer les employés"),
+    ("objectifs", "Suivre les objectifs\ncommerciaux"),
+    ("valider",   "Valider une demande"),
+    ("tdb",       "Consulter le\ntableau de bord"),
     ("soumettre", "Soumettre une demande"),
     ("pointer",   "Pointer la présence\n(arrivée / départ)"),
     ("notif",     "Recevoir des\nnotifications"),
@@ -42,15 +42,15 @@ Y = {k: 7.20 - i * STEP for i, (k, _) in enumerate(LABELS)}   # 7.20 .. -7.20
 
 XU, RW, RH = 0.0, 2.20, 0.46          # colonne des cas
 XS, YS, SW, SH = 5.55, 0.0, 1.80, 0.48  # « S'authentifier »
-XA, YA = -8.9, 0.0                    # administrateur
-XD, YD = 10.6, 6.8                    # directeur commercial
-XV, YV = 10.6, -6.8                   # utilisateur
+XA, YA = -11.3, 1.10                  # administrateur (le plus à gauche)
+XD, YD = -5.60, -2.30                 # directeur commercial
+XV, YV = -5.60, -7.30                 # utilisateur
 BOXL, BOXR, BOXB, BOXT = -2.80, 7.75, -8.35, 8.35
 
-fig, ax = plt.subplots(figsize=(16.2, 12.6))
+fig, ax = plt.subplots(figsize=(15.0, 12.0))
 fig.patch.set_facecolor("white")
-ax.set_xlim(-11.3, 14.9)
-ax.set_ylim(-9.0, 9.3)
+ax.set_xlim(-13.6, 9.5)
+ax.set_ylim(-9.3, 9.3)
 ax.set_aspect("equal")
 ax.axis("off")
 
@@ -70,7 +70,12 @@ def usecase(x, y, label, w=RW, h=RH, fs=11.5):
             zorder=4, linespacing=1.22)
 
 
-def acteur(x, y, nom, va="top"):
+def acteur(x, y, nom, va="top", halo=0.0):
+    if halo:
+        ax.add_patch(FancyBboxPatch(
+            (x - halo, y - 0.85), 2 * halo, 1.62,
+            boxstyle="round,pad=0.02,rounding_size=0.12",
+            facecolor="white", edgecolor="none", zorder=3.4))
     s = 0.34
     ax.add_patch(Circle((x, y + 1.05 * s), 0.38 * s, facecolor="white",
                         edgecolor=NAVY, lw=1.8, zorder=4))
@@ -104,8 +109,8 @@ for k, lab in LABELS:
 usecase(XS, YS, "S'authentifier", w=SW, h=SH, fs=12)
 
 acteur(XA, YA, "Administrateur")
-acteur(XD, YD, "Directeur commercial")
-acteur(XV, YV, "Utilisateur")
+acteur(XD, YD, "Directeur commercial", halo=1.55)
+acteur(XV, YV, "Utilisateur", halo=1.00)
 
 # ------------------- Administrateur : les 13 cas (éventail, sans croisement)
 for k, _ in LABELS:
@@ -120,30 +125,15 @@ ax.text(3.02, 0.24, "«include»", ha="center", color=LITE,
         fontsize=11, style="italic", zorder=6, va="bottom")
 
 # ------------------- Directeur commercial : 5 cas
-#   les quatre premiers sont abordés par le haut de la bulle : le tracé passe
-#   au-dessus du faisceau «include» sans jamais le croiser
-for k, rad in [("employes", 0.04), ("objectifs", 0.09), ("valider", 0.13), ("tdb", 0.17)]:
-    cible = bord(XU, Y[k], RW, RH, (XU + 1.05, Y[k] + 2.0))
-    fleche((XD - 0.62, YD - 0.28), cible, rad=rad)
-ax.text(7.35, 6.28, "consultation", ha="center", va="center", color=NAVY,
+for k in ["employes", "objectifs", "valider", "tdb", "soumettre"]:
+    fleche((XD + 0.55, YD + 0.10), bord(XU, Y[k], RW, RH, (XD, YD)))
+ax.text(-3.75, -0.05, "consultation", ha="center", va="center", color=NAVY,
         fontsize=10.5, style="italic", zorder=6,
-        bbox=dict(boxstyle="round,pad=0.14", fc="white", ec="none"))
+        bbox=dict(boxstyle="round,pad=0.12", fc="white", ec="none"))
 
-#   « Soumettre une demande » : contournement par la droite, hors de la
-#   frontière du système, pour n'entrer dans aucune autre bulle
-ys = Y["soumettre"]
-verts = [(XD + 0.15, YD - 1.55),
-         (13.4, 4.2), (13.4, -4.4), (11.2, -5.05),   # couloir vertical à droite
-         (8.6, -5.6), (5.2, -5.35), (RW + 0.03, ys - 0.16)]
-codes = [Path.MOVETO] + [Path.CURVE4] * 6
-ax.add_patch(FancyArrowPatch(
-    path=Path(verts, codes), arrowstyle="-|>", mutation_scale=12,
-    lw=1.2, color=NAVY, shrinkA=0, shrinkB=0, zorder=2))
-
-# ------------------- Utilisateur : 3 cas (abordés par le bas de la bulle)
-for k, rad in [("soumettre", -0.20), ("pointer", -0.12), ("notif", -0.05)]:
-    cible = bord(XU, Y[k], RW, RH, (XU + 1.35, Y[k] - 1.9))
-    fleche((XV - 0.62, YV + 0.30), cible, rad=rad)
+# ------------------- Utilisateur : 3 cas
+for k in ["soumettre", "pointer", "notif"]:
+    fleche((XV + 0.55, YV + 0.10), bord(XU, Y[k], RW, RH, (XV, YV)))
 
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 fig.savefig(OUT, dpi=190, bbox_inches="tight", facecolor="white", pad_inches=0.12)
