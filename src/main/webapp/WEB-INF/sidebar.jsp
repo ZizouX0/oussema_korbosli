@@ -58,14 +58,20 @@
                     <i data-lucide="settings"></i>
                     <span>Gérer les Agences</span>
                 </a>
+                <%-- Validation des demandes de création (agences, employés, clients) :
+                     réservée à l'administrateur. DemandeAgenceAdminServlet n'accepte
+                     que le rôle ADMIN ; proposer ce lien au directeur commercial le
+                     renvoyait à la page de connexion. --%>
+                <a href="${pageContext.request.contextPath}/demandes-admin" class="nav-item ${activePage == 'admin_demandes' ? 'active' : ''}">
+                    <i data-lucide="check-square"></i>
+                    <span>Valider Demandes</span>
+                </a>
             </c:if>
-            <a href="${pageContext.request.contextPath}/demandes-admin" class="nav-item ${activePage == 'admin_demandes' ? 'active' : ''}">
-                <i data-lucide="check-square"></i>
-                <span>Valider Demandes</span>
-            </a>
+            <%-- Circuit des demandes de modification : le directeur commercial
+                 approuve ou refuse, l'administrateur applique le changement. --%>
             <a href="${pageContext.request.contextPath}/gestion-demandes" class="nav-item ${activePage == 'manage_requests' ? 'active' : ''}">
-                <i data-lucide="edit-3"></i>
-                <span>Modifications Profil</span>
+                <i data-lucide="check-square"></i>
+                <span>${sessionScope.role == 'DIRECTEUR_COMMERCIAL' ? 'Valider les demandes' : 'Modifications Profil'}</span>
             </a>
         </c:if>
     </nav>
