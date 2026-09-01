@@ -8,7 +8,7 @@ la cause probable et la manœuvre à faire.
     python3 etl/test_connexion_oracle.py
 
 Paramètres (mêmes valeurs que src/main/resources/META-INF/persistence.xml) :
-    BTK_DB_USER   défaut SYSTEM
+    BTK_DB_USER   défaut BTK_BI
     BTK_DB_DSN    défaut localhost:1521/FREEPDB1
     BTK_DB_PWD    demandé à la saisie s'il n'est pas défini
 """
@@ -23,7 +23,7 @@ TABLES = ["AGENCE", "B_UTILISATEURS", "CLIENT_BTK", "B_OBJECTIF", "POINTAGE"]
 
 
 def parametres():
-    user = os.environ.get("BTK_DB_USER", "SYSTEM")
+    user = os.environ.get("BTK_DB_USER", "BTK_BI")
     dsn = os.environ.get("BTK_DB_DSN", "localhost:1521/FREEPDB1")
     pwd = os.environ.get("BTK_DB_PWD")
     if not pwd:

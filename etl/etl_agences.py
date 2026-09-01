@@ -77,6 +77,10 @@ DIAGNOSTIC = {
                  "de FREEPDB1 (le nom dépend de la version d'Oracle installée).",
     "ORA-12154": "nom de service introuvable : donnez le DSN complet hote:port/service.",
     "ORA-28000": "compte verrouillé : ALTER USER ... ACCOUNT UNLOCK.",
+    "ORA-00942": "table absente de ce schéma : les tables appartiennent peut-être "
+                 "à un autre utilisateur. Accordez la lecture (GRANT SELECT ON "
+                 "SYSTEM.AGENCE TO BTK_BI) et créez les synonymes, ou connectez-vous "
+                 "au schéma qui porte les tables.",
 }
 
 
@@ -100,7 +104,7 @@ def extract_oracle():
     except ImportError:
         sys.exit("[extract] le pilote « oracledb » n'est pas installé.\n"
                  "           pip install oracledb")
-    user = os.environ.get("BTK_DB_USER", "SYSTEM")
+    user = os.environ.get("BTK_DB_USER", "BTK_BI")
     dsn = os.environ.get("BTK_DB_DSN", "localhost:1521/FREEPDB1")
     try:
         cn = oracledb.connect(user=user, password=os.environ.get("BTK_DB_PWD", ""),

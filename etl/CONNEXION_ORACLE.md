@@ -3,14 +3,18 @@
 Marche à suivre pour faire tourner l'ETL sur **votre base Oracle**, et non sur
 l'extrait agrégé livré avec le projet.
 
-Paramètres de connexion : ce sont ceux de l'application, dans
-`src/main/resources/META-INF/persistence.xml`.
+Les paramètres de connexion de l'application ne sont pas dans `persistence.xml` :
+l'unité de persistance est en JTA, donc c'est la **datasource WildFly**
+`java:/OracleDS` qui les porte (voir `tools/DEPANNAGE_ORACLE_WILDFLY.md`).
 
 | | Valeur |
 |---|---|
-| Utilisateur | `SYSTEM` |
+| Utilisateur | `BTK_BI` |
 | DSN | `localhost:1521/FREEPDB1` |
-| Mot de passe | celui de votre base (voir `persistence.xml`) |
+| Mot de passe | celui que vous avez défini pour ce compte |
+
+Ces valeurs sont les **défauts** des outils ; pour en utiliser d'autres, définir
+`BTK_DB_USER`, `BTK_DB_DSN` et `BTK_DB_PWD`.
 
 Le DSN est l'URL JDBC `jdbc:oracle:thin:@localhost:1521/FREEPDB1` **sans le
 préfixe** `jdbc:oracle:thin:@`.
@@ -62,9 +66,9 @@ Le script ne modifie rien. Il affiche la version du serveur, le schéma courant,
 puis compte les lignes des cinq tables sources :
 
 ```
-Connexion à SYSTEM@localhost:1521/FREEPDB1 …
+Connexion à BTK_BI@localhost:1521/FREEPDB1 …
 Connecté. Serveur Oracle 23.x.x.x
-Schéma courant : SYSTEM | conteneur : FREEPDB1
+Schéma courant : BTK_BI | conteneur : FREEPDB1
 
 Table source          Lignes   État
 ----------------------------------------------------
@@ -81,11 +85,11 @@ Pour changer d'utilisateur ou de service, définir les variables avant de lancer
 
 ```bash
 # Windows (cmd)
-set BTK_DB_USER=SYSTEM
+set BTK_DB_USER=BTK_BI
 set BTK_DB_DSN=localhost:1521/FREEPDB1
 
 # macOS / Linux
-export BTK_DB_USER=SYSTEM
+export BTK_DB_USER=BTK_BI
 export BTK_DB_DSN=localhost:1521/FREEPDB1
 ```
 
@@ -94,11 +98,34 @@ export BTK_DB_DSN=localhost:1521/FREEPDB1
 | Message | Cause | Manœuvre |
 |---|---|---|
 | `DPY-6005` / `ORA-12541` | la base ou le listener n'est pas démarré | étape 1 |
-| `ORA-01017` | identifiant ou mot de passe incorrect | reprendre ceux de `persistence.xml` |
+| `ORA-01017` | identifiant ou mot de passe incorrect | vérifier le compte `BTK_BI` et son mot de passe |
 | `ORA-12514` | nom de service inconnu | remplacer `FREEPDB1` par le nom vu dans `lsnrctl status` (`XEPDB1`, `ORCLPDB1`…) |
 | `ORA-12154` | DSN incomplet | donner `hote:port/service`, pas seulement le service |
-| `ORA-28000` | compte verrouillé | `ALTER USER SYSTEM ACCOUNT UNLOCK;` |
-| `ORA-00942` sur une table | la table n'est pas dans ce schéma | se connecter au schéma qui la porte, ou `GRANT SELECT` |
+| `ORA-28000` | compte verrouillé | `ALTER USER BTK_BI ACCOUNT UNLOCK;` |
+| `ORA-00942` sur une table | la table n'appartient pas à ce schéma | voir ci-dessous |
+
+### `ORA-00942` : les tables ne sont pas visibles depuis `BTK_BI`
+
+Le compte se connecte, mais les tables appartiennent à un autre schéma. Depuis
+le compte propriétaire (par exemple `SYSTEM`) :
+
+```sql
+GRANT SELECT ON SYSTEM.AGENCE          TO BTK_BI;
+GRANT SELECT ON SYSTEM.B_UTILISATEURS  TO BTK_BI;
+GRANT SELECT ON SYSTEM.CLIENT_BTK      TO BTK_BI;
+GRANT SELECT ON SYSTEM.B_OBJECTIF      TO BTK_BI;
+GRANT SELECT ON SYSTEM.POINTAGE        TO BTK_BI;
+
+-- pour que BTK_BI puisse écrire « FROM AGENCE » sans préfixer le schéma
+CREATE OR REPLACE SYNONYM BTK_BI.AGENCE         FOR SYSTEM.AGENCE;
+CREATE OR REPLACE SYNONYM BTK_BI.B_UTILISATEURS FOR SYSTEM.B_UTILISATEURS;
+CREATE OR REPLACE SYNONYM BTK_BI.CLIENT_BTK     FOR SYSTEM.CLIENT_BTK;
+CREATE OR REPLACE SYNONYM BTK_BI.B_OBJECTIF     FOR SYSTEM.B_OBJECTIF;
+CREATE OR REPLACE SYNONYM BTK_BI.POINTAGE       FOR SYSTEM.POINTAGE;
+```
+
+L'application a besoin d'écrire (pointage, demandes) : ajouter
+`INSERT, UPDATE, DELETE` aux `GRANT` sur les tables concernées.
 
 Si seule `POINTAGE` manque, ce n'est pas bloquant : la chaîne tournera sans le
 taux de présence. Pour la créer : `sql/setup_pointage.sql`.
@@ -107,17 +134,17 @@ taux de présence. Pour la créer : `sql/setup_pointage.sql`.
 
 ```bash
 # Windows (cmd)
-set BTK_DB_USER=SYSTEM
+set BTK_DB_USER=BTK_BI
 set BTK_DB_PWD=votre_mot_de_passe
 set BTK_DB_DSN=localhost:1521/FREEPDB1
 python etl\etl_agences.py --source oracle
 
 # macOS / Linux
-export BTK_DB_USER=SYSTEM BTK_DB_PWD=votre_mot_de_passe BTK_DB_DSN=localhost:1521/FREEPDB1
+export BTK_DB_USER=BTK_BI BTK_DB_PWD=votre_mot_de_passe BTK_DB_DSN=localhost:1521/FREEPDB1
 python3 etl/etl_agences.py --source oracle
 ```
 
-La chaîne affiche alors `[extract] connecté à SYSTEM@…` puis le nombre de lignes
+La chaîne affiche alors `[extract] connecté à BTK_BI@…` puis le nombre de lignes
 lues par table, l'agrégation, le contrôle de qualité et le chargement.
 
 Trois éléments que l'extrait agrégé ne porte pas apparaissent seulement ici :
@@ -167,7 +194,7 @@ Si `pip install oracledb` est impossible sur le poste, exporter les tables avec
 **SQLcl** puis relancer la chaîne :
 
 ```bash
-sql SYSTEM/votre_mot_de_passe@localhost:1521/FREEPDB1 @etl/export_sources.sql
+sql BTK_BI/votre_mot_de_passe@localhost:1521/FREEPDB1 @etl/export_sources.sql
 ```
 
 Placer les cinq fichiers produits dans `etl/source/`, puis :

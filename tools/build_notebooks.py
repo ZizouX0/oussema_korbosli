@@ -97,7 +97,7 @@ Si la connexion échoue, la cellule affiche la cause probable et **le notebook
 continue** sur l'extrait agrégé réel livré avec le projet."""),
         code(GARDE + r"""UTILISER_ORACLE = True   # False -> travailler sur l'extrait livré, sans invite
 
-BTK_USER = os.environ.get("BTK_DB_USER", "SYSTEM")
+BTK_USER = os.environ.get("BTK_DB_USER", "BTK_BI")
 BTK_DSN  = os.environ.get("BTK_DB_DSN",  "localhost:1521/FREEPDB1")
 BTK_PWD  = os.environ.get("BTK_DB_PWD")
 
@@ -111,6 +111,8 @@ DIAGNOSTIC = {
                  "de FREEPDB1 (le nom dépend de la version d'Oracle installée).",
     "ORA-12154": "nom de service introuvable : donnez le DSN complet hote:port/service.",
     "ORA-28000": "compte verrouillé : ALTER USER ... ACCOUNT UNLOCK.",
+    "ORA-00942": "table absente de ce schéma : accordez la lecture (GRANT SELECT) "
+                 "ou connectez-vous au schéma qui porte les tables.",
 }
 
 CONNEXION = None

@@ -1,0 +1,69 @@
+# ============================================================================
+#  Datasource java:/OracleDS — diagnostic et réparation
+#
+#  Diagnostic (ne modifie rien) :
+#    Linux/macOS : $WILDFLY_HOME/bin/jboss-cli.sh  --connect --file=tools/setup-oracle-datasource.cli
+#    Windows     : %WILDFLY_HOME%\bin\jboss-cli.bat --connect --file=tools\setup-oracle-datasource.cli
+#
+#  Le script affiche la configuration en place, l'état du pool, puis teste la
+#  connexion. La ligne qui compte est le résultat de test-connection-in-pool :
+#    "outcome" => "success"  -> le pool joint Oracle ;
+#    "outcome" => "failed"   -> la cause exacte suit (ORA-01017, ORA-12541…).
+#
+#  Pour RÉPARER, voir les commandes commentées en fin de fichier : elles sont à
+#  passer une par une dans la console CLI ( jboss-cli.sh --connect ), car elles
+#  contiennent le mot de passe, qui n'a pas à être écrit dans un fichier
+#  versionné.
+#
+#  Marche à suivre complète : tools/DEPANNAGE_ORACLE_WILDFLY.md
+# ============================================================================
+
+echo
+echo ==== Configuration de la datasource ====
+/subsystem=datasources/data-source=OracleDS:read-resource(recursive=false)
+
+echo
+echo ==== Pilotes JDBC installes ====
+/subsystem=datasources:installed-drivers-list
+
+echo
+echo ==== Test de connexion ====
+/subsystem=datasources/data-source=OracleDS:test-connection-in-pool
+
+# ============================================================================
+#  RÉPARATION — à passer dans la console CLI, pas par ce fichier
+# ============================================================================
+#
+#  1) Le mot de passe Oracle a changé  (cause la plus fréquente de IJ000453)
+#
+#     /subsystem=datasources/data-source=OracleDS:write-attribute(name=password,value="NOUVEAU_MOT_DE_PASSE")
+#     reload
+#     /subsystem=datasources/data-source=OracleDS:test-connection-in-pool
+#
+#     `reload` est indispensable : sans lui le pool garde l'ancienne valeur.
+#
+#  2) L'utilisateur ou le service Oracle a changé
+#
+#     /subsystem=datasources/data-source=OracleDS:write-attribute(name=user-name,value="BTK_BI")
+#     /subsystem=datasources/data-source=OracleDS:write-attribute(name=connection-url,value="jdbc:oracle:thin:@localhost:1521/FREEPDB1")
+#     reload
+#
+#     Le service en fin d'URL doit être exactement celui listé par
+#     `lsnrctl status` (FREEPDB1, XEPDB1, ORCLPDB1… selon la version installée).
+#
+#  3) Oracle a redémarré : le pool garde des connexions mortes
+#
+#     /subsystem=datasources/data-source=OracleDS:flush-all-connection-in-pool
+#     /subsystem=datasources/data-source=OracleDS:test-connection-in-pool
+#
+#  4) La datasource n'existe pas du tout (erreur JNDI, pas IJ000453)
+#
+#     Copier d'abord ojdbc11.jar dans $WILDFLY_HOME/standalone/deployments/,
+#     WildFly l'enregistre comme pilote sous le nom « ojdbc11.jar ». Puis :
+#
+#     data-source add --name=OracleDS --jndi-name=java:/OracleDS \
+#         --driver-name=ojdbc11.jar \
+#         --connection-url=jdbc:oracle:thin:@localhost:1521/FREEPDB1 \
+#         --user-name=BTK_BI --password=NOUVEAU_MOT_DE_PASSE \
+#         --min-pool-size=1 --max-pool-size=10 --validate-on-match=true
+# ============================================================================

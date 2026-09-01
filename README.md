@@ -183,7 +183,13 @@ http://localhost:8080/gestion-agences/
 ```
 
 > `TestDB.java` is a small standalone `main()` that opens a raw JDBC connection —
-> handy for verifying Oracle connectivity outside the container.
+> handy for verifying Oracle connectivity outside the container. It reads
+> `BTK_DB_USER` / `BTK_DB_PWD` / `BTK_DB_DSN` from the environment.
+>
+> If the app fails with `IJ000453: Unable to get managed connection for
+> java:/OracleDS`, the datasource cannot reach Oracle — the credentials live in
+> WildFly, not in `persistence.xml`. Step-by-step fix:
+> [`tools/DEPANNAGE_ORACLE_WILDFLY.md`](tools/DEPANNAGE_ORACLE_WILDFLY.md).
 
 ---
 

@@ -27,14 +27,23 @@
         <class>entity.SecurityUser</class>
         <class>entity.Pointage</class>
 
+        <!--
+            Les paramètres de connexion (URL, utilisateur, mot de passe) ne sont
+            PAS déclarés ici : l'unité de persistance est en transaction-type
+            JTA, donc le serveur fournit la connexion via la datasource
+            java:/OracleDS déclarée ci-dessus. Les propriétés
+            jakarta.persistence.jdbc.* seraient ignorées à l'exécution, et une
+            valeur périmée y induit en erreur lors du dépannage.
+
+            La connexion se change côté WildFly :
+                /subsystem=datasources/data-source=OracleDS:write-attribute(name=user-name,value="...")
+                /subsystem=datasources/data-source=OracleDS:write-attribute(name=password,value="...")
+                reload
+            Voir tools/DEPANNAGE_ORACLE_WILDFLY.md
+        -->
         <properties>
-            <property name="jakarta.persistence.jdbc.driver" value="oracle.jdbc.OracleDriver"/>
-            <property name="jakarta.persistence.jdbc.url" value="jdbc:oracle:thin:@localhost:1521/FREEPDB1"/>
-            <property name="jakarta.persistence.jdbc.user" value="SYSTEM"/>
-            <property name="jakarta.persistence.jdbc.password" value="root"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.OracleDialect"/>
             <property name="hibernate.hbm2ddl.auto" value="none"/>
-
         </properties>
     </persistence-unit>
 
