@@ -2,139 +2,194 @@
 """
 Chaîne ETL (Extract - Transform - Load) du volet décisionnel BTK.
 
-Objectif : consolider les données opérationnelles (employés, clients, objectifs,
-pointage) en un datamart agrégé PAR AGENCE, qui alimente à la fois le tableau de
-bord / Power BI et la segmentation par clustering.
+Objectif : consolider les données opérationnelles (agences, employés, clients,
+objectifs, pointage) en un datamart en étoile agrégé PAR AGENCE, qui alimente à
+la fois le tableau de bord, Power BI et la segmentation par clustering.
 
-  EXTRACT   sources Oracle (B_UTILISATEURS, CLIENT_BTK, B_OBJECTIF, POINTAGE, AGENCE)
-            -> lues depuis etl/source/*.csv si présents, sinon jeu synthétique.
-  TRANSFORM nettoyage, typage, agrégation par agence, calcul des indicateurs
-            (effectif, portefeuille, production, taux de présence).
-  LOAD      datamart en étoile (etl/entrepot/) + clustering/data/agences.csv.
+  EXTRACT    trois sources possibles, dans cet ordre de priorité :
+             1. Oracle          -- tables AGENCE, B_UTILISATEURS, CLIENT_BTK,
+                                   B_OBJECTIF, POINTAGE (connecteur oracledb) ;
+             2. etl/source/*.csv-- export SQLcl de ces mêmes tables ;
+             3. extrait agrégé  -- clustering/data/agences_reelles.csv, le
+                                   relevé réel des 49 entités du réseau, livré
+                                   avec le projet pour que la chaîne soit
+                                   exécutable sans accès à la base.
+  TRANSFORM  nettoyage, typage, agrégation par agence et calcul des indicateurs.
+  QUALITÉ    contrôles avant chargement (manquants, négatifs, doublons).
+  LOAD       datamart en étoile dans etl/entrepot/ + clustering/data/agences.csv.
 
-Pour brancher Oracle réel : installer `oracledb`, renseigner la connexion dans
-extract_oracle() et appeler extract(source="oracle").
+Lancement :
+    python3 etl_agences.py                 # source détectée automatiquement
+    python3 etl_agences.py --source oracle # force la base Oracle
+    python3 etl_agences.py --source csv    # force etl/source/*.csv
+    python3 etl_agences.py --source extrait
+
+Connexion Oracle : variables d'environnement BTK_DB_USER, BTK_DB_PWD, BTK_DB_DSN.
 """
+import argparse
 import os
-import numpy as np
+import sys
+
 import pandas as pd
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SOURCE = os.path.join(HERE, "source")
 ENTREPOT = os.path.join(HERE, "entrepot")
-DATAMART = os.path.normpath(os.path.join(HERE, "..", "clustering", "data", "agences.csv"))
-os.makedirs(ENTREPOT, exist_ok=True)
-os.makedirs(os.path.dirname(DATAMART), exist_ok=True)
+RACINE = os.path.normpath(os.path.join(HERE, ".."))
+EXTRAIT_REEL = os.path.join(RACINE, "clustering", "data", "agences_reelles.csv")
+DATAMART = os.path.join(RACINE, "clustering", "data", "agences.csv")
 
-FEATURES = ["effectif", "nb_gestionnaires", "nb_clients", "total_comptes",
-            "production_credits", "collecte_epargne", "taux_presence"]
+# Mesures du datamart. Le taux de présence n'est calculable que si la table
+# POINTAGE est disponible : il est donc optionnel.
+MESURES = ["effectif", "nb_gestionnaires", "nb_clients",
+           "total_comptes", "production_credits", "collecte_epargne"]
+PRESENCE = "taux_presence"
+
+# Requêtes d'extraction, identiques à celles du notebook connecté à la base.
+SQL = {
+    "agences": "SELECT SK_AGENCE, LIBELLE_AGENCE, DISTRICT FROM AGENCE",
+    "employes": "SELECT SK_UTILISATEUR, LIBELLE_UTILISATEUR, SK_AGENCE, "
+                "EST_GESTIONNAIRE FROM B_UTILISATEURS",
+    "clients": "SELECT SK_CLIENT, SK_AGENCE FROM CLIENT_BTK",
+    "objectifs": "SELECT SK_AGENCE, SK_UTILISATEUR, "
+                 "  NVL(SOUSCRIPTION_COMPTE_CHEQUES_OA,0)"
+                 "  + NVL(SOUSCRIPTION_COMPTE_EPARGNES_OA,0)"
+                 "  + NVL(SOUSCRIPTION_COMPTE_COURANTS_OA,0)      AS COMPTES, "
+                 "  NVL(PRODUCTION_CREDITS_CONSO_OA,0)"
+                 "  + NVL(PRODUCTION_CREDITS_IMMO_OA,0)"
+                 "  + NVL(PRODUCTION_CREDITS_INVESTISSEMENT_OA,0) AS CREDITS, "
+                 "  NVL(EPARGNE_ADD_OA,0)                         AS EPARGNE "
+                 "FROM B_OBJECTIF",
+    "pointages": "SELECT P.SK_UTILISATEUR, U.SK_AGENCE, P.STATUT "
+                 "FROM POINTAGE P JOIN B_UTILISATEURS U "
+                 "  ON P.SK_UTILISATEUR = U.SK_UTILISATEUR",
+}
+TABLES = ["agences", "employes", "clients", "objectifs", "pointages"]
 
 
-# ============================ EXTRACT ======================================
-def extract_oracle(dsn=None, user=None, password=None):
-    """Extraction directe depuis la base Oracle BTK.
-
-    Renseignez la connexion via les arguments ou les variables d'environnement
-    BTK_DB_USER / BTK_DB_PWD / BTK_DB_DSN, puis appelez extract(source="oracle").
-    Les requêtes s'appuient sur les tables réelles du projet
-    (AGENCE, B_UTILISATEURS, CLIENT_BTK, B_OBJECTIF, POINTAGE).
-    """
+# ============================ 1. EXTRACT ===================================
+def extract_oracle():
+    """Lit les cinq tables sources directement dans la base Oracle BTK."""
     import oracledb
-    cn = oracledb.connect(
-        user=user or os.environ.get("BTK_DB_USER", "system"),
-        password=password or os.environ.get("BTK_DB_PWD", ""),
-        dsn=dsn or os.environ.get("BTK_DB_DSN", "localhost:1521/FREEPDB1"))
-    ag = pd.read_sql("SELECT SK_AGENCE, LIBELLE_AGENCE, DISTRICT FROM AGENCE", cn)
-    emp = pd.read_sql("SELECT SK_UTILISATEUR, LIBELLE_UTILISATEUR, SK_AGENCE, "
-                      "  EST_GESTIONNAIRE FROM B_UTILISATEURS", cn)
-    cli = pd.read_sql("SELECT SK_CLIENT, SK_AGENCE FROM CLIENT_BTK", cn)
-    obj = pd.read_sql(
-        "SELECT SK_AGENCE, SK_UTILISATEUR, "
-        "  NVL(SOUSCRIPTION_COMPTE_CHEQUES_OA,0)+NVL(SOUSCRIPTION_COMPTE_EPARGNES_OA,0)"
-        "  +NVL(SOUSCRIPTION_COMPTE_COURANTS_OA,0) AS COMPTES, "
-        "  NVL(PRODUCTION_CREDITS_CONSO_OA,0)+NVL(PRODUCTION_CREDITS_IMMO_OA,0)"
-        "  +NVL(PRODUCTION_CREDITS_INVESTISSEMENT_OA,0) AS CREDITS, "
-        "  NVL(EPARGNE_ADD_OA,0) AS EPARGNE "
-        "FROM B_OBJECTIF", cn)
-    poi = pd.read_sql("SELECT P.SK_UTILISATEUR, U.SK_AGENCE, P.STATUT "
-                      "FROM POINTAGE P JOIN B_UTILISATEURS U "
-                      "ON P.SK_UTILISATEUR = U.SK_UTILISATEUR", cn)
+    cn = oracledb.connect(user=os.environ.get("BTK_DB_USER", "system"),
+                          password=os.environ.get("BTK_DB_PWD", ""),
+                          dsn=os.environ.get("BTK_DB_DSN", "localhost:1521/FREEPDB1"))
+    tables = {n: pd.read_sql(SQL[n], cn) for n in TABLES}
     cn.close()
-    return ag, emp, cli, obj, poi
+    return tables
 
 
-def _synthese_source():
-    """Génère des données SOURCES brutes réalistes (3 profils d'agences)."""
-    rng = np.random.default_rng(7)
-    tiers = [("grande", 7, 116, 10), ("moyenne", 16, 55, 7), ("petite", 22, 22, 4)]
-    agences, employes, clients, objectifs, pointages = [], [], [], [], []
-    sk_ag = sk_emp = sk_cli = 1
-    for nom, n, mu, sd in tiers:
-        for _ in range(n):
-            eff = int(max(5, rng.normal(mu, sd)))
-            agences.append({"SK_AGENCE": sk_ag, "LIBELLE_AGENCE": f"Agence {sk_ag:02d}",
-                            "DISTRICT": rng.choice(["Nord", "Centre", "Sud"])})
-            p_pres = {"grande": 0.93, "moyenne": 0.89, "petite": 0.82}[nom]
-            gestionnaires = []                         # gestionnaires de l'agence
-            for _ in range(eff):                       # employés de l'agence
-                gest = 1 if rng.random() < 0.30 else 0
-                if gest:
-                    gestionnaires.append(sk_emp)
-                employes.append({"SK_UTILISATEUR": sk_emp,
-                                 "LIBELLE_UTILISATEUR": f"Employe {sk_emp:04d}",
-                                 "SK_AGENCE": sk_ag, "EST_GESTIONNAIRE": gest})
-                for _ in range(20):                    # ~20 jours de pointage / employé
-                    r = rng.random()
-                    statut = "PRESENT" if r < p_pres else ("RETARD" if r < p_pres + 0.05 else "ABSENT")
-                    pointages.append({"SK_UTILISATEUR": sk_emp, "SK_AGENCE": sk_ag, "STATUT": statut})
-                sk_emp += 1
-            for _ in range(int(eff * rng.normal(8, 0.9))):   # clients de l'agence
-                clients.append({"SK_CLIENT": sk_cli, "SK_AGENCE": sk_ag}); sk_cli += 1
-            for _ in range(6):                          # 6 périodes d'objectifs / agence
-                objectifs.append({
-                    "SK_AGENCE": sk_ag,
-                    "SK_UTILISATEUR": (int(rng.choice(gestionnaires))
-                                       if gestionnaires else None),
-                    "COMPTES": max(0, rng.normal(eff * 20 / 6, eff * 0.4)),
-                    "CREDITS": max(0, rng.normal(eff * 15 / 6, eff * 0.3)),
-                    "EPARGNE": max(0, rng.normal(eff * 10 / 6, eff * 0.25)),
-                })
-            sk_ag += 1
-    return (pd.DataFrame(agences), pd.DataFrame(employes), pd.DataFrame(clients),
-            pd.DataFrame(objectifs), pd.DataFrame(pointages))
+def extract_csv():
+    """Lit l'export SQLcl des cinq tables sources (etl/source/*.csv)."""
+    return {n: pd.read_csv(os.path.join(SOURCE, n + ".csv")) for n in TABLES}
+
+
+def extract_extrait():
+    """Lit le relevé réel déjà agrégé par agence (49 entités du réseau).
+
+    Ce fichier est le résultat de l'extraction menée sur la base BTK ; il est
+    versionné avec le projet afin que la chaîne reste exécutable et vérifiable
+    sans accès à Oracle. Les clés SK_AGENCE suivent l'ordre de la table AGENCE.
+    """
+    ex = pd.read_csv(EXTRAIT_REEL)
+    ex.insert(0, "SK_AGENCE", range(1, len(ex) + 1))
+    return {"extrait": ex}
+
+
+def sources_csv_disponibles():
+    return all(os.path.exists(os.path.join(SOURCE, n + ".csv")) for n in TABLES)
 
 
 def extract(source="auto"):
-    """Lit les CSV sources s'ils existent, sinon génère un jeu synthétique."""
-    fichiers = {n: os.path.join(SOURCE, n + ".csv")
-                for n in ["agences", "employes", "clients", "objectifs", "pointages"]}
-    if source == "oracle":
-        print("[extract] Connexion Oracle (source réelle).")
-        return extract_oracle()
-    if all(os.path.exists(f) for f in fichiers.values()):
-        print("[extract] Sources CSV réelles détectées dans etl/source/")
-        return tuple(pd.read_csv(fichiers[n]) for n in
-                     ["agences", "employes", "clients", "objectifs", "pointages"])
-    print("[extract] Aucune source réelle — génération d'un jeu synthétique.")
-    return _synthese_source()
+    """Choisit la source et renvoie (mode, tables)."""
+    if source == "oracle" or (source == "auto" and os.environ.get("BTK_DB_USER")):
+        print("[extract] source : base Oracle BTK")
+        return "brut", extract_oracle()
+    if source in ("csv", "auto") and sources_csv_disponibles():
+        print(f"[extract] source : export CSV des tables ({SOURCE}/)")
+        return "brut", extract_csv()
+    if source == "csv":
+        sys.exit(f"[extract] erreur : les cinq CSV sources sont absents de {SOURCE}/ "
+                 f"({', '.join(n + '.csv' for n in TABLES)}). "
+                 "Générez-les avec etl/export_sources.sql.")
+    print(f"[extract] source : extrait agrégé réel ({os.path.relpath(EXTRAIT_REEL, RACINE)})")
+    return "extrait", extract_extrait()
 
 
-# ============================ TRANSFORM ====================================
-def transform_gestionnaire(employes, objectifs):
-    """Axe « gestionnaire » du datamart.
+# ============================ 2. NETTOYAGE =================================
+def nettoyer(tables):
+    """Écarte les enregistrements inexploitables et type les colonnes."""
+    retire = {}
+    for nom in ["employes", "clients", "objectifs", "pointages"]:
+        df = tables[nom]
+        avant = len(df)
+        df = df.dropna(subset=["SK_AGENCE"])
+        df["SK_AGENCE"] = df["SK_AGENCE"].astype(int)
+        tables[nom] = df
+        if avant - len(df):
+            retire[nom] = avant - len(df)
+    tables["employes"]["EST_GESTIONNAIRE"] = (
+        tables["employes"]["EST_GESTIONNAIRE"].fillna(0).astype(int))
+    for c in ["COMPTES", "CREDITS", "EPARGNE"]:
+        tables["objectifs"][c] = pd.to_numeric(
+            tables["objectifs"][c], errors="coerce").fillna(0)
+    print("[nettoyage] lignes écartées (SK_AGENCE manquant) : "
+          + (", ".join(f"{k}={v}" for k, v in retire.items()) if retire else "aucune"))
+    return tables
 
-    Le portefeuille d'objectifs de B_OBJECTIF est rattaché à un gestionnaire par
-    SK_UTILISATEUR : on en tire la dimension `dim_gestionnaire` et la table de
-    faits `fait_objectif`, au grain (agence, gestionnaire).
-    """
-    if "SK_UTILISATEUR" not in objectifs.columns:
-        return None, None                     # source sans axe gestionnaire
+
+# ============================ 3-4. TRANSFORM + INTÉGRATION =================
+def agreger(tables):
+    """Agrège les tables sources par agence puis les fusionne sur SK_AGENCE."""
+    eff = tables["employes"].groupby("SK_AGENCE").agg(
+        effectif=("SK_UTILISATEUR", "count"),
+        nb_gestionnaires=("EST_GESTIONNAIRE", "sum")).reset_index()
+    cli = tables["clients"].groupby("SK_AGENCE").size().reset_index(name="nb_clients")
+    obj = tables["objectifs"].groupby("SK_AGENCE").agg(
+        total_comptes=("COMPTES", "sum"),
+        production_credits=("CREDITS", "sum"),
+        collecte_epargne=("EPARGNE", "sum")).reset_index()
+
+    dm = (tables["agences"].merge(eff, on="SK_AGENCE", how="left")
+                           .merge(cli, on="SK_AGENCE", how="left")
+                           .merge(obj, on="SK_AGENCE", how="left"))
+
+    poi = tables.get("pointages")
+    if poi is not None and len(poi):
+        pres = poi.assign(present=poi["STATUT"].isin(["PRESENT", "RETARD"]).astype(int)) \
+                  .groupby("SK_AGENCE").agg(taux_presence=("present", "mean")).reset_index()
+        dm = dm.merge(pres, on="SK_AGENCE", how="left")
+    return dm.rename(columns={"LIBELLE_AGENCE": "agence"})
+
+
+def transformer(mode, tables):
+    """Produit le datamart au grain de l'agence, quelle que soit la source."""
+    if mode == "brut":
+        dm = agreger(nettoyer(tables))
+    else:
+        dm = tables["extrait"].copy()          # déjà au grain de l'agence
+    for c in ["effectif", "nb_gestionnaires", "nb_clients"]:
+        dm[c] = pd.to_numeric(dm[c], errors="coerce").fillna(0).astype(int)
+    for c in ["total_comptes", "production_credits", "collecte_epargne"]:
+        dm[c] = pd.to_numeric(dm[c], errors="coerce").fillna(0).round(1)
+    if PRESENCE in dm.columns:
+        dm[PRESENCE] = pd.to_numeric(dm[PRESENCE], errors="coerce").fillna(0).round(3)
+    return dm.sort_values("SK_AGENCE").reset_index(drop=True)
+
+
+def transformer_gestionnaire(tables):
+    """Axe « gestionnaire » : la production de B_OBJECTIF est rattachée à un
+    gestionnaire par SK_UTILISATEUR ; on en tire dim_gestionnaire et
+    fait_objectif, au grain (agence x gestionnaire)."""
+    objectifs, employes = tables.get("objectifs"), tables.get("employes")
+    if objectifs is None or "SK_UTILISATEUR" not in objectifs.columns:
+        return None, None
     obj = objectifs.dropna(subset=["SK_UTILISATEUR"]).copy()
     if obj.empty:
         return None, None
     obj["SK_UTILISATEUR"] = obj["SK_UTILISATEUR"].astype(int)
 
-    dim = employes[employes["EST_GESTIONNAIRE"].fillna(0).astype(int) == 1].copy()
+    dim = employes[employes["EST_GESTIONNAIRE"] == 1]
     cols = [c for c in ["SK_UTILISATEUR", "LIBELLE_UTILISATEUR", "SK_AGENCE"]
             if c in dim.columns]
     dim = dim[cols].drop_duplicates(subset=["SK_UTILISATEUR"]).reset_index(drop=True)
@@ -144,74 +199,73 @@ def transform_gestionnaire(employes, objectifs):
         production_credits=("CREDITS", "sum"),
         collecte_epargne=("EPARGNE", "sum")).reset_index()
     for c in ["total_comptes", "production_credits", "collecte_epargne"]:
-        fait[c] = fait[c].fillna(0).round(1)
+        fait[c] = fait[c].round(1)
     return dim, fait
 
 
-def transform(agences, employes, clients, objectifs, pointages):
-    """Nettoie et agrège les sources par agence (calcul des indicateurs)."""
-    # nettoyage minimal
-    for df in (employes, clients, objectifs, pointages):
-        df.dropna(subset=["SK_AGENCE"], inplace=True)
-
-    eff = employes.groupby("SK_AGENCE").agg(
-        effectif=("SK_UTILISATEUR", "count"),
-        nb_gestionnaires=("EST_GESTIONNAIRE", "sum")).reset_index()
-    cli = clients.groupby("SK_AGENCE").size().reset_index(name="nb_clients")
-    obj = objectifs.groupby("SK_AGENCE").agg(
-        total_comptes=("COMPTES", "sum"),
-        production_credits=("CREDITS", "sum"),
-        collecte_epargne=("EPARGNE", "sum")).reset_index()
-    poi = pointages.assign(present=pointages["STATUT"].isin(["PRESENT", "RETARD"]).astype(int)) \
-        .groupby("SK_AGENCE").agg(taux_presence=("present", "mean")).reset_index()
-
-    dm = agences.merge(eff, on="SK_AGENCE", how="left") \
-                .merge(cli, on="SK_AGENCE", how="left") \
-                .merge(obj, on="SK_AGENCE", how="left") \
-                .merge(poi, on="SK_AGENCE", how="left")
-    dm = dm.rename(columns={"LIBELLE_AGENCE": "agence"})
-    # arrondis et valeurs manquantes
-    for c in ["nb_gestionnaires", "nb_clients"]:
-        dm[c] = dm[c].fillna(0).astype(int)
-    for c in ["total_comptes", "production_credits", "collecte_epargne"]:
-        dm[c] = dm[c].fillna(0).round(1)
-    dm["taux_presence"] = dm["taux_presence"].fillna(0).round(3)
-    return dm
+# ============================ 5. CONTRÔLE DE QUALITÉ =======================
+def controle_qualite(dm, mesures):
+    """Vérifie le datamart avant chargement ; interrompt en cas d'anomalie."""
+    manquants = int(dm[mesures].isna().sum().sum())
+    negatifs = int((dm[mesures] < 0).sum().sum())
+    doublons = int(dm["agence"].duplicated().sum())
+    print(f"[qualité] {len(dm)} lignes x {len(mesures)} mesures | "
+          f"valeurs manquantes : {manquants} | valeurs négatives : {negatifs} | "
+          f"agences en double : {doublons}")
+    if manquants or negatifs or doublons:
+        sys.exit("[qualité] anomalie détectée : chargement interrompu.")
+    print(dm[mesures].describe().loc[["mean", "min", "max"]].round(1).to_string())
 
 
-# ============================ LOAD =========================================
-def load(dm, dim_gestionnaire=None, fait_objectif=None):
-    """Charge le datamart en étoile (entrepôt) et le fichier pour le clustering."""
-    dim_agence = dm[["SK_AGENCE", "agence", "DISTRICT"]]
-    fait_agence = dm[["SK_AGENCE"] + FEATURES]
-    dim_agence.to_csv(os.path.join(ENTREPOT, "dim_agence.csv"), index=False)
-    fait_agence.to_csv(os.path.join(ENTREPOT, "fait_agence.csv"), index=False)
+# ============================ 6. LOAD ======================================
+def load(dm, mesures, dim_gestionnaire=None, fait_objectif=None):
+    """Écrit le datamart en étoile puis le fichier consommé par la segmentation."""
+    os.makedirs(ENTREPOT, exist_ok=True)
+    os.makedirs(os.path.dirname(DATAMART), exist_ok=True)
+
+    cols_dim = ["SK_AGENCE", "agence"] + (["DISTRICT"] if "DISTRICT" in dm.columns else [])
     tables = ["dim_agence", "fait_agence"]
+    dm[cols_dim].to_csv(os.path.join(ENTREPOT, "dim_agence.csv"), index=False)
+    dm[["SK_AGENCE"] + mesures].to_csv(os.path.join(ENTREPOT, "fait_agence.csv"), index=False)
     if dim_gestionnaire is not None and fait_objectif is not None:
         dim_gestionnaire.to_csv(os.path.join(ENTREPOT, "dim_gestionnaire.csv"), index=False)
         fait_objectif.to_csv(os.path.join(ENTREPOT, "fait_objectif.csv"), index=False)
         tables += ["dim_gestionnaire", "fait_objectif"]
-    # fichier consommé par la segmentation (clustering), au grain de l'agence
-    dm[["agence"] + FEATURES].to_csv(DATAMART, index=False)
-    print(f"[load] Entrepôt -> {ENTREPOT}/ ({', '.join(tables)})")
-    print(f"[load] Datamart clustering -> {DATAMART}")
+        print(f"[load] axe gestionnaire : {len(dim_gestionnaire)} gestionnaires, "
+              f"{len(fait_objectif)} lignes de faits (agence x gestionnaire)")
+    dm[["agence"] + mesures].to_csv(DATAMART, index=False)
+
+    if "DISTRICT" not in dm.columns:
+        print("[load] dim_agence sans DISTRICT : cet attribut n'est porté que par "
+              "la table AGENCE (sources Oracle ou CSV).")
+    print(f"[load] entrepôt -> etl/entrepot/ ({', '.join(tables)})")
+    print(f"[load] datamart de segmentation -> {os.path.relpath(DATAMART, RACINE)}")
 
 
 # ============================ MAIN =========================================
 def main():
-    agences, employes, clients, objectifs, pointages = extract()
-    print(f"[extract] {len(agences)} agences, {len(employes)} employés, "
-          f"{len(clients)} clients, {len(objectifs)} lignes objectifs, "
-          f"{len(pointages)} pointages.")
-    dm = transform(agences, employes, clients, objectifs, pointages)
-    print(f"[transform] datamart agrégé : {len(dm)} agences x {len(FEATURES)} indicateurs.")
-    dim_g, fait_o = transform_gestionnaire(employes, objectifs)
-    if dim_g is not None:
-        print(f"[transform] axe gestionnaire : {len(dim_g)} gestionnaires, "
-              f"{len(fait_o)} lignes de faits (agence x gestionnaire).")
-    load(dm, dim_g, fait_o)
-    print("\n[ok] Chaîne ETL terminée. Aperçu du datamart :")
-    print(dm[["agence"] + FEATURES].head(6).to_string(index=False))
+    ap = argparse.ArgumentParser(description="Chaîne ETL du datamart BTK.")
+    ap.add_argument("--source", choices=["auto", "oracle", "csv", "extrait"],
+                    default="auto", help="source des données (défaut : auto)")
+    args = ap.parse_args()
+
+    mode, tables = extract(args.source)
+    if mode == "brut":
+        print("[extract] " + " | ".join(f"{n} : {len(tables[n])}" for n in TABLES))
+    else:
+        print(f"[extract] {len(tables['extrait'])} entités du réseau")
+
+    dm = transformer(mode, tables)
+    mesures = MESURES + ([PRESENCE] if PRESENCE in dm.columns else [])
+    print(f"[transform] datamart agrégé : {len(dm)} agences x {len(mesures)} mesures")
+
+    controle_qualite(dm, mesures)
+    load(dm, mesures, *transformer_gestionnaire(tables))
+
+    print("\n[ok] chaîne ETL terminée — aperçu du datamart "
+          "(10 premières agences par portefeuille) :")
+    apercu = dm.sort_values("nb_clients", ascending=False).head(10)
+    print(apercu[["agence"] + mesures].to_string(index=False))
 
 
 if __name__ == "__main__":

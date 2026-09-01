@@ -26,7 +26,13 @@ NAVY, CYAN, ORANGE, GREEN = "#14507A", "#1B9CD8", "#E8A33D", "#2E9E6B"
 FEATURES = ["effectif", "nb_gestionnaires", "nb_clients",
             "total_comptes", "production_credits", "collecte_epargne"]
 
-brut = pd.read_csv(os.path.join(HERE, "data", "agences_reelles.csv"))
+# Le datamart produit par la chaîne ETL (etl/etl_agences.py) est consommé en
+# priorité ; à défaut, on repart de l'extrait réel livré avec le projet.
+DATAMART = os.path.join(HERE, "data", "agences.csv")
+EXTRAIT = os.path.join(HERE, "data", "agences_reelles.csv")
+src = DATAMART if os.path.exists(DATAMART) else EXTRAIT
+print(f"[source] datamart : {os.path.relpath(src, os.path.dirname(HERE))}")
+brut = pd.read_csv(src)
 # Le SIÈGE (540 employés) est une structure centrale, pas une agence : conservé
 # dans le datamart mais écarté de la segmentation où il constitue un point
 # atypique qui écrase toute autre structure.

@@ -47,7 +47,12 @@ def charger_donnees():
     csv = os.path.join(HERE, "data", "agences.csv")
     if os.path.exists(csv):
         df = pd.read_csv(csv)
-        print(f"[data] Données réelles chargées : {csv} ({len(df)} agences)")
+        # Le taux de présence n'est présent que si la table POINTAGE a été
+        # extraite : on restreint l'analyse aux indicateurs réellement fournis.
+        global FEATURES
+        FEATURES = [c for c in FEATURES if c in df.columns]
+        print(f"[data] Données réelles chargées : {csv} "
+              f"({len(df)} agences x {len(FEATURES)} indicateurs)")
         return df, False
     print("[data] Aucun CSV réel — génération d'un jeu de démonstration réaliste.")
     rng = np.random.default_rng(42)
