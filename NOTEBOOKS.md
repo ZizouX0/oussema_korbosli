@@ -97,6 +97,29 @@ les cinq CSV produits dans `etl/source/`, et relancer — la collecte les détec
 
 ---
 
+## En cas d'erreur
+
+**`RuntimeError: Exécutez d'abord la cellule « 0. Préparation »`**
+La cellule 0 n'a pas été exécutée : c'est elle qui importe `os`, `sys`, `pandas`
+et `numpy` et qui repère le dossier du projet. Faire **Kernel → Restart Kernel
+and Run All Cells**, ou cliquer dans la cellule 0 et faire `Maj + Entrée` avant
+les suivantes.
+
+**`NameError: name 'mode' / 'datamart' / 'pd' is not defined`**
+Même cause : une cellule a été lancée sans que les précédentes aient tourné. Un
+notebook se lit de haut en bas — chaque cellule réutilise les variables créées
+par les précédentes.
+
+**`FileNotFoundError: Racine du projet introuvable`**
+Le notebook a été ouvert **hors du projet**. Il doit se trouver dans le dossier
+du projet, à côté des dossiers `etl` et `clustering`, pour y trouver les
+données : `etl/etl_btk.ipynb` et `clustering/segmentation_btk.ipynb`.
+
+**`ModuleNotFoundError: No module named 'sklearn'`** (ou `pandas`, `matplotlib`)
+Le noyau choisi n'est pas celui d'Anaconda. Menu **Kernel → Change Kernel** et
+sélectionner `Python 3 (ipykernel)`. Si le paquet manque vraiment :
+`conda install scikit-learn` dans l'invite Anaconda.
+
 ## Récupérer les résultats pour le rapport
 
 **Capture d'une cellule** — clic droit sur la sortie → *Create New View for Cell

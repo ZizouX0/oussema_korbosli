@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """Construit les deux notebooks du volet décisionnel (ETL et segmentation).
 
-Les notebooks sont générés à partir de ce fichier afin de rester alignés sur les
-scripts `etl/etl_agences.py` et `clustering/segmentation_reelle.py` : chaque
-notebook rejoue les mêmes étapes et vérifie, en dernière cellule, qu'il retrouve
-exactement le résultat du script.
+Les notebooks sont **autonomes** : ils n'importent aucun module du projet, tout
+le traitement figure dans les cellules. Ils ont seulement besoin d'être placés
+dans le dossier du projet, pour y trouver les données. Chacun se termine par une
+cellule qui relance le script correspondant (`etl/etl_agences.py`,
+`clustering/segmentation_reelle.py`) et vérifie que les résultats coïncident.
 
     python3 tools/build_notebooks.py        # génère les .ipynb
 """
@@ -15,26 +16,39 @@ import nbformat as nbf
 RACINE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # --------------------------------------------------------------------------
-# Amorce commune : retrouve la racine du projet quel que soit le dossier depuis
-# lequel Jupyter a été lancé (Anaconda ouvre souvent le notebook ailleurs).
+# Amorce : retrouve la racine du projet quel que soit le dossier depuis lequel
+# Jupyter a été lancé. RACINE n'est définie qu'en cas de succès, de sorte que
+# les cellules suivantes détectent proprement une préparation non exécutée.
 AMORCE = '''\
 import os, sys
 import numpy as np
 import pandas as pd
 
-# Racine du projet : on remonte depuis le dossier courant jusqu'au dossier qui
-# contient à la fois "etl" et "clustering".
-RACINE = os.path.abspath(os.getcwd())
-while not all(os.path.isdir(os.path.join(RACINE, d)) for d in ("etl", "clustering")):
-    parent = os.path.dirname(RACINE)
-    if parent == RACINE:
-        raise SystemExit("Racine du projet introuvable : ouvrez le notebook "
-                         "depuis le dossier du projet.")
-    RACINE = parent
-sys.path.insert(0, os.path.join(RACINE, "etl"))
-pd.set_option("display.width", 160, "display.max_columns", 20)
+# On remonte depuis le dossier courant jusqu'à celui qui contient à la fois
+# les répertoires "etl" et "clustering" : c'est la racine du projet.
+_dossier = os.path.abspath(os.getcwd())
+while not all(os.path.isdir(os.path.join(_dossier, d)) for d in ("etl", "clustering")):
+    _parent = os.path.dirname(_dossier)
+    if _parent == _dossier:
+        raise FileNotFoundError(
+            "Racine du projet introuvable depuis " + os.getcwd() + "\\n"
+            "Placez ce notebook dans le dossier du projet, à côté des dossiers "
+            "« etl » et « clustering », puis relancez cette cellule.")
+    _dossier = _parent
+RACINE = _dossier
+
+pd.set_option("display.width", 170, "display.max_columns", 20)
 print("Racine du projet :", RACINE)
 print("pandas", pd.__version__, "| numpy", np.__version__)'''
+
+# Garde placée en tête de la première cellule dépendante : transforme un
+# « NameError » illisible en consigne claire.
+GARDE = '''\
+if "RACINE" not in globals():
+    raise RuntimeError("Exécutez d'abord la cellule « 0. Préparation ». "
+                       "Le plus simple : menu Kernel > Restart Kernel and Run All Cells.")
+
+'''
 
 
 def md(texte):
@@ -54,7 +68,13 @@ def notebook_etl():
 Consolidation des données opérationnelles en un **datamart en étoile agrégé par
 agence**, qui alimente le tableau de bord, Power BI et la segmentation.
 
-**Exécution :** menu *Kernel → Restart & Run All*, ou `Maj + Entrée` cellule par cellule.
+> **Exécution : menu *Kernel → Restart Kernel and Run All Cells*.**
+> Les cellules se lisent de haut en bas ; la première (« 0. Préparation »)
+> définit les imports et le chemin du projet, elle doit donc passer en premier.
+
+Ce notebook est autonome : il n'importe aucun module du projet. Il doit
+seulement être placé **dans le dossier du projet**, à côté des dossiers `etl` et
+`clustering`, pour y trouver les données.
 
 La source est choisie automatiquement, dans cet ordre :
 1. **Oracle** — si les variables `BTK_DB_USER`, `BTK_DB_PWD`, `BTK_DB_DSN` sont définies ;
@@ -67,10 +87,9 @@ La source est choisie automatiquement, dans cet ordre :
         md("""## 1. Collecte (*Extract*)
 
 Lecture des cinq tables sources `AGENCE`, `B_UTILISATEURS`, `CLIENT_BTK`,
-`B_OBJECTIF` et `POINTAGE`. La sélection de la source est déléguée au module
-`etl_agences`, pour que notebook et script lisent exactement la même chose.
+`B_OBJECTIF` et `POINTAGE`.
 
-> **Pour lire directement votre base Oracle**, exécuter d'abord `pip install oracledb`
+> **Pour lire directement votre base Oracle**, exécuter `pip install oracledb`
 > puis, dans une cellule placée **avant** celle-ci :
 > ```python
 > import os
@@ -78,37 +97,81 @@ Lecture des cinq tables sources `AGENCE`, `B_UTILISATEURS`, `CLIENT_BTK`,
 > os.environ["BTK_DB_PWD"]  = "votre_mot_de_passe"
 > os.environ["BTK_DB_DSN"]  = "localhost:1521/FREEPDB1"
 > ```
-> La cellule suivante basculera d'elle-même sur Oracle, et le datamart gagnera
-> le taux de présence, le district et l'axe gestionnaire."""),
-        code('''import etl_agences as etl
+> La collecte bascule alors d'elle-même sur Oracle, et le datamart gagne le taux
+> de présence, le district et l'axe gestionnaire."""),
+        code(GARDE + '''SOURCE  = os.path.join(RACINE, "etl", "source")
+EXTRAIT = os.path.join(RACINE, "clustering", "data", "agences_reelles.csv")
+TABLES  = ["agences", "employes", "clients", "objectifs", "pointages"]
 
-mode, tables = etl.extract("auto")
+SQL = {
+    "agences":   "SELECT SK_AGENCE, LIBELLE_AGENCE, DISTRICT FROM AGENCE",
+    "employes":  "SELECT SK_UTILISATEUR, LIBELLE_UTILISATEUR, SK_AGENCE, "
+                 "EST_GESTIONNAIRE FROM B_UTILISATEURS",
+    "clients":   "SELECT SK_CLIENT, SK_AGENCE FROM CLIENT_BTK",
+    "objectifs": "SELECT SK_AGENCE, SK_UTILISATEUR, "
+                 "  NVL(SOUSCRIPTION_COMPTE_CHEQUES_OA,0)"
+                 "  + NVL(SOUSCRIPTION_COMPTE_EPARGNES_OA,0)"
+                 "  + NVL(SOUSCRIPTION_COMPTE_COURANTS_OA,0)      AS COMPTES, "
+                 "  NVL(PRODUCTION_CREDITS_CONSO_OA,0)"
+                 "  + NVL(PRODUCTION_CREDITS_IMMO_OA,0)"
+                 "  + NVL(PRODUCTION_CREDITS_INVESTISSEMENT_OA,0) AS CREDITS, "
+                 "  NVL(EPARGNE_ADD_OA,0)                         AS EPARGNE "
+                 "FROM B_OBJECTIF",
+    "pointages": "SELECT P.SK_UTILISATEUR, U.SK_AGENCE, P.STATUT FROM POINTAGE P "
+                 "JOIN B_UTILISATEURS U ON P.SK_UTILISATEUR = U.SK_UTILISATEUR",
+}
+
+if os.environ.get("BTK_DB_USER"):                       # 1) base Oracle
+    import oracledb
+    cn = oracledb.connect(user=os.environ["BTK_DB_USER"],
+                          password=os.environ.get("BTK_DB_PWD", ""),
+                          dsn=os.environ.get("BTK_DB_DSN", "localhost:1521/FREEPDB1"))
+    tables = {n: pd.read_sql(SQL[n], cn) for n in TABLES}
+    cn.close()
+    mode = "brut"
+    print("source : base Oracle BTK")
+elif all(os.path.exists(os.path.join(SOURCE, n + ".csv")) for n in TABLES):   # 2) CSV
+    tables = {n: pd.read_csv(os.path.join(SOURCE, n + ".csv")) for n in TABLES}
+    mode = "brut"
+    print("source : export CSV des tables —", os.path.relpath(SOURCE, RACINE))
+else:                                                   # 3) extrait agrégé réel
+    extrait = pd.read_csv(EXTRAIT)
+    extrait.insert(0, "SK_AGENCE", range(1, len(extrait) + 1))
+    tables, mode = {"extrait": extrait}, "extrait"
+    print("source : extrait agrégé réel —", os.path.relpath(EXTRAIT, RACINE))
+
 if mode == "brut":
-    print(" | ".join(f"{n} : {len(tables[n])}" for n in etl.TABLES))
-    affichage = tables["agences"].head(10)
+    print(" | ".join(f"{n} : {len(tables[n])}" for n in TABLES))
+    apercu = tables["agences"].head(10)
 else:
-    print(f"{len(tables['extrait'])} entités du réseau")
-    affichage = tables["extrait"].head(10)
-affichage'''),
+    print(len(tables["extrait"]), "entités du réseau")
+    apercu = tables["extrait"].head(10)
+apercu'''),
 
         md("""## 2. Nettoyage
 
 Les enregistrements sans agence de rattachement (`SK_AGENCE` manquant) sont
-écartés, les colonnes sont typées et les mesures converties en numérique.
+écartés, les colonnes typées et les mesures converties en numérique.
 
-*(Étape sans objet lorsque la source est l'extrait déjà agrégé : il ne contient
-qu'une ligne par agence, sans clé manquante.)*"""),
+*Étape sans objet lorsque la source est l'extrait déjà agrégé : il ne contient
+qu'une ligne par agence, sans clé manquante.*"""),
         code('''if mode == "brut":
-    tables = etl.nettoyer(tables)
-    print("employés retenus :", len(tables["employes"]),
-          "| clients :", len(tables["clients"]),
-          "| lignes d'objectifs :", len(tables["objectifs"]))
+    for n in ["employes", "clients", "objectifs", "pointages"]:
+        avant = len(tables[n])
+        tables[n] = tables[n].dropna(subset=["SK_AGENCE"]).copy()
+        tables[n]["SK_AGENCE"] = tables[n]["SK_AGENCE"].astype(int)
+        print(f"{n:<10} {avant:>7} -> {len(tables[n]):>7} lignes")
+    tables["employes"]["EST_GESTIONNAIRE"] = (
+        tables["employes"]["EST_GESTIONNAIRE"].fillna(0).astype(int))
+    for c in ["COMPTES", "CREDITS", "EPARGNE"]:
+        tables["objectifs"][c] = pd.to_numeric(
+            tables["objectifs"][c], errors="coerce").fillna(0)
 else:
     print("Source déjà agrégée par agence : aucune ligne à écarter.")'''),
 
         md("""## 3 et 4. Transformation et intégration
 
-Agrégation par agence puis fusion sur la clé `SK_AGENCE` :
+Agrégation par agence, puis fusion des quatre jeux sur la clé `SK_AGENCE` :
 
 | Mesure | Calcul |
 |---|---|
@@ -119,40 +182,115 @@ Agrégation par agence puis fusion sur la clé `SK_AGENCE` :
 | `production_credits` | somme de la production de crédits |
 | `collecte_epargne` | somme de l'épargne additionnelle |
 | `taux_presence` | part des pointages « présent » ou « retard » |"""),
-        code('''datamart = etl.transformer(mode, tables)
-mesures = etl.MESURES + ([etl.PRESENCE] if etl.PRESENCE in datamart.columns else [])
+        code('''MESURES = ["effectif", "nb_gestionnaires", "nb_clients",
+           "total_comptes", "production_credits", "collecte_epargne"]
+
+if mode == "brut":
+    eff = tables["employes"].groupby("SK_AGENCE").agg(
+        effectif=("SK_UTILISATEUR", "count"),
+        nb_gestionnaires=("EST_GESTIONNAIRE", "sum")).reset_index()
+    cli = tables["clients"].groupby("SK_AGENCE").size().reset_index(name="nb_clients")
+    obj = tables["objectifs"].groupby("SK_AGENCE").agg(
+        total_comptes=("COMPTES", "sum"),
+        production_credits=("CREDITS", "sum"),
+        collecte_epargne=("EPARGNE", "sum")).reset_index()
+    poi = tables["pointages"]
+    pres = poi.assign(present=poi["STATUT"].isin(["PRESENT", "RETARD"]).astype(int)) \\
+              .groupby("SK_AGENCE").agg(taux_presence=("present", "mean")).reset_index()
+
+    datamart = (tables["agences"].merge(eff, on="SK_AGENCE", how="left")
+                                 .merge(cli, on="SK_AGENCE", how="left")
+                                 .merge(obj, on="SK_AGENCE", how="left")
+                                 .merge(pres, on="SK_AGENCE", how="left")
+                                 .rename(columns={"LIBELLE_AGENCE": "agence"}))
+else:
+    datamart = tables["extrait"].copy()          # déjà au grain de l'agence
+
+for c in ["effectif", "nb_gestionnaires", "nb_clients"]:
+    datamart[c] = pd.to_numeric(datamart[c], errors="coerce").fillna(0).astype(int)
+for c in ["total_comptes", "production_credits", "collecte_epargne"]:
+    datamart[c] = pd.to_numeric(datamart[c], errors="coerce").fillna(0).round(1)
+
+mesures = list(MESURES)
+if "taux_presence" in datamart.columns:
+    datamart["taux_presence"] = pd.to_numeric(
+        datamart["taux_presence"], errors="coerce").fillna(0).round(3)
+    mesures.append("taux_presence")
+
+datamart = datamart.sort_values("SK_AGENCE").reset_index(drop=True)
 print(f"datamart : {len(datamart)} agences x {len(mesures)} mesures")
 datamart.sort_values("nb_clients", ascending=False).head(10)[["agence"] + mesures]'''),
 
         md("""## 5. Contrôle de qualité
 
 Avant chargement : aucune valeur manquante, aucune valeur négative, aucune
-agence en double. Le chargement est interrompu si un contrôle échoue."""),
-        code('''print("valeurs manquantes :", int(datamart[mesures].isna().sum().sum()))
-print("valeurs négatives  :", int((datamart[mesures] < 0).sum().sum()))
-print("agences en double  :", int(datamart["agence"].duplicated().sum()))
+agence en double."""),
+        code('''manquants = int(datamart[mesures].isna().sum().sum())
+negatifs  = int((datamart[mesures] < 0).sum().sum())
+doublons  = int(datamart["agence"].duplicated().sum())
+print("valeurs manquantes :", manquants)
+print("valeurs négatives  :", negatifs)
+print("agences en double  :", doublons)
+assert not (manquants or negatifs or doublons), "Anomalie : chargement interrompu."
 datamart[mesures].describe().round(1)'''),
 
         md("""## 6. Chargement (*Load*)
 
 Écriture du datamart en étoile dans `etl/entrepot/`, puis du fichier consommé
-par la segmentation (`clustering/data/agences.csv`)."""),
-        code('''etl.load(datamart, mesures, *etl.transformer_gestionnaire(tables))
-sorties = sorted(os.listdir(os.path.join(RACINE, "etl", "entrepot")))
-print("\\nFichiers de l'entrepôt :", ", ".join(sorties))
-pd.read_csv(os.path.join(RACINE, "etl", "entrepot", "fait_agence.csv")).head()'''),
+par la segmentation (`clustering/data/agences.csv`).
+
+L'axe gestionnaire (`dim_gestionnaire`, `fait_objectif`) n'est produit que si la
+source porte le détail par employé, c'est-à-dire Oracle ou l'export CSV."""),
+        code('''ENTREPOT = os.path.join(RACINE, "etl", "entrepot")
+DATAMART = os.path.join(RACINE, "clustering", "data", "agences.csv")
+os.makedirs(ENTREPOT, exist_ok=True)
+
+cols_dim = ["SK_AGENCE", "agence"] + (["DISTRICT"] if "DISTRICT" in datamart.columns else [])
+datamart[cols_dim].to_csv(os.path.join(ENTREPOT, "dim_agence.csv"), index=False)
+datamart[["SK_AGENCE"] + mesures].to_csv(os.path.join(ENTREPOT, "fait_agence.csv"), index=False)
+
+if mode == "brut" and "SK_UTILISATEUR" in tables["objectifs"].columns:
+    obj = tables["objectifs"].dropna(subset=["SK_UTILISATEUR"]).copy()
+    obj["SK_UTILISATEUR"] = obj["SK_UTILISATEUR"].astype(int)
+    colonnes = [c for c in ["SK_UTILISATEUR", "LIBELLE_UTILISATEUR", "SK_AGENCE"]
+                if c in tables["employes"].columns]
+    dim_g = (tables["employes"][tables["employes"]["EST_GESTIONNAIRE"] == 1][colonnes]
+             .drop_duplicates(subset=["SK_UTILISATEUR"]))
+    fait_o = obj.groupby(["SK_AGENCE", "SK_UTILISATEUR"]).agg(
+        total_comptes=("COMPTES", "sum"),
+        production_credits=("CREDITS", "sum"),
+        collecte_epargne=("EPARGNE", "sum")).round(1).reset_index()
+    dim_g.to_csv(os.path.join(ENTREPOT, "dim_gestionnaire.csv"), index=False)
+    fait_o.to_csv(os.path.join(ENTREPOT, "fait_objectif.csv"), index=False)
+    print(f"axe gestionnaire : {len(dim_g)} gestionnaires, {len(fait_o)} lignes de faits")
+else:
+    print("axe gestionnaire non produit : la source n'a pas le détail par employé.")
+
+datamart[["agence"] + mesures].to_csv(DATAMART, index=False)
+print("entrepôt ->", ", ".join(sorted(os.listdir(ENTREPOT))))
+print("datamart de segmentation ->", os.path.relpath(DATAMART, RACINE))
+pd.read_csv(os.path.join(ENTREPOT, "fait_agence.csv")).head()'''),
 
         md("""## 7. Vérification
 
 Le notebook doit retrouver **exactement** le résultat du script
-`etl/etl_agences.py`. La cellule ci-dessous relance le script et compare."""),
+`etl/etl_agences.py`. La cellule relance le script et compare les deux
+datamarts ; elle échoue si un écart apparaît."""),
         code('''import subprocess
-subprocess.run([sys.executable, os.path.join(RACINE, "etl", "etl_agences.py")],
-               cwd=RACINE, capture_output=True, text=True, check=True)
-script = pd.read_csv(os.path.join(RACINE, "clustering", "data", "agences.csv"))
-identique = script.equals(datamart[["agence"] + mesures].reset_index(drop=True))
-print("Notebook et script produisent le même datamart :", identique)
-assert identique, "Écart entre le notebook et le script."'''),
+
+script = os.path.join(RACINE, "etl", "etl_agences.py")
+if not os.path.exists(script):
+    print("Script etl/etl_agences.py absent : vérification ignorée.")
+else:
+    r = subprocess.run([sys.executable, script], cwd=RACINE,
+                       capture_output=True, text=True)
+    if r.returncode:
+        print(r.stderr[-800:])
+        raise RuntimeError("Le script s'est terminé en erreur.")
+    identique = pd.read_csv(DATAMART).equals(
+        datamart[["agence"] + mesures].reset_index(drop=True))
+    print("Notebook et script produisent le même datamart :", identique)
+    assert identique, "Écart entre le notebook et le script."'''),
     ]
     return nb
 
@@ -165,10 +303,13 @@ def notebook_clustering():
 
 Segmentation du réseau à partir du datamart produit par la chaîne ETL.
 
-**Prérequis :** exécuter d'abord le notebook `etl/etl_btk.ipynb` (ou
-`python3 etl/etl_agences.py`), qui écrit `clustering/data/agences.csv`.
+> **Exécution : menu *Kernel → Restart Kernel and Run All Cells*.**
+> La première cellule (« 0. Préparation ») définit les imports et le chemin du
+> projet : elle doit passer en premier.
 
-**Exécution :** *Kernel → Restart & Run All*."""),
+**Prérequis :** exécuter d'abord `etl/etl_btk.ipynb` (ou
+`python3 etl/etl_agences.py`), qui écrit `clustering/data/agences.csv`.
+À défaut, ce notebook repart de l'extrait réel livré avec le projet."""),
 
         md("## 0. Préparation"),
         code(AMORCE + '''
@@ -180,16 +321,16 @@ from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN
 from sklearn.mixture import GaussianMixture
 from sklearn.metrics import (silhouette_score, davies_bouldin_score,
                              calinski_harabasz_score)
+import sklearn
+
+print("scikit-learn", sklearn.__version__, "| matplotlib", plt.matplotlib.__version__)
 
 NAVY, CYAN, ORANGE, GREEN = "#14507A", "#1B9CD8", "#E8A33D", "#2E9E6B"
 FEATURES = ["effectif", "nb_gestionnaires", "nb_clients",
             "total_comptes", "production_credits", "collecte_epargne"]'''),
 
-        md("""## 1. Chargement du datamart
-
-Le datamart produit par l'ETL est utilisé en priorité ; à défaut, on repart de
-l'extrait réel livré avec le projet."""),
-        code('''DATA = os.path.join(RACINE, "clustering", "data")
+        md("## 1. Chargement du datamart"),
+        code(GARDE + '''DATA = os.path.join(RACINE, "clustering", "data")
 src = os.path.join(DATA, "agences.csv")
 if not os.path.exists(src):
     src = os.path.join(DATA, "agences_reelles.csv")
@@ -265,7 +406,7 @@ fig, ax = plt.subplots(figsize=(7, 4))
 ax.bar(comp["Modèle"], comp["Silhouette"], color=[NAVY, CYAN, ORANGE, GREEN])
 for i, v in enumerate(comp["Silhouette"]):
     ax.text(i, v + .01, f"{v:.3f}", ha="center", fontsize=10, weight="bold")
-ax.set_ylabel("Score de silhouette (↑ meilleur)")
+ax.set_ylabel("Score de silhouette (plus haut = meilleur)")
 ax.set_title("Comparaison des modèles de clustering")
 ax.set_ylim(0, comp["Silhouette"].max() * 1.25); ax.grid(axis="y", alpha=.3)
 plt.tight_layout(); plt.show()
@@ -308,14 +449,22 @@ prof'''),
 Le notebook doit retrouver **exactement** le résultat du script
 `clustering/segmentation_reelle.py`."""),
         code('''import subprocess
-subprocess.run([sys.executable,
-                os.path.join(RACINE, "clustering", "segmentation_reelle.py")],
-               cwd=RACINE, capture_output=True, text=True, check=True)
-ref = pd.read_csv(os.path.join(RACINE, "clustering", "comparaison_modeles_reelles.csv"))
-ecart = float((ref["Silhouette"].values - comp["Silhouette"].values).__abs__().max())
-print("écart maximal sur la silhouette entre notebook et script :", round(ecart, 12))
-assert ecart < 1e-9, "Écart entre le notebook et le script."
-print("Résultats identiques.")'''),
+
+script = os.path.join(RACINE, "clustering", "segmentation_reelle.py")
+if not os.path.exists(script):
+    print("Script clustering/segmentation_reelle.py absent : vérification ignorée.")
+else:
+    r = subprocess.run([sys.executable, script], cwd=RACINE,
+                       capture_output=True, text=True)
+    if r.returncode:
+        print(r.stderr[-800:])
+        raise RuntimeError("Le script s'est terminé en erreur.")
+    ref = pd.read_csv(os.path.join(RACINE, "clustering",
+                                   "comparaison_modeles_reelles.csv"))
+    ecart = float(np.abs(ref["Silhouette"].values - comp["Silhouette"].values).max())
+    print("écart maximal sur la silhouette entre notebook et script :", round(ecart, 12))
+    assert ecart < 1e-9, "Écart entre le notebook et le script."
+    print("Résultats identiques.")'''),
     ]
     return nb
 
