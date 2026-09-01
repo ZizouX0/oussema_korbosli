@@ -1,24 +1,22 @@
 # Dossier technique de soutenance
 
-Support de préparation à la soutenance technique : chaque fonctionnalité de
-l'application, sa mise en œuvre côté présentation / contrôle / métier /
-persistance, puis la chaîne décisionnelle et Power BI.
+Version **sans code** : les écrans et leurs boutons, ce que déclenche chaque
+action, les outils utilisés pour construire le projet, et le volet Power BI
+(schéma, relations, mesures).
 
 ```bash
 cd soutenance-technique
-latexmk -pdf main.tex          # produit main.pdf (21 pages)
+latexmk -pdf main.tex          # produit main.pdf (12 pages)
 ```
 
-| Fichier | Contenu |
+| Section | Contenu |
 |---|---|
-| `01_vue_ensemble.tex` | pile technique, architecture en 4 couches, cycle de vie d'une requête |
-| `02_socle.tex` | authentification et rôles, filtre, journal, notifications, entités |
-| `03_fonctionnalites.tex` | une fiche par fonctionnalité (front / back / données) |
-| `04_front_back.tex` | JSTL, CSS, ApexCharts ; servlets, EJB, JPA, transactions |
-| `05_decisionnel.tex` | vues `V_BI_*`, schéma `BTK_BI`, ETL, Power BI, segmentation |
-| `06_deploiement.tex` | Maven, WAR, WildFly, datasource, diagnostic `IJ000453` |
-| `07_questions.tex` | questions probables du jury, limites, carte des URL |
+| 1 | L'application en une page : à quoi elle sert, qui l'utilise, ce qu'elle contient |
+| 2 | Les outils utilisés — développement, base de données, décisionnel |
+| 3 | Comment elle est construite : le front, le back, la sécurité des écrans |
+| 4 | **Les écrans, leurs boutons et leurs actions** — une fiche par écran |
+| 5 | Power BI : schéma `BTK_BI`, relations, vues, mesures et colonne calculée |
+| 6 | Points ouverts |
 
-Tout le contenu est relevé dans le code du dépôt (servlets, services, entités,
-JSP, SQL, scripts ETL et Power BI). L'inventaire — 18 servlets, 16 services,
-16 entités, 17 pages JSP — est issu d'une extraction automatique des sources.
+Les libellés des boutons sont ceux des pages du projet, les droits sont ceux
+réellement contrôlés, et les mesures sont celles du modèle Power BI.

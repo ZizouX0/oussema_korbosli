@@ -3,8 +3,8 @@
 %  Oussema Korbosli — Esprit School of Business — Business Intelligence
 %  Compilation : latexmk -pdf main.tex
 %
-%  Toutes les informations de ce dossier sont relevées dans le code du
-%  projet (servlets, services, entités, JSP, SQL, scripts Power BI et ETL).
+%  Version sans code : les écrans, leurs boutons, ce qui se passe derrière,
+%  les outils utilisés, et le volet Power BI (schéma + mesures DAX).
 % =====================================================================
 \documentclass[a4paper,11pt]{article}
 
@@ -15,111 +15,78 @@
 \usepackage{csquotes}
 \usepackage[a4paper,margin=2.1cm,top=2.4cm,bottom=2.2cm]{geometry}
 \usepackage{microtype}
-% Autorise la coupure des longs identifiants en police à chasse fixe :
-% sans cela, « securityService.authenticate » déborde dans la marge.
 \usepackage[htt]{hyphenat}
 \tolerance=2000
 \emergencystretch=3em
 \widowpenalty=10000
 \clubpenalty=10000
+\setlength{\parskip}{5pt plus 2pt minus 1pt}
 
 \usepackage{graphicx}
-\graphicspath{{../rapport-latex/images/}{../powerbi/}{../rapport-latex/diagrams/}}
 \usepackage{xcolor}
 \usepackage{colortbl}
-\usepackage{booktabs}
 \usepackage{array}
 \usepackage{tabularx}
 \usepackage{longtable}
 \usepackage{enumitem}
 \usepackage{ragged2e}
-\usepackage{float}
 \usepackage{titlesec}
 \usepackage{fancyhdr}
 \usepackage{tcolorbox}
-\usepackage{listings}
 \usepackage[hidelinks]{hyperref}
 
 \definecolor{btkblue}{HTML}{14507A}
 \definecolor{btklight}{HTML}{1B6CA8}
 \definecolor{btkpale}{HTML}{EAF3FA}
-\definecolor{btkgris}{HTML}{F4F6F9}
+\definecolor{btkambre}{HTML}{9A6B12}
+\definecolor{btkambrepale}{HTML}{FDF6E6}
 \definecolor{btkvert}{HTML}{2E7D5B}
-\definecolor{btkrouge}{HTML}{B03A3A}
-\definecolor{codegris}{HTML}{FAFBFD}
+\definecolor{btkvertpale}{HTML}{EDF7F2}
 
-% ---- colonnes de tableau ----
 \renewcommand{\tabularxcolumn}[1]{>{\RaggedRight\arraybackslash}p{#1}}
 \newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
-\newcolumntype{T}[1]{>{\ttfamily\RaggedRight\arraybackslash}p{#1}}
-\renewcommand{\arraystretch}{1.25}
-% coupure autorisée après « _ » et « / » dans les identifiants de code
-\catcode`\_=12
-\catcode`\_=8
+\renewcommand{\arraystretch}{1.3}
 
-% ---- titres ----
 \titleformat{\section}{\Large\bfseries\color{btkblue}}{\thesection}{0.7em}{}
 \titleformat{\subsection}{\large\bfseries\color{btklight}}{\thesubsection}{0.6em}{}
-\titleformat{\subsubsection}{\bfseries\color{btkblue}}{\thesubsubsection}{0.5em}{}
-\titlespacing*{\section}{0pt}{2.2ex plus 1ex}{1.2ex}
-\titlespacing*{\subsection}{0pt}{1.8ex plus .8ex}{0.9ex}
+\titlespacing*{\section}{0pt}{2.4ex plus 1ex}{1.2ex}
+\titlespacing*{\subsection}{0pt}{1.9ex plus .8ex}{0.9ex}
 
-% ---- en-tête / pied ----
 \pagestyle{fancy}
 \fancyhf{}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\headrule}{\hbox to\headwidth{\color{btklight}\leaders\hrule height \headrulewidth\hfill}}
-\fancyhead[L]{\small\color{btkblue}Dossier technique — Gestion des agences BTK}
+\fancyhead[L]{\small\color{btkblue}Dossier technique --- Gestion des agences BTK}
 \fancyhead[R]{\small\color{btkblue}Oussema Korbosli}
 \fancyfoot[C]{\small\thepage}
 
-% ---- code ----
-\lstset{
-  basicstyle=\ttfamily\footnotesize,
-  backgroundcolor=\color{codegris},
-  frame=leftline, framerule=1.6pt, rulecolor=\color{btklight},
-  framexleftmargin=4pt, xleftmargin=8pt,
-  breaklines=true, breakatwhitespace=false, columns=fullflexible,
-  keywordstyle=\color{btkblue}\bfseries,
-  commentstyle=\color{btkvert}\itshape,
-  stringstyle=\color{btkrouge},
-  showstringspaces=false, aboveskip=8pt, belowskip=8pt,
-  literate={é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1 {ù}{{\`u}}1
-           {ç}{{\c c}}1 {É}{{\'E}}1 {î}{{\^\i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
-           {œ}{{\oe}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1
-}
-\lstdefinestyle{java}{language=Java}
-\lstdefinestyle{sql}{language=SQL}
-\lstdefinestyle{xml}{language=XML, morestring=[b]"}
-\lstdefinestyle{jsp}{language=HTML, morekeywords={c:if,c:forEach,c:choose}}
-\lstdefinestyle{shell}{language=bash}
-
-% ---- encadré « à retenir » ----
 \newtcolorbox{retenir}[1][]{
   colback=btkpale, colframe=btklight, boxrule=0.9pt, arc=2pt,
   left=7pt, right=7pt, top=5pt, bottom=5pt, #1}
-\newtcolorbox{attention}[1][]{
-  colback=white, colframe=btkrouge, boxrule=0.9pt, arc=2pt,
+\newtcolorbox{note}[1][]{
+  colback=btkvertpale, colframe=btkvert, boxrule=0.8pt, arc=2pt,
+  left=7pt, right=7pt, top=4pt, bottom=4pt, #1}
+\newtcolorbox{alerte}[1][]{
+  colback=btkambrepale, colframe=btkambre, boxrule=0.9pt, arc=2pt,
   left=7pt, right=7pt, top=5pt, bottom=5pt, #1}
 
-% ---- fiche de fonctionnalité ----
-% \fiche{titre}{URL}{rôles autorisés}
-\newcommand{\fiche}[3]{%
+% en-tête d'écran
+\newcommand{\ecran}[3]{%
   \subsection{#1}%
-  \noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}}L{2.4cm}|X|}
+  \noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{2.3cm}|X|}
   \hline
-  \textbf{URL} & \texttt{#2}\\
+  \textbf{Accès} & #2\\
   \hline
-  \textbf{Rôles} & #3\\
+  \textbf{Qui} & #3\\
   \hline
-  \end{tabularx}\par\vspace{0.5em}}
+  \end{tabularx}\par\vspace{0.4em}}
 
 \begin{document}
 
 % ============================ PAGE DE GARDE ============================
 \begin{titlepage}
 \centering
-\vspace*{1.2cm}
+\vspace*{1.4cm}
 {\color{btkblue}\rule{\textwidth}{2.5pt}}\\[0.4cm]
 {\Huge\bfseries\color{btkblue} Dossier technique de soutenance\par}
 \vspace{0.5cm}
@@ -127,11 +94,11 @@
 \vspace{0.25cm}
 {\Large\color{btklight} et volet décisionnel Power BI\par}
 \vspace{0.35cm}
-{\color{btkblue}\rule{\textwidth}{2.5pt}}\\[1.4cm]
+{\color{btkblue}\rule{\textwidth}{2.5pt}}\\[1.5cm]
 
-{\large Chaque fonctionnalité de l'application, sa mise en œuvre côté\\
-présentation, contrôle, métier et persistance, puis la chaîne décisionnelle\par}
-\vspace{1.8cm}
+{\large Les écrans et leurs boutons, ce qui se passe derrière chaque action,\\
+les outils utilisés, le schéma Power BI et ses mesures\par}
+\vspace{2cm}
 
 \begin{tabularx}{0.86\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4.4cm}|X|}
 \hline
@@ -151,11 +118,12 @@ Année & 2025 / 2026\\
 
 \vfill
 \begin{retenir}
-\small Ce dossier est un \textbf{support de préparation à la soutenance
-technique}. Tout ce qu'il contient est relevé dans le code du projet :
-servlets, services, entités, pages JSP, scripts SQL, chaîne ETL et fichiers
-Power BI. Les chiffres cités (18 servlets, 16 services, 16 entités,
-17 pages JSP) sont issus d'un inventaire automatique du dépôt.
+\small Ce dossier décrit l'application \textbf{telle qu'elle se présente à
+l'écran} : chaque page, chaque bouton, et ce que l'action déclenche
+jusqu'à la base. Il ne contient aucun extrait de code. Tout ce qui y figure a
+été relevé dans le projet lui-même : les libellés des boutons sont ceux des
+pages, les droits sont ceux réellement contrôlés, et les mesures Power BI sont
+celles du modèle.
 \end{retenir}
 \vspace{0.6cm}
 \end{titlepage}
@@ -163,12 +131,621 @@ Power BI. Les chiffres cités (18 servlets, 16 services, 16 entités,
 \tableofcontents
 \newpage
 
-\input{01_vue_ensemble}
-\input{02_socle}
-\input{03_fonctionnalites}
-\input{04_front_back}
-\input{05_decisionnel}
-\input{06_deploiement}
-\input{07_questions}
+% =====================================================================
+\section{L'application en une page}
+
+\subsection{À quoi elle sert}
+
+L'application centralise la gestion du réseau BTK : le référentiel des agences,
+des employés et des clients, le suivi des objectifs commerciaux, le pointage de
+la présence, et les circuits de validation des demandes. Les mêmes données
+alimentent ensuite un tableau de bord intégré à l'application et un rapport
+Power BI.
+
+\subsection{Qui l'utilise}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{3.6cm}|X|}
+\hline
+Administrateur & Couvre tout : référentiel, droits, validation des demandes de création, exécution des modifications, pointage manuel, supervision du décisionnel.\\
+\hline
+Directeur commercial & Soumet les demandes de création (agence, employé, client), valide les demandes de modification, consulte les employés, les objectifs et le tableau de bord.\\
+\hline
+Utilisateur & Consulte ses données, effectue son pointage, soumet ses demandes et reçoit ses notifications.\\
+\hline
+\end{tabularx}
+
+\subsection{Ce qu'elle contient}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4.4cm}|c|X|}
+\hline
+Écrans & 17 & pages de l'application\\
+\hline
+Adresses (pages appelables) & 18 & une par fonctionnalité\\
+\hline
+Services métier & 16 & les règles de gestion\\
+\hline
+Tables de la base & 16 & référentiel, activité, demandes, socle\\
+\hline
+Vues décisionnelles & 4 & la couche lue par Power BI\\
+\hline
+Pages Power BI & 4 & résumé, clients, commercial, présence\\
+\hline
+\end{tabularx}
+
+% =====================================================================
+\section{Les outils utilisés pour construire le projet}
+
+\subsection{Développement de l'application}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{3.8cm}|L{3.4cm}|X|}
+\hline
+\textmd{\textbf{Outil}} & \textbf{Rôle} & \textbf{Ce qu'il sert à faire dans le projet}\\
+\hline
+IntelliJ IDEA & Environnement de développement & Écriture du code, lancement et déploiement de l'application sur le serveur\\
+\hline
+JDK 21 & Plateforme Java & Version de Java sur laquelle l'application est compilée et exécutée\\
+\hline
+Maven & Construction & Compile le projet, rassemble les pages et produit l'archive déployable ; le projet embarque son propre lanceur, la construction ne dépend donc pas du poste\\
+\hline
+WildFly & Serveur d'applications & Héberge l'application, gère les sessions, les transactions et la connexion à la base\\
+\hline
+Git et GitHub & Gestion de versions & Historique du projet, sauvegarde et suivi des modifications\\
+\hline
+\end{tabularx}
+
+\subsection{Base de données}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{3.8cm}|L{3.4cm}|X|}
+\hline
+\textmd{\textbf{Outil}} & \textbf{Rôle} & \textbf{Ce qu'il sert à faire dans le projet}\\
+\hline
+Oracle Database & Base de données & Stocke toutes les données : référentiel, activité, demandes, journal\\
+\hline
+SQL Developer & Console d'administration & Création des tables et des vues décisionnelles, vérification des données\\
+\hline
+SQLcl & Console en ligne de commande & Export des tables sources vers des fichiers, pour alimenter la chaîne ETL sans connexion directe\\
+\hline
+\end{tabularx}
+
+\subsection{Volet décisionnel}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{3.8cm}|L{3.4cm}|X|}
+\hline
+\textmd{\textbf{Outil}} & \textbf{Rôle} & \textbf{Ce qu'il sert à faire dans le projet}\\
+\hline
+Power BI Desktop & Restitution & Construction du rapport de quatre pages, des mesures et des filtres\\
+\hline
+Anaconda & Distribution Python & Fournit Python et les bibliothèques d'analyse, sans installation manuelle\\
+\hline
+Jupyter & Carnet d'exécution & Déroule la chaîne ETL et la segmentation étape par étape, avec les résultats visibles\\
+\hline
+pandas & Manipulation de données & Nettoyage, agrégation par agence et contrôle de qualité du datamart\\
+\hline
+scikit-learn & Apprentissage automatique & Segmentation des agences : standardisation, K-Means et modèles comparés\\
+\hline
+matplotlib & Graphiques & Courbes du choix du nombre de groupes, comparaison des modèles, projection\\
+\hline
+\end{tabularx}
+
+\begin{retenir}
+\textbf{Question probable : pourquoi tant d'outils ?} Chacun couvre une étape et
+une seule. IntelliJ et Maven produisent l'application, WildFly l'exécute, Oracle
+stocke, Power BI restitue, et Python prépare le jeu de données de la
+segmentation. Aucun ne fait le travail d'un autre.
+\end{retenir}
+
+% =====================================================================
+\section{Comment l'application est construite}
+
+\subsection{Le front : ce que voit l'utilisateur}
+
+Les pages sont \textbf{produites par le serveur} : quand l'utilisateur demande
+une adresse, le serveur va chercher les données, construit la page complète et
+l'envoie au navigateur. Il n'y a pas d'application qui s'exécute dans le
+navigateur.
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{3.6cm}|X|}
+\hline
+Pages JSP & Le gabarit des écrans : le serveur y insère les données avant envoi.\\
+\hline
+JSTL & Les balises qui affichent une liste ou masquent un bloc selon le rôle, sans écrire de code Java dans la page.\\
+\hline
+Feuille de style CSS & Toute la présentation : couleurs de la charte BTK, cartes, tableaux, boutons. Écrite à la main, sans bibliothèque.\\
+\hline
+ApexCharts & Les trois graphiques du tableau de bord : effectifs par agence, répartition par rôle, présence du jour.\\
+\hline
+Lucide & Les icônes du menu et des boutons.\\
+\hline
+Menu latéral et bandeau & Deux fragments inclus par toutes les pages : le menu s'adapte au rôle, le bandeau affiche les compteurs de demandes en attente.\\
+\hline
+\end{tabularx}
+
+\begin{note}
+\textbf{Pourquoi pas React ou Angular ?} Les écrans sont des listes et des
+formulaires. Un client riche n'apporterait rien et ajouterait une chaîne de
+construction et des dépendances à maintenir. Le rendu par le serveur suffit et
+reste cohérent avec la pile Jakarta EE.
+\end{note}
+
+\subsection{Le back : ce qui se passe derrière}
+
+Derrière chaque écran, la même mécanique en quatre temps.
+
+\noindent\begin{tabularx}{\textwidth}{|c|>{\columncolor{btkpale}\bfseries}L{3.1cm}|X|}
+\hline
+1 & Contrôle & Une classe reçoit la demande. Elle vérifie que l'utilisateur est connecté, que son rôle l'autorise, lit ce qui a été saisi, puis appelle le métier. Elle ne touche jamais la base.\\
+\hline
+2 & Métier & Les services portent les règles : un pointage après neuf heures devient un retard, une demande ne peut être approuvée que si elle est en attente. Ils ne connaissent rien de l'écran.\\
+\hline
+3 & Persistance & Une couche de correspondance traduit les objets Java en lignes de tables Oracle, et l'inverse. Aucune requête n'est écrite à la main dans les écrans.\\
+\hline
+4 & Base Oracle & Les données. Le serveur ouvre et referme lui-même les transactions : si une erreur survient au milieu d'une opération, rien n'est enregistré à moitié.\\
+\hline
+\end{tabularx}
+
+\begin{retenir}
+\textbf{Ce qui garantit la séparation.} Un écran ne peut pas interroger la base
+directement, un service ne sait pas ce qu'est une page web, et une page ne
+contient aucun calcul. Chaque niveau ne parle qu'au suivant : si la base change,
+seul le dernier niveau bouge.
+\end{retenir}
+
+\subsection{La sécurité des écrans}
+
+À la connexion, le rôle est lu dans la table des comptes et conservé pour toute
+la durée de la session. Ensuite, deux protections se superposent :
+
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+  \item \textbf{le menu masque} les entrées interdites --- c'est un confort
+        d'affichage ;
+  \item \textbf{chaque page vérifie le rôle} avant d'afficher quoi que ce soit
+        --- c'est la vraie protection. Taper l'adresse à la main ne sert à rien :
+        l'utilisateur est renvoyé à la page de connexion.
+\end{itemize}
+
+S'y ajoute une troisième barrière sur les circuits de validation : le service
+vérifie l'\textbf{état} de la demande avant d'agir, ce qui rend impossible
+d'approuver deux fois la même demande.
+
+% =====================================================================
+\section{Les écrans, leurs boutons et leurs actions}
+
+Chaque fiche donne l'écran, qui y accède, et \textbf{ce que fait chaque bouton}
+--- jusqu'à la table concernée.
+
+% ---------------------------------------------------------------------
+\ecran{Connexion}{Page d'accueil du site}{Tout le monde}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4.4cm}|X|}
+\hline
+\textmd{\textbf{Bouton}} & \textbf{Ce qu'il déclenche}\\
+\hline
+Se connecter & Vérifie l'identifiant et le mot de passe dans la table des comptes. Si c'est bon, le rôle est chargé, la session est ouverte et l'utilisateur arrive sur le tableau de bord. Sinon, un message d'erreur s'affiche et la page reste la même.\\
+\hline
+Mot de passe oublié & Ouvre l'écran de réinitialisation.\\
+\hline
+\end{tabularx}
+
+\vspace{0.4em}
+\noindent\textbf{Écran de réinitialisation} --- bouton \emph{Réinitialiser mon
+mot de passe} : recherche le compte à partir de l'identifiant saisi.
+
+% ---------------------------------------------------------------------
+\ecran{Tableau de bord}{Page d'arrivée après connexion}{Tous les utilisateurs connectés}
+
+Cet écran n'a pas de bouton d'action : ce sont des \textbf{cartes cliquables}
+qui mènent là où il y a quelque chose à faire.
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4.4cm}|X|}
+\hline
+\textmd{\textbf{Élément}} & \textbf{Ce qu'il montre ou déclenche}\\
+\hline
+Cartes d'indicateurs & Effectif total, répartition par rôle, portefeuille clients, demandes en attente, présence du jour et taux de présence.\\
+\hline
+Graphique \enquote{effectifs par agence} & Histogramme des effectifs, agence par agence.\\
+\hline
+Graphique \enquote{rôles} & Anneau : gestionnaires, conseillers, hors commercial.\\
+\hline
+Graphique \enquote{présence} & Anneau : présents, retards, absents du jour.\\
+\hline
+Cartes \enquote{actions requises} & N'apparaissent que s'il y a quelque chose à traiter, et selon le rôle : l'administrateur voit ce qu'il doit exécuter, le directeur ce qu'il doit valider. Un clic ouvre directement l'écran concerné.\\
+\hline
+\end{tabularx}
+
+% ---------------------------------------------------------------------
+\ecran{Pointage de la présence}{Menu \emph{Pointage}}{Chaque employé pour lui-même ; l'administrateur pour la saisie manuelle}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4.4cm}|X|}
+\hline
+\textmd{\textbf{Bouton}} & \textbf{Ce qu'il déclenche}\\
+\hline
+Pointer l'arrivée & Enregistre l'heure d'arrivée du jour. Le \textbf{statut est calculé par le serveur} : avant neuf heures, présent ; après, retard. Un second clic ne modifie rien --- l'heure déjà enregistrée est conservée.\\
+\hline
+Pointer le départ & Complète l'enregistrement du jour avec l'heure de départ. S'il n'y a pas eu d'arrivée, rien n'est créé.\\
+\hline
+Enregistrer (saisie manuelle) & Réservé à l'administrateur : crée ou corrige un pointage pour un employé, avec date, heures, statut et commentaire. L'enregistrement est marqué \emph{manuel}, ce qui distingue la correction du pointage automatique.\\
+\hline
+\end{tabularx}
+
+\vspace{0.4em}
+L'écran affiche aussi le pointage du jour de l'utilisateur, le nombre de
+présents et les cinquante derniers pointages. Chaque action est inscrite au
+journal d'audit.
+
+\begin{note}
+\textbf{Trois garde-fous à citer en soutenance :} un deuxième clic sur
+\emph{arrivée} n'écrase pas l'heure ; un départ sans arrivée ne crée rien ; le
+statut vient du serveur, il n'est jamais envoyé par le formulaire --- on ne peut
+donc pas se déclarer \enquote{présent} en trichant.
+\end{note}
+
+% ---------------------------------------------------------------------
+\ecran{Annuaire des employés}{Menu \emph{Employés}}{Tous les utilisateurs connectés}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4.4cm}|X|}
+\hline
+\textmd{\textbf{Bouton}} & \textbf{Ce qu'il déclenche}\\
+\hline
+Filtrer & Restreint la liste à une agence ou à un rôle.\\
+\hline
+Soumettre demande & Ouvre le formulaire de demande de création d'un employé, qui partira en validation.\\
+\hline
+\end{tabularx}
+
+\vspace{0.4em}
+La liste affiche pour chaque employé son nom, son agence et son rôle. Le rôle
+n'est pas stocké tel quel : il est \textbf{déduit} --- gestionnaire, conseiller,
+ou hors commercial.
+
+% ---------------------------------------------------------------------
+\ecran{Portefeuille clients}{Menu \emph{Clients BTK}}{Administrateur}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4.4cm}|X|}
+\hline
+\textmd{\textbf{Bouton}} & \textbf{Ce qu'il déclenche}\\
+\hline
+Rechercher & Filtre la liste sur un nom, un type ou une agence.\\
+\hline
+Enregistrer & Soumet la création d'un client. Elle part en validation avant d'exister réellement.\\
+\hline
+\end{tabularx}
+
+\begin{alerte}
+\textbf{À savoir si on vous interroge sur les tests :} l'application \textbf{ne
+supprime pas} un client. Aucune opération de suppression n'existe dans le
+service correspondant. Ne citez donc pas la suppression d'un client comme
+scénario de test.
+\end{alerte}
+
+% ---------------------------------------------------------------------
+\ecran{Agences}{Menu \emph{Agences} (consultation) et \emph{Gérer les agences} (administration)}{Administrateur}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4.4cm}|X|}
+\hline
+\textmd{\textbf{Bouton}} & \textbf{Ce qu'il déclenche}\\
+\hline
+Voir les membres & Affiche les employés rattachés à l'agence sélectionnée.\\
+\hline
+Créer l'agence & Ajoute une agence au référentiel : code, libellé, adresse, district. L'action est journalisée.\\
+\hline
+Supprimer & Retire l'agence du référentiel, avec journalisation.\\
+\hline
+\end{tabularx}
+
+% ---------------------------------------------------------------------
+\ecran{Objectifs commerciaux}{Menu \emph{Objectifs}}{Tous les utilisateurs connectés}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4.4cm}|X|}
+\hline
+\textmd{\textbf{Bouton}} & \textbf{Ce qu'il déclenche}\\
+\hline
+Filtrer & Restreint la production affichée à une agence, un gestionnaire ou une période.\\
+\hline
+\end{tabularx}
+
+\vspace{0.4em}
+L'écran est en \textbf{consultation seule} : la production commerciale --- comptes
+ouverts, crédits, épargne --- vient du système de gestion, elle n'est pas saisie
+ici. C'est la même table qui alimente le rapport Power BI.
+
+% ---------------------------------------------------------------------
+\ecran{Ajouter un employé}{Menu \emph{Ajouter un employé}}{Administrateur}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4.4cm}|X|}
+\hline
+\textmd{\textbf{Bouton}} & \textbf{Ce qu'il déclenche}\\
+\hline
+Enregistrer l'employé & Crée l'employé, le rattache à son agence, et lui crée son compte de connexion avec son rôle. Le tout est journalisé.\\
+\hline
+\end{tabularx}
+
+\begin{note}
+C'est la voie \textbf{directe}, réservée à l'administrateur. Le directeur
+commercial, lui, passe par une \textbf{demande} qui devra être validée : les
+deux chemins existent, avec des droits différents.
+\end{note}
+
+% ---------------------------------------------------------------------
+\ecran{Mes demandes / Mon profil}{Menu \emph{Mon Profil}}{Tous les utilisateurs connectés}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4.4cm}|X|}
+\hline
+\textmd{\textbf{Bouton}} & \textbf{Ce qu'il déclenche}\\
+\hline
+Envoyer la demande & Soumet une demande de modification de ses propres données --- nom ou adresse électronique. La demande part \textbf{en attente}, et les directeurs commerciaux en sont notifiés. \textbf{Rien n'est modifié à ce stade}.\\
+\hline
+\end{tabularx}
+
+\vspace{0.4em}
+L'écran affiche l'historique des demandes de l'utilisateur avec leur état.
+
+% ---------------------------------------------------------------------
+\ecran{Soumettre une demande de création}{Menu \emph{Mes Demandes}}{Directeur commercial et administrateur}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4.4cm}|X|}
+\hline
+\textmd{\textbf{Bouton}} & \textbf{Ce qu'il déclenche}\\
+\hline
+Soumettre la demande & Enregistre une demande de création d'agence : code, nom, adresse, et les employés à y rattacher. Le demandeur reçoit un accusé, et \textbf{tous les administrateurs} sont notifiés.\\
+\hline
+\end{tabularx}
+
+% ---------------------------------------------------------------------
+\ecran{Valider les demandes de création}{Menu \emph{Valider Demandes}}{Administrateur uniquement}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4.4cm}|X|}
+\hline
+\textmd{\textbf{Bouton}} & \textbf{Ce qu'il déclenche}\\
+\hline
+Approuver / Valider & Approuve la demande \textbf{et crée réellement l'objet} : l'employé est enregistré et rattaché à son agence, le client est créé avec le statut actif, l'agence est ajoutée au référentiel. Le demandeur est notifié, l'action journalisée.\\
+\hline
+Refuser & Marque la demande refusée avec le commentaire saisi, et notifie le demandeur. Rien n'est créé.\\
+\hline
+\end{tabularx}
+
+\vspace{0.4em}
+L'écran regroupe les trois circuits --- agences, employés, clients --- chacun
+dans son propre bloc.
+
+% ---------------------------------------------------------------------
+\ecran{Valider les demandes de modification}{Menu \emph{Valider les demandes} (directeur) ou \emph{Modifications Profil} (administrateur)}{Directeur commercial et administrateur, avec des boutons différents}
+
+C'est le circuit le plus intéressant : \textbf{deux validations successives},
+portées par deux rôles différents.
+
+\begin{center}
+\small
+\begin{tabular}{ccccccccc}
+\colorbox{btkpale}{\textbf{En attente}} & $\rightarrow$ &
+\colorbox{btkpale}{\textbf{En cours}} & $\rightarrow$ &
+\colorbox{btkpale}{\textbf{Effectué}} \\[3pt]
+\footnotesize l'employé soumet & \footnotesize le directeur approuve &
+\footnotesize approuvée & \footnotesize l'administrateur applique &
+\footnotesize donnée modifiée
+\end{tabular}\\[5pt]
+\footnotesize Le directeur peut aussi refuser : la demande passe à \textbf{Refusé} et le circuit s'arrête.
+\end{center}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{3.5cm}|L{2.4cm}|X|}
+\hline
+\textmd{\textbf{Bouton}} & \textbf{Visible par} & \textbf{Ce qu'il déclenche}\\
+\hline
+Approuver & Directeur commercial, si la demande est en attente & Fait passer la demande en cours et notifie les administrateurs. \textbf{La donnée n'est pas encore modifiée.}\\
+\hline
+Refuser & Directeur commercial, si la demande est en attente & Clôt la demande avec le motif saisi et notifie le demandeur.\\
+\hline
+Appliquer le changement & Administrateur, si la demande est en cours & \textbf{Modifie réellement la donnée} de l'employé, marque la demande effectuée et notifie l'intéressé.\\
+\hline
+\end{tabularx}
+
+\begin{retenir}
+\textbf{Pourquoi deux validations ?} Pour séparer la décision de l'exécution. Le
+directeur juge de l'opportunité, l'administrateur applique techniquement.
+Aucune donnée personnelle n'est modifiée sur la seule décision d'une personne.
+\end{retenir}
+
+\begin{note}
+Les boutons n'apparaissent que si \textbf{le rôle et l'état} correspondent : une
+demande déjà approuvée n'affiche plus \emph{Approuver}. Et si quelqu'un
+contournait l'affichage, le service refuserait l'action --- il vérifie l'état
+avant d'agir.
+\end{note}
+
+% ---------------------------------------------------------------------
+\ecran{Déconnexion}{Icône en bas du menu}{Tous les utilisateurs connectés}
+
+Ferme la session et renvoie à la page de connexion. Les données de session ---
+identité, rôle --- sont effacées : revenir en arrière dans le navigateur ne
+redonne pas l'accès.
+
+% =====================================================================
+\section{Le volet Power BI}
+
+\subsection{Le schéma utilisé}
+
+Power BI ne se connecte \textbf{pas} au schéma de l'application. Un schéma
+dédié, \texttt{BTK\_BI}, a été créé avec son propre compte, et les tables
+nécessaires y sont recopiées.
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4cm}|X|}
+\hline
+\textmd{\textbf{Table du schéma}} & \textbf{Ce qu'elle apporte au rapport}\\
+\hline
+AGENCE & L'axe principal : chaque agence, son libellé et son district\\
+\hline
+B\_UTILISATEURS & Les employés, leur agence, et l'indicateur de gestionnaire\\
+\hline
+B\_CLIENTS & Le portefeuille : type, sexe, secteur d'activité, gouvernorat\\
+\hline
+B\_OBJECTIF & La production : comptes, crédits, cartes, épargne, par période\\
+\hline
+POINTAGE & La présence : statut de chaque pointage\\
+\hline
+GESTIONNAIRE & L'axe gestionnaire\\
+\hline
+\end{tabularx}
+
+\vspace{0.6em}
+\noindent\textbf{Pourquoi séparer ?} Trois raisons à donner au jury : le compte
+de restitution ne peut pas écrire dans les tables de production ; les requêtes
+du rapport ne pèsent pas sur l'application ; et les droits sont limités à la
+lecture de ce qui est nécessaire.
+
+\subsection{Les relations du modèle}
+
+Le modèle est en \textbf{étoile} : une table centrale d'activité, entourée de
+ses axes d'analyse. Deux clés portent tout le modèle.
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4cm}|X|}
+\hline
+\textmd{\textbf{Clé}} & \textbf{Ce qu'elle relie}\\
+\hline
+SK\_AGENCE & Relie \texttt{AGENCE} à \texttt{B\_UTILISATEURS}, \texttt{B\_CLIENTS} et \texttt{B\_OBJECTIF}. C'est la \textbf{dimension conforme} : filtrer sur une agence filtre tout le rapport d'un coup.\\
+\hline
+SK\_UTILISATEUR & Relie \texttt{B\_UTILISATEURS} à \texttt{B\_OBJECTIF} et à \texttt{POINTAGE} : elle donne l'axe gestionnaire et rattache chaque pointage à son employé.\\
+\hline
+\end{tabularx}
+
+\begin{retenir}
+\textbf{À quoi sert le filtrage croisé ?} Comme tout est relié par l'agence, un
+clic sur une agence dans un visuel recalcule \textbf{tous} les autres : le
+nombre de clients, la production, le taux de présence. C'est le principal
+argument en faveur du schéma en étoile pour un outil en libre-service.
+\end{retenir}
+
+\subsection{Les vues décisionnelles}
+
+Quatre vues ont été créées dans la base pour préparer le travail de Power BI :
+elles traduisent les colonnes techniques en indicateurs métier, remplacent les
+clés par des libellés, ramènent les valeurs vides à zéro et font les jointures
+une fois pour toutes.
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4cm}|X|}
+\hline
+V\_BI\_EMPLOYES & Effectifs, rôle calculé, statut\\
+\hline
+V\_BI\_CLIENTS & Portefeuille : identité, sexe, type, statut\\
+\hline
+V\_BI\_OBJECTIFS & Production : comptes, crédits par nature, cartes, épargne\\
+\hline
+V\_BI\_POINTAGE & Présence : indicateurs présent, retard, absent\\
+\hline
+\end{tabularx}
+
+\subsection{Les mesures}
+
+Un indicateur du rapport est une \textbf{mesure} : un calcul recalculé
+\emph{à l'affichage}, dans le contexte des filtres actifs. Sélectionner une
+agence ou un mois change instantanément toutes les valeurs.
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4.1cm}|X|}
+\hline
+\textmd{\textbf{Mesure}} & \textbf{Ce qu'elle calcule}\\
+\hline
+Nb Employés & Nombre distinct d'employés, à partir de leur identifiant\\
+\hline
+Nb Clients & Nombre distinct de clients\\
+\hline
+Total Comptes & Somme des trois types de comptes ouverts : chèques, épargne, courants\\
+\hline
+Total Crédits & Somme des trois natures de crédits : consommation, immobilier, investissement\\
+\hline
+Total Épargne & Somme de l'épargne additionnelle collectée\\
+\hline
+Total Packs et Cartes & Somme des packs particuliers et professionnels et des cartes\\
+\hline
+Taux Présence & Part des pointages \enquote{présent} ou \enquote{retard} sur l'ensemble des pointages\\
+\hline
+Nb Présences / Retards / Absences & Nombre de pointages de chaque statut\\
+\hline
+\% Gestionnaires & Part des gestionnaires dans l'effectif total\\
+\hline
+Taux Absentéisme & Part des absences dans l'ensemble des pointages\\
+\hline
+Nb Gouvernorats / Secteurs / Types Client & Nombre de valeurs distinctes, pour la page clients\\
+\hline
+\end{tabularx}
+
+\subsection{La colonne calculée \enquote{Rôle}}
+
+Le rôle d'un employé n'est pas stocké dans la base : il est \textbf{déduit} au
+chargement, par une colonne calculée sur la table des employés.
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4.1cm}|X|}
+\hline
+Gestionnaire & L'employé est marqué comme gestionnaire\\
+\hline
+Hors commercial & Il n'est pas gestionnaire et appartient à la structure centrale\\
+\hline
+Conseiller & Tous les autres cas\\
+\hline
+\end{tabularx}
+
+\begin{retenir}
+\textbf{Mesure ou colonne calculée ?} C'est la relance la plus fréquente après
+une question sur les mesures. Une \textbf{colonne calculée} est calculée une
+fois, au chargement, et stockée ligne par ligne : elle sert à \emph{filtrer ou
+grouper}. Une \textbf{mesure} est recalculée à chaque affichage, selon les
+filtres : elle sert à \emph{agréger}. Ici, le rôle est une colonne --- on
+regroupe les employés par rôle ; le taux de présence est une mesure --- il
+change selon le mois ou l'agence choisis.
+\end{retenir}
+
+\subsection{Les quatre pages du rapport}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{3.4cm}|X|}
+\hline
+1. Résumé & Quatre cartes d'indicateurs, deux anneaux (rôles et présence), l'évolution de la production de crédits, la production par type de produit, et les cinq premières agences\\
+\hline
+2. Clients & Répartition du portefeuille : gouvernorat, secteur d'activité, type de client\\
+\hline
+3. Performance commerciale & Comptes ouverts, crédits par nature, épargne, packs et cartes\\
+\hline
+4. Présence & Présents, retards, absences, taux de présence et agences à surveiller\\
+\hline
+\end{tabularx}
+
+\vspace{0.5em}
+Des \textbf{filtres communs} --- district, période, type de client --- agissent
+sur l'ensemble, avec un bouton de réinitialisation. Une barre latérale permet de
+naviguer entre les quatre pages. Un thème dédié applique les couleurs de la
+charte BTK à tous les visuels.
+
+\begin{note}
+\textbf{Le rapport est-il en temps réel ?} Non : les données sont importées,
+donc rafraîchies à la demande. Le temps réel est assuré par le tableau de bord
+intégré à l'application, qui interroge la base à chaque affichage. Les deux
+restitutions sont complémentaires, et c'est une question fréquente.
+\end{note}
+
+% =====================================================================
+\section{Points ouverts}
+
+Les annoncer soi-même vaut mieux que de les subir.
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{4cm}|X|}
+\hline
+Mot de passe en clair & Le mot de passe est comparé tel quel à la connexion. Correction : le stocker sous forme de condensat et comparer les condensats. Une seule opération à reprendre.\\
+\hline
+Contrôle de rôle partiel & Quatre écrans de consultation --- annuaire des employés, objectifs, et deux écrans hérités --- ne vérifient que la connexion, pas le rôle. L'application est donc plus permissive que la matrice des droits du rapport sur ces écrans.\\
+\hline
+Écran gestionnaires & Il pointe vers une page qui n'existe pas sous ce nom : l'écran échoue. Il n'est pas dans le menu, donc invisible en démonstration. Correction : un mot à changer.\\
+\hline
+Écrans hérités & Un ancien écran clients et son adresse ne sont accessibles depuis aucun lien du menu.\\
+\hline
+Libellé fautif & Le bouton d'approbation des modifications affiche \enquote{Approver} au lieu de \enquote{Approuver}.\\
+\hline
+Pas de tests automatisés & Les tests sont manuels et documentés. Les services se prêteraient bien à des tests unitaires.\\
+\hline
+\end{tabularx}
+
+\vspace{0.8em}
+\begin{retenir}
+\textbf{Comment présenter une limite.} L'énoncer, en donner la cause, puis la
+correction et son coût. \enquote{Le mot de passe est comparé en clair ; c'est un
+choix de périmètre, pas un oubli ; la correction tient dans une seule
+opération.} Une limite reconnue et chiffrée est un signe de maîtrise ; une
+limite découverte par le jury ne l'est pas.
+\end{retenir}
 
 \end{document}

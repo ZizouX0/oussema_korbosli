@@ -1,0 +1,457 @@
+% =====================================================================
+%  Toutes les questions que le jury peut poser
+% =====================================================================
+\documentclass[a4paper,11pt]{article}
+\input{preambule}
+\fancyhead[L]{\small\color{btkblue}Questions du jury}
+
+\begin{document}
+
+\begin{center}
+{\color{btkblue}\rule{\textwidth}{2pt}}\\[0.3cm]
+{\huge\bfseries\color{btkblue} Ce que le jury peut vous demander\par}
+\vspace{0.2cm}
+{\large Banque de questions et réponses préparées --- PFE BTK\par}
+\vspace{0.2cm}
+{\color{btkblue}\rule{\textwidth}{2pt}}
+\end{center}
+
+\vspace{0.5cm}
+\begin{note}
+Toutes les réponses sont fondées sur ce que contient réellement le projet :
+code, base, datamart et rapport. Les questions marquées \textbf{(piège)} sont
+celles où une réponse trop assurée se retourne contre vous : la bonne attitude
+est d'annoncer la limite avant qu'on la trouve.
+\end{note}
+
+\vspace{0.3cm}
+\begin{coeur}
+Les six chiffres à ne jamais confondre : \textbf{45} agences dans le réseau,
+\textbf{49} entités dans l'extraction, \textbf{48} retenues dans la
+segmentation, \textbf{997} employés, \textbf{29\,942} clients,
+\textbf{87,9\,\%} de taux de présence.
+\end{coeur}
+
+% =====================================================================
+\section{Contexte et cadrage}
+
+\question{Pourquoi ce projet ? Quel problème résout-il ?}
+Les données du réseau étaient éclatées entre plusieurs fichiers et applications,
+et consolidées à la main. La direction ne disposait donc pas d'indicateurs
+fiables au moment de décider, et le suivi de présence n'avait pas de traçabilité.
+Le projet centralise la gestion du réseau et transforme ces données en
+indicateurs de pilotage.
+
+\question{Pourquoi un développement sur mesure plutôt qu'un progiciel ?}
+Un progiciel du marché est coûteux et peu adapté aux processus spécifiques de la
+BTK, notamment les circuits de validation à deux niveaux. Excel, lui, n'offre
+aucune traçabilité sur les opérations sensibles. Le sur-mesure permet de coller
+au métier réel et de garder le journal d'audit.
+
+\question{Quel a été votre périmètre exact, et ce que vous n'avez pas traité ?}
+Le périmètre couvre la gestion du référentiel, le pointage, les circuits de
+validation et la chaîne décisionnelle. N'ont pas été traités : le mobile, une
+API REST, l'authentification forte et l'industrialisation de l'ETL --- ce sont
+les perspectives annoncées en conclusion.
+
+\question{Combien de temps a duré le stage ?}
+Quatre mois, du 16 février au 16 juin 2026, au département Data de la BTK.
+
+% =====================================================================
+\section{Méthodologie}
+
+\question{Pourquoi CRISP-DM et pas Scrum ?}
+Le projet est centré sur la donnée. Scrum organise la production logicielle mais
+ne dit rien de la compréhension ni de la valorisation des données. CRISP-DM est
+la méthodologie de référence des projets décisionnels, et ses six phases
+épousent le déroulement réel : compréhension métier, compréhension des données,
+préparation, modélisation, évaluation, déploiement.
+
+\question{CRISP-DM couvre-t-il le développement de l'application ?}
+\textbf{(piège)} Pas directement, et il faut le dire. CRISP-DM structure le
+volet données. Le développement applicatif a suivi des pratiques agiles ---
+itérations et validations régulières avec le maître de stage --- sans formaliser
+un cadre Scrum complet.
+
+\question{Différence entre méthode et méthodologie ?}
+La méthodologie est le cadre conceptuel qui guide le choix des pratiques ; la
+méthode est son application concrète. Scrum est une méthode issue de la
+méthodologie agile.
+
+% =====================================================================
+\section{Conception et UML}
+
+\question{Combien d'acteurs, et pourquoi ceux-là ?}
+Trois, qui correspondent exactement aux rôles de la table
+\texttt{SECURITY\_USERS} : \texttt{ADMIN}, \texttt{DIRECTEUR\_COMMERCIAL} et
+\texttt{USER}. Ce ne sont pas des acteurs théoriques : ce sont les valeurs
+réellement stockées et testées dans le code.
+
+\question{Pourquoi l'administrateur est-il relié aux treize cas d'utilisation ?}
+Parce qu'il couvre l'ensemble du périmètre fonctionnel : référentiel, sécurité,
+circuit des demandes, pointage et supervision du décisionnel. C'est ce que
+traduit le tableau des acteurs du rapport.
+
+\question{Pourquoi la relation \enquote{include} vers \enquote{S'authentifier} ?}
+Parce que l'accès à toute fonctionnalité exige une authentification préalable.
+La relation \texttt{«include»} factorise ce comportement une seule fois au lieu
+de le répéter sur les treize cas.
+
+\question{Différence entre \texttt{include} et \texttt{extend} ?}
+\texttt{include} est \textbf{obligatoire} : le cas inclus s'exécute
+systématiquement. \texttt{extend} est \textbf{conditionnel} : le comportement
+n'a lieu que dans certaines conditions. Ici l'authentification est toujours
+requise, donc \texttt{include}.
+
+\question{Pourquoi une association acteur--cas ne porte-t-elle pas de flèche ?}
+Parce qu'en UML, une association acteur--cas d'utilisation est un simple trait :
+elle exprime une participation, pas un sens de circulation. Seules les
+dépendances \texttt{«include»} portent une flèche ouverte.
+
+\question{Le directeur commercial peut-il gérer les agences ?}
+Non. Il \textbf{soumet} des demandes de création ; c'est l'administrateur qui
+valide et applique. Le contrôle est fait côté serveur : la page de validation
+des demandes de création n'accepte que le rôle \texttt{ADMIN}.
+
+% =====================================================================
+\section{Architecture applicative}
+
+\question{Décrivez votre architecture.}
+Quatre couches : Présentation (JSP), Contrôle (servlets), Métier (EJB),
+Persistance (JPA/Hibernate). Physiquement, trois niveaux : poste client, serveur
+WildFly, serveur Oracle. Power BI et la chaîne ETL se branchent directement sur
+les vues décisionnelles de la base.
+
+\question{Qu'est-ce qui garantit que les couches ne se mélangent pas ?}
+Trois faits vérifiables : aucun servlet n'accède à la base --- ils n'ont que des
+services injectés ; aucun service ne manipule la requête HTTP ; aucune page ne
+contient de code Java. Chaque couche ne connaît que la suivante.
+
+\question{Est-ce du MVC ?}
+C'est une architecture en couches inspirée du MVC : Présentation = View,
+Contrôle = Controller, et le Model est affiné en Métier + Persistance.
+
+\question{Que se passe-t-il quand je clique sur \enquote{Agences} ?}
+Le filtre s'exécute d'abord et prépare les compteurs du bandeau. Le serveur
+route vers le contrôleur associé à cette adresse. Celui-ci vérifie la session et
+le rôle, demande la liste au service métier, qui interroge la base par
+Hibernate. Le résultat est passé à la page, qui produit le HTML.
+
+\question{Pourquoi les pages sont-elles dans un dossier protégé ?}
+Parce que le serveur en interdit l'accès par une adresse directe : on ne peut y
+entrer que depuis un contrôleur, donc après le contrôle de session et de rôle.
+Seules la page de connexion et celle de mot de passe oublié sont en accès libre,
+et c'est voulu.
+
+% =====================================================================
+\section{Base de données et persistance}
+
+\question{Combien de tables, et lesquelles ?}
+Seize entités correspondent à seize tables : le référentiel
+(\texttt{AGENCE}, \texttt{B\_UTILISATEURS}, \texttt{B\_CLIENTS},
+\texttt{CLIENT\_BTK}, \texttt{B\_BANQUE}, \texttt{GESTIONNAIRE}), l'activité
+(\texttt{B\_OBJECTIF}, \texttt{POINTAGE}), les circuits de demande (quatre
+tables), et le socle (\texttt{SECURITY\_USERS}, \texttt{NOTIFICATION},
+\texttt{JOURNAL\_ACTION}).
+
+\question{Qui gère les transactions ?}
+Le serveur. L'unité de persistance est en JTA et les services sont des EJB : une
+transaction est ouverte à l'entrée de chaque méthode métier et validée à la
+sortie, ou annulée si une erreur survient. Aucune transaction n'est écrite à la
+main dans le code.
+
+\question{Comment évitez-vous l'injection SQL ?}
+Aucune requête n'est construite en collant des morceaux de texte. Les valeurs
+passent par des paramètres nommés, donc par des variables liées : elles ne sont
+jamais interprétées comme du code.
+
+\question{Hibernate crée-t-il vos tables ?}
+Non, et c'est volontaire. La création du schéma est désactivée : les tables sont
+créées par les scripts SQL du projet, et la base fait autorité. Une génération
+automatique pourrait modifier une structure existante sans contrôle.
+
+\question{Pourquoi une table de sécurité séparée des employés ?}
+Parce qu'un compte de connexion et un employé ne sont pas la même chose : tous
+les employés n'ont pas forcément de compte, et un compte porte un rôle
+applicatif. La connexion rattache les deux.
+
+% =====================================================================
+\section{Sécurité}
+
+\question{Comment gérez-vous les droits ?}
+Le rôle est déterminé à la connexion, depuis la table de sécurité, et conservé
+en session. Chaque page sensible le vérifie côté serveur avant d'afficher quoi
+que ce soit. Le menu masque en plus les entrées interdites, mais ce n'est qu'un
+confort d'affichage.
+
+\question{Et si quelqu'un contourne le menu et tape l'adresse directement ?}
+Il est renvoyé à la page de connexion : le contrôle est dans le contrôleur, pas
+dans le menu. Sur le circuit de validation, une troisième barrière existe dans
+le service, qui vérifie l'état de la demande avant d'agir.
+
+\question{Vos mots de passe sont-ils protégés ?} \textbf{(piège)}
+Non, et il vaut mieux le dire avant qu'on le trouve : le mot de passe est
+comparé en clair. C'est un choix de périmètre, pas un oubli. La correction est
+localisée dans une seule méthode : stocker un condensat salé, charger
+l'utilisateur par son seul identifiant, puis comparer le condensat.
+
+\question{Y a-t-il une traçabilité des actions ?}
+Oui : chaque opération sensible est écrite dans le journal d'audit avec l'auteur,
+son rôle, l'action, l'objet concerné et un libellé. C'est ce qui manquait aux
+fichiers Excel de départ.
+
+\question{Toutes les pages sont-elles protégées de la même façon ?} \textbf{(piège)}
+Non. Quatre pages de consultation ne vérifient que l'authentification, sans le
+rôle : l'annuaire des employés, les objectifs et deux écrans hérités.
+L'application est donc plus permissive que la matrice des droits du rapport sur
+ces écrans. Le correctif est le même contrôle de rôle que sur les autres pages.
+
+% =====================================================================
+\section{Le front}
+
+\question{Quelles technologies pour l'interface ?}
+Des pages JSP avec JSTL, une feuille de style écrite à la main, et deux
+bibliothèques : ApexCharts pour les graphiques et Lucide pour les icônes. Le
+HTML est produit par le serveur.
+
+\question{Pourquoi pas React ou Angular ?}
+Les écrans sont des listes et des formulaires : un client riche n'apporterait
+rien et ajouterait une chaîne de construction, un gestionnaire de paquets et des
+dépendances à maintenir. Le rendu côté serveur suffit et reste cohérent avec la
+pile Jakarta EE.
+
+\question{Comment les graphiques reçoivent-ils les données ?}
+Le contrôleur calcule les valeurs et les transmet à la page, qui les insère dans
+la configuration du graphique. Il n'y a pas d'appel asynchrone : la page arrive
+complète.
+
+\question{Votre interface est-elle responsive ?}
+La mise en page utilise des grilles souples et des unités relatives ; elle
+s'adapte aux tailles d'écran de bureau. Elle n'a pas été conçue pour le mobile,
+qui figure dans les perspectives.
+
+% =====================================================================
+\section{Les fonctionnalités}
+
+\question{Comment fonctionne le pointage ?}
+L'employé enregistre son arrivée d'un clic, puis son départ. Le statut est
+calculé par le serveur : au-delà de neuf heures, c'est un retard. L'administrateur
+peut saisir ou corriger un pointage, et une colonne distingue le pointage
+automatique de la saisie manuelle, ce qui conserve la traçabilité de la
+correction.
+
+\question{Que se passe-t-il si on clique deux fois sur \enquote{arrivée} ?}
+Rien n'est écrasé : l'heure déjà enregistrée est conservée. De même, un départ
+sans arrivée préalable ne crée aucun enregistrement.
+
+\question{Expliquez le circuit de validation à deux niveaux.}
+Une demande de modification part en attente. Le directeur commercial l'approuve
+--- elle passe alors en cours --- ou la refuse. Si elle est approuvée,
+l'administrateur l'exécute, et c'est seulement à ce moment que la donnée est
+réellement modifiée. Trois barrières : l'affichage du bouton, le croisement
+action--rôle dans le contrôleur, et la vérification de l'état dans le service.
+
+\question{Pourquoi deux validations et pas une seule ?}
+Pour séparer la décision de l'exécution. Le directeur juge de l'opportunité,
+l'administrateur applique techniquement. Aucune donnée sensible ne dépend d'une
+seule personne.
+
+\question{Que se passe-t-il à l'approbation d'une demande de création ?}
+L'objet est réellement créé : à l'approbation d'une demande d'employé, le compte
+employé est enregistré ; pour un client, la fiche client est créée avec le
+statut actif. Le demandeur est notifié et l'action est journalisée.
+
+% =====================================================================
+\section{La chaîne ETL}
+
+\question{Qu'est-ce qu'un ETL, et pourquoi en avoir fait un ?}
+Extraire, transformer, charger. Il consolide les données opérationnelles en un
+jeu agrégé par agence, contrôlé et reproductible, qui sert de socle à la
+segmentation. Power BI restitue le détail ; l'ETL prépare un jeu stable pour
+l'analyse.
+
+\question{Détaillez les cinq étapes.}
+Collecte des cinq tables sources ; nettoyage, qui écarte les lignes sans agence
+de rattachement ; transformation, qui agrège par agence ; intégration, qui
+fusionne les résultats sur la clé de l'agence ; contrôle de qualité, qui vérifie
+l'absence de valeur manquante, de valeur négative et de doublon --- et qui
+interrompt le chargement si l'un de ces contrôles échoue.
+
+\question{Que produit exactement la chaîne ?}
+Un datamart en étoile : une table de faits au grain de l'agence avec sa
+dimension, et une seconde table de faits au grain agence $\times$ gestionnaire
+avec la sienne. Plus le fichier consommé par la segmentation.
+
+\question{Combien d'agences en sortie ?}
+\textbf{49 entités} : les 45 agences du réseau, plus le siège, deux structures
+régionales et deux agences premium.
+
+\question{Votre ETL est-il automatisé ?} \textbf{(piège)}
+Il est \textbf{rejouable} --- une commande le relance de bout en bout et produit
+le même résultat --- mais il n'est pas \textbf{planifié} : aucune exécution
+automatique n'est programmée. C'est précisément la perspective
+\enquote{industrialisation de l'ETL} annoncée en conclusion.
+
+% =====================================================================
+\section{Modélisation décisionnelle et Power BI}
+
+\question{Pourquoi une étoile plutôt qu'un flocon ou une constellation ?}
+Le besoin porte sur des grains homogènes et un nombre réduit d'axes d'analyse.
+Le flocon n'apporterait aucun gain d'espace significatif tout en alourdissant les
+requêtes ; la constellation, pensée pour plusieurs processus de faits, serait
+surdimensionnée. L'étoile offre la simplicité et la lisibilité attendues d'un
+outil en libre-service.
+
+\question{Combien de dimensions dans votre datamart ?}
+Deux : la dimension agence et la dimension gestionnaire. Les axes d'analyse
+cités pour justifier le choix de l'étoile --- agence, période, gestionnaire,
+type de client --- ne sont pas quatre tables : ce sont les angles sous lesquels
+on interroge les faits.
+
+\question{À quoi servent les vues \texttt{V\_BI\_*} ?}
+Ce sont la couche sémantique : elles traduisent les colonnes techniques en
+indicateurs métier, remplacent les clés par des libellés, ramènent les valeurs
+nulles à zéro et font les jointures une fois pour toutes. Power BI consomme du
+sens, pas de la structure --- et si le schéma évolue, seule la vue change.
+
+\question{Pourquoi un schéma séparé pour Power BI ?}
+Pour que le compte de restitution ne puisse pas écrire dans les tables de
+production, et pour que les requêtes du rapport ne pèsent pas sur l'application.
+
+\question{Qu'est-ce qu'une mesure DAX ?}
+Un calcul défini dans Power BI, évalué à l'affichage dans le contexte des
+filtres actifs, qui produit dynamiquement un indicateur.
+
+\question{Mesure ou colonne calculée ?}
+La colonne calculée est évaluée à l'actualisation et stockée : elle sert à
+filtrer ou grouper. La mesure est évaluée à l'affichage : elle sert à agréger.
+Dans mon modèle, le rôle est une colonne calculée, le taux de présence une
+mesure.
+
+\question{Donnez trois mesures de votre rapport.}
+Le nombre distinct d'employés, le total des comptes ouverts --- somme des trois
+types de comptes --- et le taux de présence, rapport entre les pointages
+\enquote{présent} ou \enquote{retard} et le total des pointages.
+
+\question{Combien de pages, et que montrent-elles ?}
+Quatre : un résumé du réseau, l'analyse du portefeuille clients, la performance
+commerciale, et le suivi de présence. Des segments communs --- district,
+période, type de client --- filtrent l'ensemble.
+
+\question{Vos données Power BI sont-elles en temps réel ?} \textbf{(piège)}
+Non : elles sont importées, donc rafraîchies à la demande. Le temps réel est
+assuré par le tableau de bord embarqué dans l'application, qui interroge la base
+à chaque affichage. Les deux restitutions sont complémentaires.
+
+% =====================================================================
+\section{Segmentation}
+
+\question{Qu'est-ce que l'apprentissage non supervisé ?}
+Un apprentissage sans étiquette connue : on ne dit pas à l'algorithme à quel
+groupe appartient chaque agence, il découvre lui-même les regroupements à partir
+des ressemblances entre indicateurs.
+
+\question{Comment fonctionne K-Means ?}
+On fixe le nombre de groupes. L'algorithme place des centres, affecte chaque
+agence au centre le plus proche, recalcule les centres comme moyennes de leurs
+membres, et recommence jusqu'à stabilisation.
+
+\question{Pourquoi écarter le siège ?}
+540 employés contre une dizaine pour une agence : c'est une structure centrale,
+pas une agence. Le garder créerait un groupe d'un seul point et écraserait les
+distances entre toutes les autres. Il reste dans le datamart, il est seulement
+retiré de l'analyse.
+
+\question{Pourquoi passer les montants au logarithme ?}
+Parce que leur distribution est très asymétrique : quelques structures affichent
+des montants sans commune mesure avec les autres. Le logarithme ramène ces
+écarts à une échelle comparable, sans supprimer l'information.
+
+\question{Quels sont vos résultats ?}
+Trois groupes : 34 agences d'exploitation, 6 entités de production sans
+portefeuille client, et 8 entités sans activité enregistrée.
+
+\question{Vos groupes sont-ils \enquote{grandes, moyennes, petites} agences ?} \textbf{(piège)}
+Non, et c'est plus intéressant que cela. La segmentation ne sépare pas par
+taille mais par \textbf{nature d'activité} : celles qui exploitent un
+portefeuille, celles qui produisent sans portefeuille, et celles sans activité
+enregistrée. C'est un résultat que la direction ne lisait pas dans ses tableaux.
+
+\question{Comment savez-vous que votre segmentation est bonne ?}
+Par trois indices : la silhouette (0,604 pour K-Means), Davies-Bouldin et
+Calinski-Harabasz. Et par l'interprétabilité : les trois groupes correspondent à
+des réalités que le métier reconnaît.
+
+\question{Que feriez-vous de ces résultats ?}
+Différencier les objectifs commerciaux selon le profil, concentrer
+l'accompagnement sur les structures sans activité enregistrée, et vérifier si
+certaines d'entre elles relèvent d'un problème de saisie plutôt que d'activité.
+
+% =====================================================================
+\section{Tests, déploiement et limites}
+
+\question{Comment avez-vous testé ?}
+Par dix scénarios fonctionnels couvrant l'authentification, les rôles, le
+référentiel, le pointage, les demandes, l'ETL et le décisionnel. Tous conformes.
+Les plus parlants : le pointage après neuf heures qui bascule en retard, et
+l'accès refusé à un utilisateur simple sur une page réservée.
+
+\question{Avez-vous des tests automatisés ?} \textbf{(piège)}
+Non. Les tests sont manuels et documentés. Les services étant sans état, ils se
+prêteraient bien à des tests unitaires avec une base en mémoire : c'est la
+première chose que j'ajouterais.
+
+\question{Comment déploie-t-on l'application ?}
+Une commande produit l'archive, qu'on dépose sur le serveur WildFly. Les
+identifiants de la base ne sont pas dans l'archive : ils appartiennent à la
+ressource déclarée côté serveur, ce qui permet de déployer la même archive sur
+plusieurs environnements sans recompiler.
+
+\question{Que faites-vous si l'application ne se connecte plus à la base ?}
+Je distingue d'abord la cause : un test de connexion en dehors du serveur me dit
+si le problème vient d'Oracle ou de la configuration de la ressource. Si Oracle
+répond, c'est la ressource : compte, mot de passe ou nom de service à corriger,
+puis rechargement de la configuration.
+
+\question{Quelles sont les limites de votre travail ?}
+Le mot de passe comparé en clair, quatre écrans de consultation qui ne vérifient
+que l'authentification, l'absence de tests automatisés, et un ETL rejouable mais
+non planifié. Chacune a une correction identifiée et localisée.
+
+\question{Si vous deviez recommencer, que changeriez-vous ?}
+Je commencerais par le condensat des mots de passe et un contrôle de rôle
+centralisé dans un filtre plutôt que répété dans chaque contrôleur --- cela
+supprimerait d'un coup les écarts entre écrans. Et j'écrirais les tests
+unitaires au fur et à mesure plutôt qu'à la fin.
+
+% =====================================================================
+\newpage
+\section{Les questions qui déstabilisent, et quoi faire}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{5cm}|X|}
+\hline
+\textmd{\textbf{Situation}} & \textbf{Réaction}\\
+\hline
+Vous ne connaissez pas la réponse & Le dire simplement, puis proposer ce que vous savez d'approchant. \emph{\enquote{Je ne l'ai pas mis en \oe uvre, mais le principe est \dots}} Ne jamais inventer un chiffre.\\
+\hline
+On conteste un de vos chiffres & Demander de quelle page il s'agit, et repartir de la source : \emph{\enquote{ce chiffre vient du datamart, page tant}}. Vos chiffres sont vérifiables, c'est votre force.\\
+\hline
+On pointe une limite que vous connaissez & Confirmer aussitôt, donner la cause et la correction. Une limite reconnue et chiffrée est un signe de maîtrise.\\
+\hline
+On vous demande un détail technique très fin & Répondre au niveau que vous maîtrisez, sans bluffer. \emph{\enquote{Ce que je peux vous dire précisément, c'est \dots}}\\
+\hline
+La démonstration échoue & Ne pas s'excuser longuement. Annoncer la cause si vous la connaissez, montrer les captures du rapport, et poursuivre.\\
+\hline
+On vous coupe & Laisser finir la question, reformuler en une phrase pour vérifier que vous l'avez comprise, puis répondre.\\
+\hline
+\end{tabularx}
+
+\vspace{1em}
+\begin{coeur}
+Trois réflexes : \textbf{ne jamais inventer un chiffre} --- dire \enquote{je
+vérifie dans le rapport} vaut mieux qu'une approximation ; \textbf{annoncer vos
+limites avant qu'on les trouve} ; et \textbf{revenir à la donnée} --- tout ce
+que vous avancez est vérifiable dans le rapport, le datamart ou le code.
+\end{coeur}
+
+\end{document}

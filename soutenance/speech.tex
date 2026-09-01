@@ -1,0 +1,393 @@
+% =====================================================================
+%  Speech de soutenance — version vérifiée
+% =====================================================================
+\documentclass[a4paper,11pt]{article}
+\input{preambule}
+\fancyhead[L]{\small\color{btkblue}Speech de soutenance}
+
+\begin{document}
+
+\begin{center}
+{\color{btkblue}\rule{\textwidth}{2pt}}\\[0.3cm]
+{\huge\bfseries\color{btkblue} Speech de soutenance\par}
+\vspace{0.2cm}
+{\large Système intelligent de gestion des rôles et de pointage\\
+avec tableau de bord décisionnel --- BTK\par}
+\vspace{0.2cm}
+{\color{btkblue}\rule{\textwidth}{2pt}}
+\end{center}
+
+\vspace{0.4cm}
+\begin{corrige}[title={Version vérifiée --- ce qui a changé}]
+Les chiffres de ce speech ont été recoupés avec le code, le datamart et le
+rapport. \textbf{Cinq corrections} ont été faites, toutes sur la partie
+segmentation et sur le modèle en étoile. Elles sont récapitulées en dernière
+page. Les chiffres du réseau (45 agences, 997 employés, 29\,942 clients,
+105\,000 comptes, 1,40 milliard de crédits, 253 millions d'épargne,
+87,9\,\% de présence) ont été vérifiés et sont \textbf{exacts}.
+\end{corrige}
+
+% =====================================================================
+\section*{Slide 1 --- Page de garde}
+\addcontentsline{toc}{section}{Slide 1}
+
+Bonjour à tous. Je m'appelle Oussema Korbosli, et je vais vous présenter mon
+projet de fin d'études intitulé \enquote{Système intelligent de gestion des
+rôles et de pointage avec tableau de bord décisionnel}, réalisé au sein de la
+BTK --- Banque Tuniso-Koweïtienne, sous l'encadrement de M. Melek Aziz Elmoula
+comme maître de stage, et de M. Heni Abidi comme encadrant académique.
+
+\section*{Slide 2 --- Plan}
+
+Je vais structurer ma présentation en six parties : le contexte général, les
+spécifications des besoins, la conception et l'architecture, le volet
+décisionnel et sa réalisation, l'intelligence artificielle avec une
+démonstration, et enfin les perspectives d'évolution.
+
+\begin{note}
+\small Le plan est déjà écrit sur la diapositive : ne pas le lire, faire une
+simple liaison.
+\end{note}
+
+% =====================================================================
+\section*{Partie 01 --- Contexte général (slides 3 à 10)}
+
+\subsection*{Slide 4 --- Contexte général}
+
+La BTK gère un réseau de 45 agences, avec des données éclatées entre plusieurs
+fichiers et applications, alors que la direction doit piloter la performance et
+l'assiduité sur des indicateurs fiables et à jour. Comme je le résume :
+\enquote{Une donnée dispersée ne décide rien : c'est en la consolidant qu'elle
+devient un instrument de pilotage.} L'objectif : centraliser la gestion du
+réseau et transformer les données en indicateurs d'aide à la décision.
+
+\subsection*{Slide 5 --- Présentation de l'organisme d'accueil}
+
+J'ai effectué mon stage à la BTK, une banque universelle tunisienne créée le
+25 février 1981 dans le cadre d'une convention de coopération avec le Koweït,
+au département Data, du 16 février au 16 juin 2026, sous l'encadrement de
+M. Melek Aziz Elmoula.
+
+\subsection*{Slide 6 --- Le réseau BTK en chiffres}
+
+Le réseau en chiffres : 45 agences, 997 employés, près de 30\,000 clients,
+plus de 105\,000 comptes, 1,40 milliard de dinars de crédits, 253 millions
+d'épargne, et 87,9\,\% de présence.
+
+Ces chiffres sont issus des \textbf{données réelles de la base BTK}, restituées
+par le rapport Power BI --- pas de données fictives.
+
+\begin{corrige}
+La phrase d'origine attribuait ces chiffres \enquote{au datamart produit par ma
+chaîne ETL}. C'est imprécis et attaquable : le datamart de l'ETL agrège un
+périmètre plus restreint (20\,979 comptes, 378 millions de crédits). Les
+105\,000 comptes et le 1,40 milliard viennent de \texttt{B\_OBJECTIF} agrégée
+sur \textbf{toutes les périodes} par Power BI. Les deux sont réels, mais ce ne
+sont pas les mêmes agrégations : attribuez-les à Power BI, pas à l'ETL.
+\end{corrige}
+
+\subsection*{Slide 7 --- Problématiques}
+
+Quatre problématiques en découlent : des données dispersées et consolidées
+manuellement, un suivi de présence sans traçabilité fiable, aucune vision
+consolidée du réseau, et des indicateurs indisponibles au moment de décider.
+
+\subsection*{Slide 8 --- Étude de l'existant}
+
+J'ai étudié trois solutions : Excel, risqué et sans traçabilité des opérations
+sensibles ; un progiciel du marché, coûteux et peu adapté aux besoins
+spécifiques de la BTK. J'ai donc retenu un développement sur mesure, adapté au
+métier réel de la banque.
+
+\subsection*{Slide 9 --- Solution proposée}
+
+Ma solution a trois volets : une application web de gestion centralisée des
+agences, employés, clients et objectifs, en Jakarta EE avec une base Oracle ;
+une chaîne décisionnelle ETL vers un datamart en étoile restitué via Power BI ;
+et un volet intelligence artificielle de segmentation des agences avec
+scikit-learn. Une seule solution intégrée, de la saisie jusqu'à la décision.
+
+\subsection*{Slide 10 --- Méthodologie adoptée : CRISP-DM}
+
+J'ai adopté la méthodologie CRISP-DM, en six phases : compréhension métier,
+compréhension des données, préparation des données, modélisation, évaluation,
+et déploiement.
+
+Pourquoi ce choix ? Mon projet est centré sur les données : Scrum structure bien
+la production logicielle, mais ne couvre pas l'analyse et la valorisation des
+données, alors que CRISP-DM est la méthodologie de référence des projets
+décisionnels, et ses six phases épousent exactement le déroulement de mon
+projet --- tout en gardant des pratiques agiles comme les itérations et les
+validations régulières.
+
+\begin{coeur}
+La justification de CRISP-DM contre Scrum est une question quasi certaine.
+Retenir l'argument : \emph{Scrum organise la production logicielle, CRISP-DM
+organise le travail sur la donnée}.
+\end{coeur}
+
+% =====================================================================
+\section*{Partie 02 --- Spécifications des besoins (slides 11 à 14)}
+
+\subsection*{Slide 12 --- Identification des acteurs}
+
+Trois acteurs : l'Administrateur gère les agences, employés et clients, valide
+les demandes et supervise le décisionnel ; le Directeur commercial soumet les
+demandes de création et valide les demandes de modification des employés ;
+l'Utilisateur consulte ses données et effectue son pointage. Ces rôles sont
+gérés via la table \texttt{SECURITY\_USERS}.
+
+\subsection*{Slide 13 --- Besoins fonctionnels}
+
+Six besoins fonctionnels : l'authentification et la gestion des rôles, la
+gestion du référentiel --- agences, employés, clients ---, le suivi des
+objectifs, le pointage avec ses statuts, les circuits de validation, et le
+volet décisionnel.
+
+\subsection*{Slide 14 --- Besoins non fonctionnels}
+
+Six exigences non fonctionnelles : la sécurité, la fiabilité, la performance,
+l'ergonomie, la maintenabilité, et la portabilité --- le standard Jakarta EE
+rendant l'application compatible avec différents serveurs.
+
+% =====================================================================
+\section*{Partie 03 --- Conception et architecture (slides 15 à 19)}
+
+\subsection*{Slide 16 --- Architecture logique en couches}
+
+Une architecture logique en quatre couches, inspirée du MVC : Présentation,
+Contrôle, Métier et Persistance, chacune indépendante et faiblement couplée aux
+autres --- ce qui facilite la maintenance.
+
+\begin{coeur}
+Les quatre couches et leur rôle : c'est le premier point que le jury vérifie.
+Présentation = les JSP ; Contrôle = les servlets ; Métier = les EJB ;
+Persistance = JPA/Hibernate.
+\end{coeur}
+
+\subsection*{Slide 17 --- Architecture physique (3-tiers)}
+
+Sur le plan physique, trois niveaux : le poste client, le serveur WildFly qui
+héberge l'application, et le serveur Oracle --- avec Power BI et la chaîne ETL
+Python connectés directement aux vues décisionnelles de la base.
+
+\subsection*{Slide 18 --- Diagramme de cas d'utilisation global}
+
+Ce diagramme illustre les interactions des trois acteurs.
+\enquote{S'authentifier} est commun à tous via une relation d'inclusion.
+L'administrateur concentre la gestion, le directeur commercial soumet et
+consulte, l'utilisateur pointe et consulte ses données.
+
+\subsection*{Slide 19 --- Modèle décisionnel en étoile}
+
+J'ai comparé trois schémas --- étoile, flocon, constellation --- et retenu
+l'étoile, plus simple et plus lisible pour un outil comme Power BI. La table de
+faits \texttt{fait\_agence} regroupe sept indicateurs au grain de l'agence, avec
+sa dimension \texttt{dim\_agence} ; une seconde table de faits,
+\texttt{fait\_objectif}, descend au grain agence $\times$ gestionnaire, avec sa
+dimension \texttt{dim\_gestionnaire}.
+
+\begin{corrige}
+La version d'origine disait \enquote{entourée de \textbf{quatre} dimensions :
+agence, période, gestionnaire et type de client}. Le datamart en compte
+\textbf{deux} : \texttt{dim\_agence} et \texttt{dim\_gestionnaire}. Les quatre
+axes cités dans le rapport servent à \emph{justifier le choix de l'étoile}
+(nombre réduit d'axes d'analyse) --- ce ne sont pas quatre tables de dimension.
+Si le jury ouvre \texttt{etl/entrepot/}, il n'y trouvera que ces deux-là.
+\end{corrige}
+
+% =====================================================================
+\section*{Partie 04 --- Volet décisionnel et réalisation (slides 20 à 28)}
+
+\subsection*{Slide 21 --- Chaîne ETL en Python : cinq étapes}
+
+La chaîne ETL a cinq étapes : la collecte des cinq tables sources, le nettoyage,
+la transformation --- l'agrégation des indicateurs par agence ---, l'intégration
+sur la clé \texttt{SK\_AGENCE}, et le contrôle de qualité. Cette chaîne
+rejouable a produit \textbf{49 entités du réseau consolidées}.
+
+\begin{corrige}
+La version d'origine annonçait \enquote{45 agences consolidées avec leurs
+7 indicateurs}. L'ETL produit \textbf{49 entités} : les 45 agences du réseau,
+plus le siège, deux agences régionales et deux agences premium. C'est le chiffre
+que porte le rapport et c'est celui qu'on lit dans la sortie du script. Le
+nombre d'indicateurs dépend de la source : \textbf{sept} avec la table
+\texttt{POINTAGE} (le taux de présence en fait partie), \textbf{six} sans elle.
+\end{corrige}
+
+\begin{note}
+\small Si on vous demande \enquote{45 ou 49 ?} : \emph{45 agences
+d'exploitation forment le réseau commercial ; l'extraction en remonte 49 parce
+qu'elle inclut le siège et les structures régionales et premium.}
+\end{note}
+
+\subsection*{Slide 22 --- Datamart obtenu sur les données réelles}
+
+Le datamart révèle une hétérogénéité entre agences --- BIZERTE et MGHIRA
+dominent le portefeuille clients, CENTRALE la production de crédits --- que la
+segmentation va exploiter.
+
+\subsection*{Slide 23 --- Intégration du modèle dans Power BI}
+
+Le modèle Power BI relie l'agence à ses employés, clients et objectifs, ce qui
+permet un filtrage croisé : un clic recalcule instantanément tous les visuels du
+rapport.
+
+\subsection*{Slides 24 à 27 --- Tableaux de bord}
+
+Quatre tableaux de bord Power BI sur données réelles : un résumé du réseau ---
+30\,000 clients, 1,40 milliard de crédits, 87,9\,\% de présence ; l'analyse
+clients --- portefeuille à 88\,\% particuliers, concentré sur le Grand Tunis ;
+la performance commerciale --- production équilibrée, CENTRALE comme agence
+phare ; et le suivi de présence --- bonne adoption du pointage automatique, avec
+des agences à surveiller identifiées.
+
+\begin{note}
+\small Quatre diapositives : commenter un point par diapositive, sans revenir
+en arrière.
+\end{note}
+
+\subsection*{Slide 28 --- Réalisation et environnement technique}
+
+L'application repose sur Java 21, Jakarta EE, Hibernate et Oracle, déployée sur
+WildFly. J'ai validé l'application avec dix scénarios de tests fonctionnels,
+tous conformes.
+
+\begin{note}
+\small Les dix scénarios sont ceux du tableau du rapport (chapitre 4) :
+authentification, rôles, agences, employés, clients, objectifs, pointage,
+demandes, ETL, décisionnel. Les citer dans cet ordre en cas de question ---
+ce sont ceux qui figurent dans le document remis au jury.
+\end{note}
+
+% =====================================================================
+\section*{Partie 05 --- Intelligence artificielle et démonstration (slides 29 à 32)}
+
+\subsection*{Slide 30 --- Zoom technique : segmentation par K-Means}
+
+Le principe : regrouper les agences en profils homogènes à partir de leurs
+indicateurs, sans étiquette préalable --- apprentissage non supervisé.
+
+Le siège est écarté de l'analyse : avec 540 employés, c'est une structure
+centrale et non une agence, et il écraserait toutes les distances. Les montants,
+très asymétriques, passent au logarithme, puis toutes les variables sont
+standardisées. J'ai retenu \textbf{k = 3} à l'aide de la méthode du coude et du
+score de silhouette, puis comparé quatre algorithmes --- K-Means, hiérarchique,
+GMM et DBSCAN.
+
+Le modèle retenu est \textbf{K-Means}, avec un score de silhouette de
+\textbf{0,604} et un indice de Calinski-Harabasz de \textbf{95,2}, les meilleurs
+des quatre.
+
+\begin{corrige}
+La version d'origine annonçait \enquote{silhouette 0,736 et Davies-Bouldin
+0,350}. Ces valeurs viennent de l'ancienne exécution sur un \textbf{jeu
+synthétique} ; sur les données réelles, K-Means obtient \textbf{0,604} de
+silhouette et \textbf{0,709} de Davies-Bouldin. Le tableau du rapport porte les
+valeurs réelles : si vous citez 0,736, le jury verra la contradiction.
+\end{corrige}
+
+\begin{coeur}
+\textbf{Attention à ne pas dire \enquote{les meilleurs sur les quatre
+indices}.} C'est faux et vérifiable dans le tableau : K-Means a la meilleure
+silhouette (0,604) et le meilleur Calinski-Harabasz (95,2), mais \textbf{DBSCAN
+a un meilleur Davies-Bouldin} (0,393 contre 0,709). La bonne formulation :
+\emph{\enquote{K-Means obtient la meilleure silhouette. DBSCAN a un
+Davies-Bouldin plus favorable, mais il refuse de classer CENTRALE, qu'il traite
+comme du bruit : je retiens le modèle qui classe toutes les agences, ce qui est
+la condition pour s'en servir en pilotage.}}
+\end{coeur}
+
+\begin{note}
+\small Sur \textbf{k = 3} : la silhouette est maximale à k = 2 (0,681), mais
+k = 2 ne fait qu'isoler les entités sans activité. Le mieux est de le dire
+soi-même : \emph{\enquote{k = 2 sépare trivialement les entités sans activité ;
+j'ai retenu la meilleure solution à partir de k = 3, exploitable pour le
+pilotage.}}
+\end{note}
+
+\subsection*{Slide 31 --- Résultats de la segmentation}
+
+Trois profils émergent : \textbf{34 agences d'exploitation}, qui portent
+l'activité du réseau ; \textbf{6 entités de production sans portefeuille
+client} --- structures régionales et cas particuliers ; et \textbf{8 entités
+sans activité enregistrée}. De quoi allouer les ressources et différencier les
+objectifs selon le profil réel de chaque structure.
+
+\begin{corrige}
+La version d'origine annonçait \enquote{7 grandes agences, 16 moyennes,
+22 petites}. C'est la répartition de l'ancien jeu synthétique. Sur les données
+réelles, les trois groupes sont \textbf{34 / 6 / 8}, et ils ne se lisent pas en
+\enquote{grandes, moyennes, petites} mais en \emph{nature d'activité} : celles
+qui exploitent un portefeuille, celles qui produisent sans portefeuille, celles
+sans activité enregistrée.
+\end{corrige}
+
+\subsection*{Slide 32 --- Démonstration}
+
+Je vais maintenant vous faire une démonstration de l'application web, du tableau
+de bord embarqué, et du rapport Power BI.
+
+\begin{note}
+\small Se taire pendant que la vidéo tourne, et commenter au fur et à mesure.
+Avant la démonstration : vérifier qu'Oracle est démarré et que la base
+pluggable est ouverte, sinon l'application renvoie \texttt{IJ000453}.
+\end{note}
+
+% =====================================================================
+\section*{Partie 06 --- Conclusion et perspectives (slides 33 à 36)}
+
+\subsection*{Slide 34 --- Conclusion}
+
+Ce projet livre trois réalisations : une application web de gestion centralisée
+du réseau, une chaîne décisionnelle complète avec quatre tableaux de bord
+Power BI, et un volet intelligence artificielle de segmentation en trois profils
+exploitables. Au final, un système complet, de la donnée opérationnelle à la
+décision.
+
+\subsection*{Slide 35 --- Perspectives}
+
+Plusieurs perspectives : une sécurité renforcée --- le mot de passe est
+aujourd'hui comparé en clair, il faudrait un condensat salé ---,
+l'industrialisation de l'ETL, des analyses prédictives, une API REST, une
+application mobile, et des alertes automatiques sous seuils critiques.
+
+\subsection*{Slide 36 --- Clôture}
+
+Je vous remercie pour votre attention, et je reste à votre disposition pour vos
+questions.
+
+% =====================================================================
+\newpage
+\section*{Récapitulatif des corrections}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{2.2cm}|L{5.3cm}|X|}
+\hline
+\textmd{\textbf{Slide}} & \textbf{Version d'origine} & \textbf{Version vérifiée}\\
+\hline
+6 & \enquote{issus du datamart produit par ma chaîne ETL} & issus des données réelles restituées par Power BI (l'ETL agrège un périmètre plus restreint)\\
+\hline
+19 & entourée de \textbf{quatre} dimensions & \textbf{deux} dimensions : \texttt{dim\_agence} et \texttt{dim\_gestionnaire}\\
+\hline
+21 & \textbf{45} agences consolidées & \textbf{49} entités du réseau consolidées\\
+\hline
+30 & silhouette \textbf{0,736}, Davies-Bouldin \textbf{0,350} & silhouette \textbf{0,604}, Davies-Bouldin \textbf{0,709} ; DBSCAN a un meilleur Davies-Bouldin\\
+\hline
+31 & \textbf{7} grandes / \textbf{16} moyennes / \textbf{22} petites & \textbf{34} d'exploitation / \textbf{6} de production sans portefeuille / \textbf{8} sans activité\\
+\hline
+\end{tabularx}
+
+\vspace{0.8em}
+\noindent\textbf{Chiffres vérifiés et inchangés :} 45 agences, 997 employés,
+29\,942 clients, 105\,000 comptes, 1,40 milliard de crédits, 253 millions
+d'épargne, 87,9\,\% de présence, 88\,\% de particuliers, création de la BTK le
+25 février 1981, stage du 16 février au 16 juin 2026, dix scénarios de test.
+
+\vspace{0.6em}
+\begin{coeur}
+Les trois chiffres à ne pas confondre le jour J : \textbf{45} agences dans le
+réseau, \textbf{49} entités dans l'extraction, \textbf{48} retenues dans la
+segmentation (le siège est écarté).
+\end{coeur}
+
+\end{document}

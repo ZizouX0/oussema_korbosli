@@ -1,60 +1,35 @@
 \babel@toc {french}{}\relax 
-\contentsline {section}{\numberline {1}Vue d'ensemble}{3}{section.1}%
-\contentsline {subsection}{\numberline {1.1}La pile technique}{3}{subsection.1.1}%
-\contentsline {subsection}{\numberline {1.2}Ce que contient le projet}{3}{subsection.1.2}%
-\contentsline {subsection}{\numberline {1.3}L'architecture en quatre couches}{3}{subsection.1.3}%
-\contentsline {subsection}{\numberline {1.4}Le cycle de vie d'une requête, sur un exemple}{4}{subsection.1.4}%
-\contentsline {subsection}{\numberline {1.5}Pourquoi les JSP sont sous \texttt {WEB-INF}}{4}{subsection.1.5}%
-\contentsline {section}{\numberline {2}Le socle transverse}{4}{section.2}%
-\contentsline {subsection}{\numberline {2.1}Authentification et rôles}{5}{subsection.2.1}%
-\contentsline {subsection}{\numberline {2.2}Le filtre de notifications}{5}{subsection.2.2}%
-\contentsline {subsection}{\numberline {2.3}Le journal d'audit}{6}{subsection.2.3}%
-\contentsline {subsection}{\numberline {2.4}Les notifications}{6}{subsection.2.4}%
-\contentsline {subsection}{\numberline {2.5}Le gabarit de page}{6}{subsection.2.5}%
-\contentsline {subsection}{\numberline {2.6}Les seize entités et leurs tables}{7}{subsection.2.6}%
-\contentsline {section}{\numberline {3}Les fonctionnalités, une par une}{7}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Authentification}{7}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Tableau de bord}{8}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}Annuaire des employés}{8}{subsection.3.3}%
-\contentsline {subsection}{\numberline {3.4}Portefeuille clients}{8}{subsection.3.4}%
-\contentsline {subsection}{\numberline {3.5}Référentiel des agences}{8}{subsection.3.5}%
-\contentsline {subsection}{\numberline {3.6}Objectifs commerciaux}{9}{subsection.3.6}%
-\contentsline {subsection}{\numberline {3.7}Pointage de la présence}{9}{subsection.3.7}%
-\contentsline {subsection}{\numberline {3.8}Demandes de création}{9}{subsection.3.8}%
-\contentsline {subsection}{\numberline {3.9}Demandes de modification --- la double validation}{10}{subsection.3.9}%
-\contentsline {subsection}{\numberline {3.10}Ajout d'un employé}{10}{subsection.3.10}%
-\contentsline {section}{\numberline {4}Le front en détail}{11}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Rien de construit, tout d'écrit}{11}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}La feuille de style}{11}{subsection.4.2}%
-\contentsline {subsection}{\numberline {4.3}JSTL et le langage d'expression}{11}{subsection.4.3}%
-\contentsline {subsection}{\numberline {4.4}Les trois graphiques du tableau de bord}{11}{subsection.4.4}%
-\contentsline {section}{\numberline {5}Le back en détail}{11}{section.5}%
-\contentsline {subsection}{\numberline {5.1}Le motif commun à tous les servlets}{12}{subsection.5.1}%
-\contentsline {subsection}{\numberline {5.2}Les EJB}{12}{subsection.5.2}%
-\contentsline {subsection}{\numberline {5.3}JPA et les transactions}{12}{subsection.5.3}%
-\contentsline {subsection}{\numberline {5.4}L'unité de persistance}{12}{subsection.5.4}%
-\contentsline {section}{\numberline {6}Le volet décisionnel}{13}{section.6}%
-\contentsline {subsection}{\numberline {6.1}Les vues décisionnelles}{13}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}Le schéma \texttt {BTK\_BI}}{13}{subsection.6.2}%
-\contentsline {subsection}{\numberline {6.3}La chaîne ETL}{14}{subsection.6.3}%
-\contentsline {subsection}{\numberline {6.4}Power BI --- la construction du rapport}{14}{subsection.6.4}%
-\contentsline {subsubsection}{\numberline {6.4.1}Connexion}{14}{subsubsection.6.4.1}%
-\contentsline {subsubsection}{\numberline {6.4.2}Thème et gabarit}{14}{subsubsection.6.4.2}%
-\contentsline {subsubsection}{\numberline {6.4.3}Les quatre pages}{15}{subsubsection.6.4.3}%
-\contentsline {subsubsection}{\numberline {6.4.4}Les mesures DAX}{15}{subsubsection.6.4.4}%
-\contentsline {subsection}{\numberline {6.5}La segmentation des agences}{15}{subsection.6.5}%
-\contentsline {section}{\numberline {7}Construction et déploiement}{16}{section.7}%
-\contentsline {subsection}{\numberline {7.1}De la source au WAR}{16}{subsection.7.1}%
-\contentsline {subsection}{\numberline {7.2}Ce que contient le WAR}{16}{subsection.7.2}%
-\contentsline {subsection}{\numberline {7.3}Déployer sur WildFly}{16}{subsection.7.3}%
-\contentsline {subsection}{\numberline {7.4}La datasource}{16}{subsection.7.4}%
-\contentsline {subsection}{\numberline {7.5}Diagnostiquer une erreur de connexion}{17}{subsection.7.5}%
-\contentsline {subsection}{\numberline {7.6}L'ordre de démarrage, avant la soutenance}{17}{subsection.7.6}%
-\contentsline {section}{\numberline {8}Les questions probables, et quoi répondre}{17}{section.8}%
-\contentsline {subsection}{\numberline {8.1}Architecture}{17}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}Sécurité}{18}{subsection.8.2}%
-\contentsline {subsection}{\numberline {8.3}JPA et transactions}{18}{subsection.8.3}%
-\contentsline {subsection}{\numberline {8.4}Front}{18}{subsection.8.4}%
-\contentsline {subsection}{\numberline {8.5}Décisionnel}{18}{subsection.8.5}%
-\contentsline {section}{\numberline {9}Points ouverts et limites}{19}{section.9}%
-\contentsline {section}{\numberline {10}Récapitulatif : la carte des URL}{19}{section.10}%
+\contentsline {section}{\numberline {1}L'application en une page}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}À quoi elle sert}{2}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Qui l'utilise}{2}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Ce qu'elle contient}{2}{subsection.1.3}%
+\contentsline {section}{\numberline {2}Les outils utilisés pour construire le projet}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Développement de l'application}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Base de données}{3}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Volet décisionnel}{3}{subsection.2.3}%
+\contentsline {section}{\numberline {3}Comment l'application est construite}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Le front : ce que voit l'utilisateur}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Le back : ce qui se passe derrière}{4}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}La sécurité des écrans}{4}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Les écrans, leurs boutons et leurs actions}{4}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Connexion}{5}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Tableau de bord}{5}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Pointage de la présence}{5}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Annuaire des employés}{6}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Portefeuille clients}{6}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Agences}{6}{subsection.4.6}%
+\contentsline {subsection}{\numberline {4.7}Objectifs commerciaux}{7}{subsection.4.7}%
+\contentsline {subsection}{\numberline {4.8}Ajouter un employé}{7}{subsection.4.8}%
+\contentsline {subsection}{\numberline {4.9}Mes demandes / Mon profil}{7}{subsection.4.9}%
+\contentsline {subsection}{\numberline {4.10}Soumettre une demande de création}{7}{subsection.4.10}%
+\contentsline {subsection}{\numberline {4.11}Valider les demandes de création}{8}{subsection.4.11}%
+\contentsline {subsection}{\numberline {4.12}Valider les demandes de modification}{8}{subsection.4.12}%
+\contentsline {subsection}{\numberline {4.13}Déconnexion}{9}{subsection.4.13}%
+\contentsline {section}{\numberline {5}Le volet Power BI}{9}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Le schéma utilisé}{9}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Les relations du modèle}{9}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Les vues décisionnelles}{9}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Les mesures}{10}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.5}La colonne calculée \enquote {Rôle}}{10}{subsection.5.5}%
+\contentsline {subsection}{\numberline {5.6}Les quatre pages du rapport}{11}{subsection.5.6}%
+\contentsline {section}{\numberline {6}Points ouverts}{11}{section.6}%

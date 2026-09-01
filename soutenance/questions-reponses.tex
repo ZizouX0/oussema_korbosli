@@ -1,0 +1,358 @@
+% =====================================================================
+%  Questions / réponses — version vérifiée
+% =====================================================================
+\documentclass[a4paper,11pt]{article}
+\input{preambule}
+\fancyhead[L]{\small\color{btkblue}Questions / réponses}
+
+\begin{document}
+
+\begin{center}
+{\color{btkblue}\rule{\textwidth}{2pt}}\\[0.3cm]
+{\huge\bfseries\color{btkblue} Questions et réponses\par}
+\vspace{0.2cm}
+{\large Préparation de la soutenance --- PFE BTK\par}
+\vspace{0.2cm}
+{\color{btkblue}\rule{\textwidth}{2pt}}
+\end{center}
+
+\vspace{0.4cm}
+\begin{corrige}[title={Version vérifiée --- ce qui a changé}]
+Quatre corrections de chiffres (Q5, Q7, Q8), une question en double supprimée
+(Q3/Q4 étaient identiques), et le tableau des tests remplacé par celui du
+rapport --- l'ancien citait une suppression de client que l'application ne sait
+pas faire. Récapitulatif en dernière page.
+\end{corrige}
+
+% =====================================================================
+\section{Architecture}
+
+\question{Q1 --- Est-ce que c'est du MVC ?}
+
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+  \item Non : c'est une architecture \textbf{en couches} (N-tier), pas un MVC pur.
+  \item Le MVC classique compte trois composants : Model, View, Controller.
+  \item Ici il y a \textbf{quatre couches} : Présentation, Contrôle, Métier, Persistance.
+  \item Dans un MVC pur, \enquote{Métier} et \enquote{Persistance} seraient fondus dans le Model.
+  \item Le Model a donc été découpé en deux sous-couches, pour affiner la séparation.
+\end{itemize}
+\cle{C'est une architecture en couches inspirée du MVC : Présentation = View,
+Contrôle = Controller, et le Model est affiné en Métier + Persistance.}
+
+\question{Q2 --- Pourquoi pas un MVC pur, alors ?}
+
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+  \item \textbf{Responsabilité unique} : le Model du MVC classique mélange règles métier et accès aux données.
+  \item \textbf{Testabilité} : la couche Métier peut être testée seule, sans la vraie base Oracle.
+  \item \textbf{Cohérence technique} : c'est le standard Jakarta EE --- EJB pour le métier, JPA pour la persistance.
+  \item \textbf{Évolutivité} : si la base change, ou si on ajoute une API REST, une seule couche est touchée.
+\end{itemize}
+\cle{On n'a pas voulu un MVC pur pour éviter de surcharger le Model avec deux
+responsabilités différentes. En les séparant, on gagne en clarté, en
+testabilité et en flexibilité.}
+
+\question{Q3 --- Différence entre méthode et méthodologie ?}
+
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+  \item \textbf{Méthode} : une pratique concrète, un ensemble d'outils et de techniques appliqués --- par exemple Scrum.
+  \item \textbf{Méthodologie} : le cadre conceptuel qui guide le choix et l'enchaînement des méthodes.
+\end{itemize}
+\cle{La méthodologie est le cadre théorique, la méthode est son application
+concrète --- Scrum est une méthode issue de la méthodologie agile.}
+
+\begin{corrige}
+Cette question figurait \textbf{deux fois} (Q3 et Q4), avec exactement la même
+réponse. Le doublon est supprimé, et la place est prise par une question qui
+tombe souvent : le choix de CRISP-DM.
+\end{corrige}
+
+\question{Q4 --- Pourquoi CRISP-DM et pas Scrum ?}
+
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+  \item Le projet est \textbf{centré sur les données}, pas seulement sur la production de code.
+  \item Scrum organise la fabrication logicielle mais ne dit rien de la compréhension des données ni de leur valorisation.
+  \item CRISP-DM est la méthodologie de référence des projets décisionnels : compréhension métier, compréhension des données, préparation, modélisation, évaluation, déploiement.
+  \item Ses six phases épousent le déroulement réel du projet, tout en gardant des pratiques agiles : itérations et validations régulières.
+\end{itemize}
+\cle{Scrum organise la production logicielle ; CRISP-DM organise le travail sur
+la donnée. Mon projet allant de la donnée brute jusqu'à la décision, c'est
+CRISP-DM qui décrit le mieux mon déroulement.}
+
+\question{Q9 --- Pourquoi Jakarta EE et pas Spring Boot, plus répandu ?}
+
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+  \item \textbf{Standard robuste et éprouvé}, avec des spécifications stables : Servlets, EJB, JPA, CDI.
+  \item \textbf{Portabilité} : aucune dépendance à un serveur précis.
+  \item \textbf{Cohérence avec l'environnement bancaire}, où les serveurs d'applications de ce type sont déjà en place.
+  \item \textbf{Séparation des responsabilités native} : EJB pour le métier, JPA pour la persistance --- ce qui s'aligne exactement sur l'architecture en couches retenue.
+\end{itemize}
+\cle{J'ai choisi Jakarta EE parce que c'est un standard robuste et portable,
+cohérent avec un environnement bancaire où la stabilité et la conformité aux
+standards priment sur la rapidité de développement.}
+
+\question{Q10 --- Que voulez-vous dire par \enquote{workflows de validation} ?}
+
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+  \item Certaines actions sensibles ne s'appliquent pas directement : elles passent par un circuit d'approbation.
+  \item Exemple : le directeur commercial soumet une demande de création d'agence, l'administrateur la valide avant qu'elle prenne effet.
+  \item Une modification de données personnelles va plus loin : \textbf{double validation} --- le directeur approuve, puis l'administrateur applique.
+  \item Cela évite qu'une seule personne modifie une donnée critique sans second contrôle.
+\end{itemize}
+\cle{Un workflow de validation, c'est un circuit d'approbation : une action
+sensible est d'abord soumise, puis validée par un autre rôle avant d'être
+appliquée. Aucune donnée critique n'est modifiée par une seule personne.}
+
+% =====================================================================
+\section{Segmentation et intelligence artificielle}
+
+\question{Q5 --- Pourquoi K-Means et pas un autre algorithme ?}
+
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+  \item J'ai comparé quatre modèles : K-Means, agglomératif, GMM et DBSCAN.
+  \item K-Means obtient le \textbf{meilleur score de silhouette : 0,604}, et le meilleur Calinski-Harabasz : 95,2.
+  \item DBSCAN a un Davies-Bouldin plus favorable (0,393 contre 0,709), \textbf{mais il refuse de classer CENTRALE}, qu'il traite comme du bruit.
+  \item Or un modèle de pilotage doit affecter \textbf{toutes} les agences à un segment : je retiens donc K-Means.
+  \item Il est en outre simple, rapide, et permet de classer facilement une nouvelle agence.
+\end{itemize}
+\cle{J'ai comparé quatre algorithmes. K-Means a la meilleure silhouette.
+DBSCAN a un meilleur Davies-Bouldin mais il rejette une agence comme bruit :
+je retiens le modèle qui classe toutes les agences, condition pour s'en servir
+en pilotage.}
+
+\begin{corrige}
+La version d'origine annonçait \enquote{silhouette 0,736 et Davies-Bouldin
+0,350, les meilleurs des quatre}. Ces valeurs venaient de l'ancienne exécution
+sur un jeu synthétique. Sur les données réelles : \textbf{0,604} et
+\textbf{0,709}, et le meilleur Davies-Bouldin est celui de DBSCAN. Le tableau
+du rapport porte les valeurs réelles.
+\end{corrige}
+
+\noindent\begin{tabularx}{\textwidth}{|L{3.4cm}|c|c|c|X|}
+\hline
+\rowcolor{btkpale}
+\textbf{Modèle} & \textbf{k} & \textbf{Silhouette} & \textbf{D.-Bouldin} & \textbf{Remarque}\\
+\hline
+K-Means & 3 & \textbf{0,604} & 0,709 & retenu\\
+\hline
+DBSCAN & 4 & 0,517 & \textbf{0,393} & rejette CENTRALE comme bruit\\
+\hline
+GMM & 3 & 0,446 & 0,770 & \\
+\hline
+Agglomératif & 3 & 0,417 & 0,841 & \\
+\hline
+\end{tabularx}
+
+\question{Q6 --- Pourquoi k = 3 ?}
+
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+  \item Deux méthodes combinées : la \textbf{méthode du coude} et le \textbf{score de silhouette}.
+  \item La silhouette est en réalité maximale à k = 2 --- mais k = 2 ne fait qu'isoler trivialement les entités sans activité.
+  \item J'ai donc retenu la meilleure solution \textbf{à partir de k = 3}, la première qui soit exploitable pour le pilotage.
+\end{itemize}
+\cle{k = 2 sépare trivialement les entités sans activité. J'ai retenu la
+meilleure solution à partir de k = 3, qui donne trois profils interprétables et
+utilisables par la direction.}
+
+\begin{corrige}
+La version d'origine disait que \enquote{les deux méthodes convergent vers 3}.
+C'est inexact et vérifiable dans la courbe de silhouette du rapport : le maximum
+est à k = 2 (0,681), k = 3 vient ensuite (0,604). Mieux vaut l'annoncer
+soi-même avec la justification métier.
+\end{corrige}
+
+\question{Q7 --- Pourquoi standardiser les données avant K-Means ?}
+
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+  \item K-Means repose sur la \textbf{distance euclidienne}.
+  \item Sans standardisation, une variable à grande échelle --- la production de crédits, en centaines de millions --- écraserait toutes les autres.
+  \item \texttt{StandardScaler} centre et réduit : moyenne 0, écart-type 1, toutes les variables au même poids.
+  \item J'ai en plus appliqué une \textbf{transformation logarithmique} aux montants et au portefeuille, dont la distribution est très asymétrique.
+\end{itemize}
+\cle{K-Means utilise la distance euclidienne : sans standardiser les six
+variables, celles à grande échelle fausseraient les distances. J'ai aussi passé
+les montants au logarithme, parce que leur distribution est très asymétrique.}
+
+\begin{corrige}
+La version d'origine parlait des \enquote{7 variables}. La segmentation en
+utilise \textbf{six} : effectif, gestionnaires, clients, comptes, crédits,
+épargne. Le taux de présence n'est pas retenu --- il mesure l'assiduité, pas la
+taille ni l'activité commerciale.
+\end{corrige}
+
+\question{Q8 --- C'est quoi le score de silhouette ?}
+
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+  \item Une mesure de qualité du regroupement, comprise entre $-1$ et $1$.
+  \item Proche de 1 : les points sont serrés dans leur groupe et bien séparés des autres.
+  \item Ici : \textbf{0,604}, ce qui indique des groupes nettement distincts.
+\end{itemize}
+\cle{Le score de silhouette évalue si un point est proche de son propre groupe
+et loin des autres. Notre 0,604 indique des groupes bien séparés.}
+
+\question{Q16 --- Comment avez-vous réalisé la segmentation ?}
+
+J'ai utilisé le datamart produit par la chaîne ETL : \textbf{49 entités} du
+réseau et \textbf{six indicateurs}. Le siège est écarté de l'analyse --- 540
+employés, c'est une structure centrale, pas une agence --- ce qui laisse
+\textbf{48 entités}. J'ai appliqué une transformation logarithmique aux
+montants, standardisé les variables, puis retenu trois groupes avec la méthode
+du coude et la silhouette.
+
+\question{Q17 --- Pourquoi avoir standardisé les données ?}
+
+Parce que les variables n'ont pas les mêmes échelles. La standardisation les
+rend comparables et évite qu'une variable à grandes valeurs domine les autres
+dans le calcul des distances.
+
+\question{Q18 --- Pourquoi avoir choisi K-Means ?}
+
+J'ai comparé quatre modèles. K-Means obtient le meilleur score de silhouette, et
+il est le plus pertinent pour le pilotage : chaque agence est affectée à un
+segment, et une nouvelle agence peut être classée immédiatement.
+
+\question{Q19 --- Quels modèles avez-vous comparés ?}
+
+K-Means, l'agglomératif, GMM et DBSCAN.
+
+\begin{note}
+\small Citer les quatre suffit, à condition de savoir justifier le choix de
+K-Means (voir Q5).
+\end{note}
+
+% =====================================================================
+\section{Décisionnel, KPI et Power BI}
+
+\question{Q11 --- Pourquoi ces KPI, et sous quels critères ?}
+
+Les KPI ont été choisis en fonction des besoins métier identifiés et des données
+réellement disponibles dans les sources de la banque. L'objectif était de couvrir
+les principaux axes de pilotage du réseau : les ressources humaines, l'activité
+commerciale, la clientèle et l'assiduité. J'ai donc retenu des indicateurs qui
+permettent à la direction de mesurer la taille et l'activité des agences, leur
+performance commerciale et la présence des employés.
+
+\question{Q15 --- Quels sont vos KPI ?}
+
+Le nombre de clients, la production de crédits, le total des comptes ouverts, la
+collecte d'épargne, le taux de présence, la répartition des rôles et la
+segmentation des agences. Ils évaluent à la fois la performance commerciale des
+agences, leur capacité à développer leur portefeuille, et leur organisation
+interne.
+
+\begin{note}
+\small Si on demande un seul exemple : \emph{nombre de clients} mesure la taille
+du portefeuille de l'agence ; \emph{taux de présence} mesure l'assiduité des
+équipes.
+\end{note}
+
+\question{Q12 --- Comment fonctionne votre chaîne ETL ?}
+
+Elle est implémentée en Python avec pandas, et exécutée dans un notebook
+connecté à la base Oracle. Elle enchaîne cinq étapes : collecte des cinq tables
+sources, nettoyage, transformation, intégration sur la clé \texttt{SK\_AGENCE},
+et contrôle de qualité. Le contrôle final vérifie l'absence de valeur manquante,
+de valeur négative et d'agence en double --- et \textbf{interrompt le
+chargement} si l'un d'eux échoue.
+
+\question{Q13 --- C'est quoi une mesure DAX ?}
+
+C'est un calcul défini dans Power BI qui produit dynamiquement un indicateur à
+partir des données du modèle. Il est évalué \textbf{au moment de l'affichage},
+dans le contexte des filtres actifs.
+
+\question{Q14 --- Donnez-moi un exemple de mesure.}
+
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+  \item \textbf{Nb Employés} : compte le nombre distinct d'employés à partir de \texttt{SK\_UTILISATEUR}.
+  \item \textbf{Nb Clients} : compte le nombre distinct de clients à partir de \texttt{SK\_CLIENT}.
+  \item \textbf{Taux Présence} : rapport entre les pointages \enquote{présent} ou \enquote{retard} et le total des pointages.
+\end{itemize}
+
+\begin{coeur}
+\textbf{Mesure ou colonne calculée ?} C'est la relance la plus fréquente après
+une question DAX. Une \textbf{colonne calculée} est évaluée à l'actualisation et
+stockée : elle sert à \emph{filtrer ou grouper}. Une \textbf{mesure} est évaluée
+à l'affichage, dans le contexte des filtres : elle sert à \emph{agréger}. Dans
+mon rapport, \texttt{Rôle} est une colonne calculée, \texttt{Taux Présence} une
+mesure.
+\end{coeur}
+
+\begin{note}
+\small Les données du volet IA proviennent du \textbf{datamart produit par la
+chaîne ETL}, et non directement de la base opérationnelle.
+\end{note}
+
+% =====================================================================
+\section{Les tests réalisés}
+
+\begin{corrige}
+Le tableau d'origine listait dix scénarios dont deux ne correspondent pas à
+l'application : \enquote{Suppression d'un client} --- l'application ne sait pas
+supprimer un client, il n'existe aucune opération de suppression dans le service
+correspondant --- et \enquote{Modification d'un employé}, qui ne se fait pas
+directement mais passe par le circuit de demande à double validation. Le tableau
+ci-dessous est celui du \textbf{rapport remis au jury} : c'est celui qu'il faut
+citer, pour ne pas se contredire.
+\end{corrige}
+
+\noindent\begin{tabularx}{\textwidth}{|c|>{\bfseries}L{2.6cm}|X|L{2.3cm}|}
+\hline
+\rowcolor{btkpale}
+\textbf{\#} & \textmd{\textbf{Module}} & \textbf{Scénario testé} & \textbf{Résultat}\\
+\hline
+1 & Authentification & Connexion avec des identifiants valides puis invalides. & Conforme\\
+\hline
+2 & Rôles & Accès à une fonction réservée à l'\texttt{ADMIN} par un \texttt{USER}. & Conforme\\
+\hline
+3 & Agences & Création, modification et suppression d'une agence. & Conforme\\
+\hline
+4 & Employés & Ajout d'un employé et rattachement à une agence. & Conforme\\
+\hline
+5 & Clients & Affectation d'un client à un gestionnaire. & Conforme\\
+\hline
+6 & Objectifs & Consultation de la production par agence et période. & Conforme\\
+\hline
+7 & Pointage & Pointage au-delà de 9~h (détermination du statut). & Conforme (\texttt{RETARD})\\
+\hline
+8 & Demandes & Validation puis refus d'une demande, avec journalisation. & Conforme\\
+\hline
+9 & ETL & Exécution du pipeline et production du datamart. & Conforme\\
+\hline
+10 & Décisionnel & Filtrage par district dans le rapport Power BI. & Conforme\\
+\hline
+\end{tabularx}
+
+\begin{note}
+\small Si on vous demande quels tests vous avez faits, en citer deux ou trois et
+décrire le résultat obtenu. Les plus faciles à raconter : le pointage après 9~h
+qui bascule en \texttt{RETARD}, et l'accès refusé à un \texttt{USER} sur une
+page réservée à l'\texttt{ADMIN}.
+\end{note}
+
+% =====================================================================
+\newpage
+\section*{Récapitulatif des corrections}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{1.6cm}|L{5.4cm}|X|}
+\hline
+\textmd{\textbf{Point}} & \textbf{Version d'origine} & \textbf{Version vérifiée}\\
+\hline
+Q3 / Q4 & question posée deux fois, réponse identique & doublon supprimé, remplacé par le choix de CRISP-DM\\
+\hline
+Q5 & silhouette \textbf{0,736}, Davies-Bouldin \textbf{0,350}, \enquote{les meilleurs} & silhouette \textbf{0,604}, Davies-Bouldin \textbf{0,709} ; DBSCAN a un meilleur Davies-Bouldin mais rejette une agence\\
+\hline
+Q6 & \enquote{les deux méthodes convergent vers 3} & la silhouette est maximale à k = 2 ; k = 3 est le meilleur choix exploitable\\
+\hline
+Q7 & \enquote{les \textbf{7} variables} & \textbf{six} variables ; le taux de présence n'est pas retenu\\
+\hline
+Q8 & \enquote{0,736 = bon résultat} & \textbf{0,604}\\
+\hline
+Tests & \enquote{Suppression d'un client}, \enquote{Modification d'un employé} & remplacés par les dix scénarios du rapport\\
+\hline
+\end{tabularx}
+
+\vspace{0.8em}
+\noindent\textbf{Inchangé et vérifié :} Q1, Q2, Q9, Q10, Q11, Q12, Q13, Q14,
+Q15, Q16 (49 entités et 6 indicateurs : déjà juste), Q17, Q18, Q19.
+
+\end{document}
