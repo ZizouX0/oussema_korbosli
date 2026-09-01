@@ -90,15 +90,28 @@ def usecase(x, y, label, w=RW, h=RH, fs=14):
 
 
 def acteur(x, y, nom):
-    """Pictogramme « awesome » : tête et buste, comme le rendu PlantUML."""
-    s = 0.70
-    ax.add_patch(FancyBboxPatch(
-        (x - 0.95 * s, y - 0.62 * s), 1.90 * s, 0.86 * s,
-        boxstyle="round,pad=0.02,rounding_size=0.28",
-        facecolor=ACT, edgecolor=NAVY, lw=1.6, zorder=4))
-    ax.add_patch(Circle((x, y + 0.72 * s), 0.62 * s, facecolor=ACT,
-                        edgecolor=NAVY, lw=1.6, zorder=5))
-    ax.text(x, y - 1.15 * s, nom, ha="center", va="top", color="#12324F",
+    """Pictogramme UML classique : le bonhomme bâton (tête, tronc, bras, jambes).
+
+    Le point (x, y) est le centre du tronc : c'est de là que partent les
+    associations, à hauteur des épaules.
+    """
+    s = 0.85
+    lw = 1.7
+    # tête
+    ax.add_patch(Circle((x, y + 1.02 * s), 0.42 * s, facecolor="white",
+                        edgecolor=NAVY, lw=lw, zorder=5))
+    # tronc
+    ax.plot([x, x], [y + 0.60 * s, y - 0.42 * s], color=NAVY, lw=lw,
+            solid_capstyle="round", zorder=5)
+    # bras
+    ax.plot([x - 0.62 * s, x + 0.62 * s], [y + 0.24 * s, y + 0.24 * s],
+            color=NAVY, lw=lw, solid_capstyle="round", zorder=5)
+    # jambes
+    ax.plot([x, x - 0.50 * s], [y - 0.42 * s, y - 1.20 * s], color=NAVY, lw=lw,
+            solid_capstyle="round", zorder=5)
+    ax.plot([x, x + 0.50 * s], [y - 0.42 * s, y - 1.20 * s], color=NAVY, lw=lw,
+            solid_capstyle="round", zorder=5)
+    ax.text(x, y - 1.42 * s, nom, ha="center", va="top", color="#12324F",
             fontsize=15, fontweight="bold", zorder=6,
             bbox=dict(boxstyle="round,pad=0.16", fc="white", ec="none"))
 
