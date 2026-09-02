@@ -737,31 +737,31 @@ divider("05", "Intelligence artificielle & démonstration");
   s.addText("Le même circuit est suivi de bout en bout : on se connecte, on agit, et l'on voit la trace de l'action.",
     { x: M, y: 2.66, w: 11.5, h: 0.36, fontFace: BF, fontSize: 13, color: "CBD8EE", margin: 0 });
   const etapes = [
-    ["1", "Connexion", "ADMIN", "Identifiants v\u00e9rifi\u00e9s, r\u00f4le charg\u00e9 en session"],
-    ["2", "Tableau de bord", "ADMIN", "Indicateurs, graphiques et actions requises"],
-    ["3", "Employ\u00e9s", "ADMIN", "Ajout d'un employ\u00e9, filtre et liste"],
-    ["4", "Agences", "ADMIN", "Cr\u00e9ation et suppression d'une agence"],
-    ["5", "Pointage", "USER", "Arriv\u00e9e, d\u00e9part et statut calcul\u00e9"],
-    ["6", "Validation", "DIRECTEUR", "Approbation d'une demande de modification"],
+    ["1", "Authentification", "ADMIN", "Identifiants v\u00e9rifi\u00e9s, r\u00f4le charg\u00e9 en session"],
+    ["2", "Ajout d'un employ\u00e9", "ADMIN", "Employ\u00e9, compte de connexion et rattachement \u00e0 l'agence"],
+    ["3", "Pointage", "USER", "Arriv\u00e9e, d\u00e9part et statut calcul\u00e9 par le serveur"],
+    ["4", "Demande \u00e0 valider", "DIRECTEUR", "La demande de modification arrive dans sa file d'attente"],
+    ["5", "Assistant int\u00e9gr\u00e9", "ADMIN", "Questions en langage naturel sur les donn\u00e9es de l'application"],
   ];
   etapes.forEach((e, i) => {
-    const col = i % 3, row = Math.floor(i / 3);
-    const x = M + col * 4.03, y = 3.24 + row * 1.72;
+    const col = i < 3 ? i : i - 3, row = i < 3 ? 0 : 1;
+    // la seconde rang\u00e9e ne porte que deux cartes : on la centre sous la premi\u00e8re
+    const x = (row === 0 ? M : M + 2.12) + col * 4.03, y = 3.24 + row * 1.72;
     s.addShape(pptx.ShapeType.roundRect, { x, y, w: 3.83, h: 1.52,
       rectRadius: 0.08, fill: { color: MID }, line: { color: MID } });
     s.addShape(pptx.ShapeType.ellipse, { x: x + 0.2, y: y + 0.2, w: 0.42, h: 0.42,
       fill: { color: NAVY }, line: { color: NAVY } });
     s.addText(e[0], { x: x + 0.2, y: y + 0.2, w: 0.42, h: 0.42, fontFace: HF,
       fontSize: 13, bold: true, color: WHITE, align: "center", valign: "middle", margin: 0 });
-    s.addText(e[1], { x: x + 0.72, y: y + 0.18, w: 2.0, h: 0.34, fontFace: HF,
-      fontSize: 14, bold: true, color: WHITE, margin: 0, valign: "middle" });
-    s.addText(e[2], { x: x + 2.72, y: y + 0.2, w: 0.95, h: 0.3, fontFace: BF,
+    s.addText(e[1], { x: x + 0.72, y: y + 0.18, w: 2.06, h: 0.34, fontFace: HF,
+      fontSize: 13, bold: true, color: WHITE, margin: 0, valign: "middle" });
+    s.addText(e[2], { x: x + 2.82, y: y + 0.2, w: 0.85, h: 0.3, fontFace: BF,
       fontSize: 8.5, bold: true, color: NAVY, align: "center", margin: 0, valign: "middle",
       fill: { color: LITE }, rectRadius: 0.04 });
     s.addText(e[3], { x: x + 0.2, y: y + 0.68, w: 3.45, h: 0.7, fontFace: BF,
       fontSize: 10.5, color: "CBD8EE", margin: 0, valign: "top", lineSpacing: 13 });
   });
-  s.addText("Les quatre pages Power BI ont \u00e9t\u00e9 pr\u00e9sent\u00e9es dans la partie pr\u00e9c\u00e9dente.",
+  s.addText("Chacune de ces cinq \u00e9tapes est reprise sur la diapositive suivante, capture \u00e0 l'appui.",
     { x: M, y: 6.72, w: 11.5, h: 0.32, fontFace: BF, fontSize: 11.5, italic: true,
       color: "9FB6DC", margin: 0 });
 }

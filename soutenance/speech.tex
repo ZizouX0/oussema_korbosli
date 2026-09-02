@@ -385,59 +385,23 @@ suit un fil unique : \textbf{on se connecte, on agit, et on voit la trace de
 l'action}. Il passe par les \textbf{trois rôles}, pour montrer que les droits
 sont réellement appliqués et pas seulement déclarés.
 
-\paragraph{1. Connexion --- compte \texttt{admin}.}
-Je saisis l'identifiant et le mot de passe. Ils sont vérifiés dans la table
-\texttt{SECURITY\_USERS}, qui porte aussi le rôle. En cas de succès, une session
-est ouverte : elle retient l'identité, le rôle et l'identifiant métier de
-l'employé. C'est ce rôle en session qui conditionne tout le reste --- le menu
-affiché, et surtout les pages autorisées.
+Cette diapositive annonce le parcours en \textbf{cinq étapes} ; chacune est
+ensuite montrée en grand, capture à l'appui, sur les cinq diapositives
+suivantes. Ici, on se contente de les annoncer :
 
-\paragraph{2. Tableau de bord --- ce que voit l'administrateur.}
-J'arrive sur le tableau de bord. En haut, les indicateurs de synthèse :
-l'effectif, le portefeuille clients, les présents du jour et le taux de
-présence. Juste en dessous, le bandeau \textbf{Actions requises} : il n'apparaît
-que s'il y a quelque chose à traiter, et son contenu dépend du rôle ---
-l'administrateur voit ce qu'il doit exécuter, le directeur ce qu'il doit
-valider. Un clic ouvre directement l'écran concerné. Plus bas, les graphiques :
-l'effectif par agence, la répartition par rôle et la présence du jour, calculés
-à l'affichage à partir de la base.
-
-\paragraph{3. Employés --- ajouter et retrouver.}
-Le formulaire du haut crée un employé : matricule, nom, adresse électronique,
-agence de rattachement et rôle. À l'enregistrement, l'employé est créé
-\textbf{et} son compte de connexion avec lui, puis l'action est inscrite au
-journal d'audit. En dessous, le compteur d'effectif et la recherche : on filtre
-par agence ou par rôle. Le rôle affiché --- gestionnaire, conseiller, hors
-commercial --- n'est pas stocké tel quel : il est \textbf{déduit} des données de
-l'employé.
-
-\paragraph{4. Agences --- créer et supprimer.}
-Même principe sur le référentiel des agences : le formulaire crée l'agence avec
-son nom et son adresse, la liste en dessous affiche le réseau avec le district,
-et chaque ligne porte son action de suppression. Là encore, chaque écriture est
-journalisée : c'est précisément ce qui manquait aux fichiers Excel de départ.
-
-\paragraph{5. Pointage --- je change de compte.}
-Je me déconnecte et je me reconnecte avec un compte \texttt{USER}, pour montrer
-que l'interface n'est pas la même : le menu est réduit à ce que ce rôle peut
-faire. Sur l'écran de pointage, deux boutons : \emph{Pointer l'arrivée} et
-\emph{Pointer le départ}. Je clique sur l'arrivée : l'heure est enregistrée et
-le \textbf{statut est calculé par le serveur} --- au-delà de neuf heures, c'est
-un retard, et c'est ce que l'écran affiche. Le statut n'est jamais envoyé par le
-formulaire : on ne peut donc pas se déclarer présent en trichant. Un second clic
-sur \emph{arrivée} ne modifie rien, et un départ sans arrivée préalable ne crée
-aucun enregistrement.
-
-\paragraph{6. Validation --- je change encore de compte.}
-Je me reconnecte cette fois comme \texttt{DIRECTEUR\_COMMERCIAL}, et j'ouvre la
-file d'attente des demandes de modification. Chaque demande affiche son état, la
-valeur actuelle, la valeur demandée et la date de soumission. Sur une demande
-\textbf{en attente}, j'ai deux boutons : \emph{Approuver} et \emph{Refuser}.
-J'approuve : la demande passe \textbf{en cours}, les administrateurs sont
-notifiés --- et, point important, \textbf{la donnée n'est pas encore modifiée}.
-Il faut qu'un administrateur l'exécute pour que le changement soit réellement
-appliqué : c'est la double validation. Les demandes déjà traitées affichent
-\emph{Terminé} et n'ont plus de bouton.
+\begin{enumerate}[leftmargin=1.4em,itemsep=3pt,topsep=4pt]
+  \item \textbf{Authentification} --- je me connecte avec le compte
+  \texttt{admin} ; le rôle est chargé en session et conditionne tout l'accès.
+  \item \textbf{Ajout d'un employé} --- je crée un employé, son compte de
+  connexion et son rattachement à une agence.
+  \item \textbf{Pointage} --- je change de compte pour un \texttt{USER} et je
+  pointe mon arrivée ; le statut est calculé par le serveur.
+  \item \textbf{Demande à valider} --- je me reconnecte comme
+  \texttt{DIRECTEUR\_COMMERCIAL} : la demande de modification est arrivée dans
+  sa file d'attente.
+  \item \textbf{Assistant intégré} --- de retour sur le tableau de bord, je
+  pose une question en langage naturel et j'obtiens le chiffre.
+\end{enumerate}
 
 \begin{coeur}
 \textbf{Le message à faire passer pendant la démonstration}, c'est la
@@ -454,7 +418,7 @@ page de connexion.
 est démarré et que la base pluggable est ouverte, sinon l'application renvoie
 \texttt{IJ000453}. Avoir les trois comptes prêts et notés. Préparer à l'avance
 une demande de modification \textbf{en attente}, sinon il n'y aura rien à
-approuver à l'étape 6. Et si la démonstration est enregistrée en vidéo : se
+approuver à l'étape 4. Et si la démonstration est enregistrée en vidéo : se
 taire pendant qu'elle tourne et commenter au fur et à mesure.
 \end{note}
 
