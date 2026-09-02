@@ -374,14 +374,100 @@ sans activité enregistrée.
 
 \subsection*{Slide 33 --- Démonstration}
 
-Je vais maintenant vous faire une démonstration de l'application web, du tableau
-de bord embarqué, et du rapport Power BI.
+Je vais maintenant vous montrer l'application en fonctionnement. Le parcours
+suit un fil unique : \textbf{on se connecte, on agit, et on voit la trace de
+l'action}. Il passe par les \textbf{trois rôles}, pour montrer que les droits
+sont réellement appliqués et pas seulement déclarés.
+
+\paragraph{1. Connexion --- compte \texttt{admin}.}
+Je saisis l'identifiant et le mot de passe. Ils sont vérifiés dans la table
+\texttt{SECURITY\_USERS}, qui porte aussi le rôle. En cas de succès, une session
+est ouverte : elle retient l'identité, le rôle et l'identifiant métier de
+l'employé. C'est ce rôle en session qui conditionne tout le reste --- le menu
+affiché, et surtout les pages autorisées.
+
+\paragraph{2. Tableau de bord --- ce que voit l'administrateur.}
+J'arrive sur le tableau de bord. En haut, les indicateurs de synthèse :
+l'effectif, le portefeuille clients, les présents du jour et le taux de
+présence. Juste en dessous, le bandeau \textbf{Actions requises} : il n'apparaît
+que s'il y a quelque chose à traiter, et son contenu dépend du rôle ---
+l'administrateur voit ce qu'il doit exécuter, le directeur ce qu'il doit
+valider. Un clic ouvre directement l'écran concerné. Plus bas, les graphiques :
+l'effectif par agence, la répartition par rôle et la présence du jour, calculés
+à l'affichage à partir de la base.
+
+\paragraph{3. Employés --- ajouter et retrouver.}
+Le formulaire du haut crée un employé : matricule, nom, adresse électronique,
+agence de rattachement et rôle. À l'enregistrement, l'employé est créé
+\textbf{et} son compte de connexion avec lui, puis l'action est inscrite au
+journal d'audit. En dessous, le compteur d'effectif et la recherche : on filtre
+par agence ou par rôle. Le rôle affiché --- gestionnaire, conseiller, hors
+commercial --- n'est pas stocké tel quel : il est \textbf{déduit} des données de
+l'employé.
+
+\paragraph{4. Agences --- créer et supprimer.}
+Même principe sur le référentiel des agences : le formulaire crée l'agence avec
+son nom et son adresse, la liste en dessous affiche le réseau avec le district,
+et chaque ligne porte son action de suppression. Là encore, chaque écriture est
+journalisée : c'est précisément ce qui manquait aux fichiers Excel de départ.
+
+\paragraph{5. Pointage --- je change de compte.}
+Je me déconnecte et je me reconnecte avec un compte \texttt{USER}, pour montrer
+que l'interface n'est pas la même : le menu est réduit à ce que ce rôle peut
+faire. Sur l'écran de pointage, deux boutons : \emph{Pointer l'arrivée} et
+\emph{Pointer le départ}. Je clique sur l'arrivée : l'heure est enregistrée et
+le \textbf{statut est calculé par le serveur} --- au-delà de neuf heures, c'est
+un retard, et c'est ce que l'écran affiche. Le statut n'est jamais envoyé par le
+formulaire : on ne peut donc pas se déclarer présent en trichant. Un second clic
+sur \emph{arrivée} ne modifie rien, et un départ sans arrivée préalable ne crée
+aucun enregistrement.
+
+\paragraph{6. Validation --- je change encore de compte.}
+Je me reconnecte cette fois comme \texttt{DIRECTEUR\_COMMERCIAL}, et j'ouvre la
+file d'attente des demandes de modification. Chaque demande affiche son état, la
+valeur actuelle, la valeur demandée et la date de soumission. Sur une demande
+\textbf{en attente}, j'ai deux boutons : \emph{Approuver} et \emph{Refuser}.
+J'approuve : la demande passe \textbf{en cours}, les administrateurs sont
+notifiés --- et, point important, \textbf{la donnée n'est pas encore modifiée}.
+Il faut qu'un administrateur l'exécute pour que le changement soit réellement
+appliqué : c'est la double validation. Les demandes déjà traitées affichent
+\emph{Terminé} et n'ont plus de bouton.
+
+\begin{coeur}
+\textbf{Le message à faire passer pendant la démonstration}, c'est la
+\textbf{séparation des rôles} : trois connexions successives, trois interfaces
+différentes, et une action sensible qui exige deux personnes. Ce n'est pas le
+menu qui protège --- il ne fait que masquer --- c'est le serveur qui refuse.
+Si on vous demande de le prouver, il suffit de taper l'adresse d'une page
+d'administration en étant connecté comme \texttt{USER} : vous êtes renvoyé à la
+page de connexion.
+\end{coeur}
 
 \begin{note}
-\small Se taire pendant que la vidéo tourne, et commenter au fur et à mesure.
-Avant la démonstration : vérifier qu'Oracle est démarré et que la base
-pluggable est ouverte, sinon l'application renvoie \texttt{IJ000453}.
+\small \textbf{À préparer avant de passer devant le jury.} Vérifier qu'Oracle
+est démarré et que la base pluggable est ouverte, sinon l'application renvoie
+\texttt{IJ000453}. Avoir les trois comptes prêts et notés. Préparer à l'avance
+une demande de modification \textbf{en attente}, sinon il n'y aura rien à
+approuver à l'étape 6. Et si la démonstration est enregistrée en vidéo : se
+taire pendant qu'elle tourne et commenter au fur et à mesure.
 \end{note}
+
+\begin{corrige}[title={Deux points à régler avant la soutenance}]
+\textbf{Les chiffres à l'écran ne correspondent plus aux diapositives.}
+L'application affiche aujourd'hui environ \textbf{1\,231 employés} et
+\textbf{29\,998 clients}, alors que le rapport et les diapositives annoncent
+\textbf{997} et \textbf{29\,942}. L'écart vient des enregistrements ajoutés
+depuis l'extraction. Si le jury le relève, la réponse est simple et honnête :
+\emph{\enquote{les chiffres du rapport sont ceux de l'extraction du datamart, à
+une date donnée ; la base a continué de vivre depuis, notamment avec mes tests.}}
+Le dire avant qu'on le demande vaut mieux que de le découvrir en direct.
+
+\medskip
+\textbf{Les heures de pointage s'affichent avec les microsecondes}
+(\texttt{21:31:47.933869}). C'est l'affichage brut de l'heure ; il suffirait de
+la formater en heures et minutes. Si vous n'avez pas le temps de le corriger, ne
+vous arrêtez pas dessus pendant la démonstration.
+\end{corrige}
 
 % =====================================================================
 \section*{Partie 06 --- Conclusion et perspectives (slides 34 à 37)}
