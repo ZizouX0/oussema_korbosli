@@ -38,6 +38,51 @@ la clôture la 42. Les numéros de ce document sont déjà à jour.
 \end{corrige}
 
 % =====================================================================
+\section*{Résumé du speech}
+\addcontentsline{toc}{section}{Résumé}
+
+\noindent\textbf{En une phrase.} La BTK pilote un réseau de 45 agences avec des
+données éclatées entre plusieurs fichiers ; j'ai livré une application web qui
+centralise cette gestion et une chaîne décisionnelle qui transforme ces données
+en indicateurs, jusqu'à une segmentation automatique du réseau.
+
+\medskip
+\noindent\textbf{Le fil --- six parties, 42 diapositives.}
+
+\noindent\begin{tabularx}{\textwidth}{|>{\columncolor{btkpale}\bfseries}L{2.6cm}|X|}
+\hline
+\textmd{\textbf{Partie}} & \textbf{Ce que je dis}\\
+\hline
+01 --- 3 à 10 & La banque, le réseau en chiffres, le problème posé, l'existant écarté et la méthode CRISP-DM\\
+\hline
+02 --- 11 à 14 & Trois acteurs, treize cas d'utilisation, besoins fonctionnels et non fonctionnels\\
+\hline
+03 --- 15 à 20 & Architecture en couches et 3-tiers, cas d'utilisation, classes, modèle en étoile\\
+\hline
+04 --- 21 à 29 & Chaîne ETL en cinq étapes, datamart, modèle Power BI, quatre tableaux de bord, environnement technique\\
+\hline
+05 --- 30 à 38 & Segmentation K-Means en trois profils, puis la démonstration en cinq écrans\\
+\hline
+06 --- 39 à 42 & Bilan des trois réalisations, perspectives, clôture\\
+\hline
+\end{tabularx}
+
+\medskip
+\noindent\textbf{Les chiffres à ne pas rater.} 45 agences, 997 employés,
+29\,942 clients, 1,40 milliard de crédits, 87,9\,\% de présence,
+49 entités consolidées par l'ETL, 3 profils d'agences (34 / 6 / 8).
+
+\medskip
+\begin{coeur}[title={Les trois messages à laisser au jury}]
+\textbf{1.} Ce n'est pas le menu qui protège --- il ne fait que masquer ---
+\textbf{c'est le serveur qui refuse}.\\
+\textbf{2.} Une modification sensible \textbf{exige deux personnes} : le
+directeur approuve, l'administrateur exécute.\\
+\textbf{3.} La segmentation ne classe pas les agences par taille : elle
+\textbf{sépare des natures d'activité} différentes.
+\end{coeur}
+
+% =====================================================================
 \section*{Slide 1 --- Page de garde}
 \addcontentsline{toc}{section}{Slide 1}
 
@@ -55,12 +100,16 @@ décisionnel et sa réalisation, l'intelligence artificielle avec une
 démonstration, et enfin les perspectives d'évolution.
 
 \begin{note}
-\small Le plan est déjà écrit sur la diapositive : ne pas le lire, faire une
-simple liaison.
+\small Le plan est déjà écrit sur la diapositive : ne pas le lire. Chaque
+partie s'ouvre ci-après sur une \textbf{liaison} --- une seule phrase, sur la
+page de partie, pour enchaîner sans blanc.
 \end{note}
 
 % =====================================================================
 \section*{Partie 01 --- Contexte général (slides 3 à 10)}
+
+\liaison{slide 3}{Commençons par le contexte : qui est la BTK, et quel problème
+j'ai eu à résoudre.}
 
 \subsection*{Slide 4 --- Contexte général}
 
@@ -139,6 +188,9 @@ organise le travail sur la donnée}.
 % =====================================================================
 \section*{Partie 02 --- Spécifications des besoins (slides 11 à 14)}
 
+\liaison{slide 11}{Le problème est posé et la méthode choisie ; voyons
+maintenant ce que l'application devait précisément savoir faire.}
+
 \subsection*{Slide 12 --- Identification des acteurs}
 
 Trois acteurs : l'Administrateur gère les agences, employés et clients, valide
@@ -162,6 +214,9 @@ rendant l'application compatible avec différents serveurs.
 
 % =====================================================================
 \section*{Partie 03 --- Conception et architecture (slides 15 à 20)}
+
+\liaison{slide 15}{Les besoins sont fixés ; voici comment j'ai conçu le système
+pour y répondre.}
 
 \subsection*{Slide 16 --- Architecture logique en couches}
 
@@ -251,6 +306,9 @@ Si le jury ouvre \texttt{etl/entrepot/}, il n'y trouvera que ces deux-là.
 % =====================================================================
 \section*{Partie 04 --- Volet décisionnel et réalisation (slides 21 à 29)}
 
+\liaison{slide 21}{Le système est conçu ; passons à ce qu'il produit comme
+information de pilotage.}
+
 \subsection*{Slide 22 --- Chaîne ETL en Python : cinq étapes}
 
 La chaîne ETL a cinq étapes : la collecte des cinq tables sources, le nettoyage,
@@ -317,6 +375,9 @@ ce sont ceux qui figurent dans le document remis au jury.
 
 % =====================================================================
 \section*{Partie 05 --- Intelligence artificielle et démonstration (slides 30 à 38)}
+
+\liaison{slide 30}{Les tableaux de bord montrent ce qui s'est passé ; l'étape
+suivante est de laisser les données dessiner elles-mêmes les profils du réseau.}
 
 \subsection*{Slide 31 --- Zoom technique : segmentation par K-Means}
 
@@ -503,6 +564,9 @@ remplacer si la base ne répond pas.
 
 % =====================================================================
 \section*{Partie 06 --- Conclusion et perspectives (slides 39 à 42)}
+
+\liaison{slide 39}{Vous avez vu le système complet ; il me reste à faire le
+bilan et à dire où il peut aller.}
 
 \subsection*{Slide 40 --- Conclusion}
 

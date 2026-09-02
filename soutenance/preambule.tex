@@ -68,6 +68,11 @@
   left=7pt, right=7pt, top=5pt, bottom=5pt,
   fonttitle=\bfseries\small, title={Chiffre corrigé}, #1}
 
+% Liaison : la phrase de transition à dire entre deux parties
+\newcommand{\liaison}[2]{\par\vspace{2pt}\noindent
+  \colorbox{btkpale}{\parbox{\dimexpr\linewidth-2\fboxsep}{%
+  \small\textbf{Liaison (#1) :} \emph{#2}}}\par\vspace{4pt}}
+
 % Question / réponse
 \newcommand{\question}[1]{\subsection{#1}}
 \newcommand{\cle}[1]{\par\vspace{2pt}\noindent
