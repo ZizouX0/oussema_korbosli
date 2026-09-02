@@ -748,6 +748,33 @@ divider("05", "Intelligence artificielle & démonstration");
       color: "9FB6DC", margin: 0 });
 }
 
+/* -- captures de l'application : une par écran, dans l'ordre du chapitre 4 -- */
+{
+  const ecrans = [
+    ["Authentification", "images/screens/login.png",
+     "L'utilisateur saisit son identifiant et son mot de passe ; le r\u00f4le est lu dans SECURITY_USERS et charg\u00e9 en session."],
+    ["Gestion des agences", "images/screens/agences.png",
+     "L'administrateur cr\u00e9e, consulte ou supprime une agence, et acc\u00e8de \u00e0 la liste de ses membres."],
+    ["Gestion des employ\u00e9s", "images/screens/employes.png",
+     "Ajout d'un employ\u00e9 avec son compte de connexion, filtres de recherche et liste, chacun rattach\u00e9 \u00e0 son agence."],
+    ["Portefeuille clients", "images/screens/clients.png",
+     "Consultation, recherche et affectation de chaque client \u00e0 un gestionnaire."],
+    ["Objectifs commerciaux", "images/screens/objectifs.png",
+     "Production de comptes, de cr\u00e9dits et d'\u00e9pargne, restitu\u00e9e par agence et par gestionnaire."],
+    ["Pointage des employ\u00e9s", "images/screens/pointage.png",
+     "Pointage d'arriv\u00e9e et de d\u00e9part ; le statut est calcul\u00e9 par le serveur \u2014 au-del\u00e0 de 9 h, c'est un retard."],
+    ["Tableau de bord embarqu\u00e9", "images/screens/dashboard.png",
+     "Indicateurs de synth\u00e8se, actions requises selon le r\u00f4le et graphiques calcul\u00e9s \u00e0 l'affichage."],
+  ];
+  ecrans.forEach((e) => {
+    const s = slide(e[0]);
+    fit(s, e[1], M, 1.30, 12.1, 4.85);
+    s.addShape(pptx.ShapeType.rect, { x: M, y: 6.32, w: 0.055, h: 0.44, fill: { color: LITE } });
+    s.addText(e[2], { x: M + 0.22, y: 6.30, w: 11.9, h: 0.48, fontFace: BF,
+      fontSize: 12.5, color: INK, margin: 0, valign: "middle", lineSpacing: 16 });
+  });
+}
+
 /* ======================= PARTIE 06 ======================= */
 divider("06", "Conclusion & perspectives");
 

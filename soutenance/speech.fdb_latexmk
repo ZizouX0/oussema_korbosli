@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1788381587.21073 "speech.tex" "speech.pdf" "speech" 1788381588.59852 0
+["pdflatex"] 1788382109.28809 "speech.tex" "speech.pdf" "speech" 1788382110.67417 0
   "/etc/texmf/web2c/texmf.cnf" 1787944870.20522 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/carlito/crlt_hsqwq5.enc" 1664999222 3127 1abe938f6eb3f2079b498114bc974842 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -177,9 +177,9 @@
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1787945037.53038 5312271 3902e77d849303a90c8e3a7bbdfd780f ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1787945074 6808172 64ca6063682a09560415c263a39235ba ""
   "preambule.tex" 1788297425.03607 2675 ed2752c10850894f1b576e62bdc5da76 ""
-  "speech.aux" 1788381588.46191 1179 94838489d19a8f6439309194e7afe68f "pdflatex"
-  "speech.out" 1788381588.46191 81 e1d0bbc70a42d0eec4f91d0745984f3f "pdflatex"
-  "speech.tex" 1788381579.05801 26644 1c71ab4b9aca3d17744f6333de825e69 ""
+  "speech.aux" 1788382110.53411 2035 488062f4400156e55a13f37559400e6d "pdflatex"
+  "speech.out" 1788382110.53811 81 e1d0bbc70a42d0eec4f91d0745984f3f "pdflatex"
+  "speech.tex" 1788382107.79457 30080 ca0d776ccc0cb2108dae6ec4b21afcab ""
   (generated)
   "speech.aux"
   "speech.log"
