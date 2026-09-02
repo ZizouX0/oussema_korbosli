@@ -29,11 +29,12 @@ page. Les chiffres du réseau (45 agences, 997 employés, 29\,942 clients,
 \medskip
 \textbf{Une diapositive a été ajoutée} : le \emph{diagramme de classes},
 inséré en \textbf{slide 19}, juste après le diagramme de cas d'utilisation. La
-présentation passe à \textbf{44 diapositives} : le diagramme de classes en 19,
-et \textbf{sept diapositives de captures} (slides 34 à 40) qui reprennent les
-écrans de l'application dans l'ordre du chapitre 4 du rapport. Tout ce qui suit
-est décalé --- le modèle en étoile devient la 20, la conclusion la 42, la
-clôture la 44. Les numéros de ce document sont déjà à jour.
+présentation compte \textbf{42 diapositives} : le diagramme de classes en 19,
+et \textbf{cinq diapositives de captures} (slides 34 à 38) qui déroulent un
+circuit complet à travers les trois rôles. La diapositive 29 s'intitule
+désormais \emph{Environnement technique} et ne porte plus de capture. Tout ce
+qui suit est décalé --- le modèle en étoile devient la 20, la conclusion la 40,
+la clôture la 42. Les numéros de ce document sont déjà à jour.
 \end{corrige}
 
 % =====================================================================
@@ -298,11 +299,14 @@ des agences à surveiller identifiées.
 en arrière.
 \end{note}
 
-\subsection*{Slide 29 --- Réalisation et environnement technique}
+\subsection*{Slide 29 --- Environnement technique}
 
-L'application repose sur Java 21, Jakarta EE, Hibernate et Oracle, déployée sur
-WildFly. J'ai validé l'application avec dix scénarios de tests fonctionnels,
-tous conformes.
+L'application repose sur Java 21 et Jakarta EE 10, empaquetée par Maven,
+avec Hibernate pour la persistance sur une base Oracle, et déployée sur WildFly.
+Le volet décisionnel s'appuie sur une chaîne ETL en Python, une segmentation
+avec scikit-learn, et une restitution Power BI sur les vues décisionnelles.
+J'ai validé l'application avec dix scénarios de tests fonctionnels, tous
+conformes.
 
 \begin{note}
 \small Les dix scénarios sont ceux du tableau du rapport (chapitre 4) :
@@ -312,7 +316,7 @@ ce sont ceux qui figurent dans le document remis au jury.
 \end{note}
 
 % =====================================================================
-\section*{Partie 05 --- Intelligence artificielle et démonstration (slides 30 à 40)}
+\section*{Partie 05 --- Intelligence artificielle et démonstration (slides 30 à 38)}
 
 \subsection*{Slide 31 --- Zoom technique : segmentation par K-Means}
 
@@ -471,73 +475,72 @@ la formater en heures et minutes. Si vous n'avez pas le temps de le corriger, ne
 vous arrêtez pas dessus pendant la démonstration.
 \end{corrige}
 
-\subsection*{Slides 34 à 40 --- Les écrans, un par un}
+\subsection*{Slides 34 à 38 --- Les écrans, un par un}
 
-Ces sept diapositives reprennent \textbf{les mêmes interfaces, dans le même
-ordre que le chapitre 4 du rapport}. Si la démonstration en direct échoue, elles
-suffisent à tout montrer.
+Cinq captures, choisies pour montrer \textbf{un circuit complet et les trois
+rôles} plutôt qu'un catalogue d'écrans. Si la démonstration en direct échoue,
+elles suffisent à tout raconter.
 
-\paragraph{Slide 34 --- Authentification.}
+\paragraph{Slide 34 --- Authentification de l'administrateur.}
 La porte d'entrée. L'identifiant et le mot de passe sont vérifiés dans la table
 \texttt{SECURITY\_USERS}, qui porte aussi le rôle. Ce rôle est chargé en session,
-et c'est lui qui conditionne tout le reste : le menu affiché, et surtout les
-pages autorisées.
+et c'est lui qui conditionne tout : le menu affiché, et surtout les pages
+autorisées. Un utilisateur qui taperait l'adresse d'une page d'administration
+serait renvoyé ici même.
 
-\paragraph{Slide 35 --- Gestion des agences.}
-Le référentiel du réseau. L'administrateur crée une agence avec son nom et son
-adresse, consulte la liste avec le district, et peut supprimer une ligne.
-Chaque écriture est inscrite au journal d'audit --- c'est exactement ce qui
-manquait aux fichiers Excel de départ.
+\paragraph{Slide 35 --- Ajout d'un employé.}
+L'administrateur saisit le matricule, le nom, l'adresse électronique, l'agence
+de rattachement et le rôle. À l'enregistrement, l'employé est créé \textbf{et}
+son compte de connexion avec lui, puis l'action est inscrite au journal d'audit.
+En dessous, le compteur d'effectif et les filtres par agence et par rôle. Le
+rôle affiché --- gestionnaire, conseiller, hors commercial --- n'est pas stocké
+tel quel : il est déduit des données de l'employé.
 
-\paragraph{Slide 36 --- Gestion des employés.}
-Le formulaire crée l'employé \textbf{et} son compte de connexion, avec son rôle
-et son agence de rattachement. En dessous, les filtres et la liste. Le rôle
-affiché --- gestionnaire, conseiller, hors commercial --- n'est pas stocké tel
-quel : il est déduit des données de l'employé.
+\paragraph{Slide 36 --- Pointage de l'utilisateur.}
+Je change de compte : l'interface n'est plus la même, le menu est réduit à ce
+que le rôle \texttt{USER} peut faire. Deux boutons : \emph{Pointer l'arrivée} et
+\emph{Pointer le départ}. Le point à souligner : \textbf{le statut est calculé
+par le serveur} --- au-delà de neuf heures, c'est un retard, et c'est ce que
+l'écran affiche. Il n'est jamais envoyé par le formulaire, on ne peut donc pas
+se déclarer présent en trichant. Un second clic sur \emph{arrivée} n'écrase
+rien, et un départ sans arrivée ne crée aucun enregistrement.
 
-\paragraph{Slide 37 --- Portefeuille clients.}
-Consultation et recherche du portefeuille, et affectation de chaque client à un
-gestionnaire. C'est ce rattachement qui permettra, côté décisionnel, d'analyser
-la production par gestionnaire.
+\paragraph{Slide 37 --- La demande arrive chez le directeur.}
+C'est le circuit le plus intéressant du projet. L'employé a soumis une demande
+de modification de ses données ; elle apparaît ici, chez le directeur
+commercial, à l'état \textbf{en attente}, avec la valeur actuelle, la valeur
+demandée et la date de soumission. Le directeur approuve ou refuse. S'il
+approuve, la demande passe \textbf{en cours} et les administrateurs sont
+notifiés --- mais \textbf{la donnée n'est pas encore modifiée}. Il faut qu'un
+administrateur l'exécute pour que le changement soit appliqué. Les demandes déjà
+traitées affichent \emph{Terminé} et n'ont plus de bouton : on ne peut pas
+approuver deux fois.
 
-\paragraph{Slide 38 --- Objectifs commerciaux.}
-La production commerciale : comptes ouverts, crédits et épargne, par agence et
-par gestionnaire. L'écran est en consultation seule --- ces données viennent du
-système de gestion, elles ne sont pas saisies ici. C'est la même table qui
-alimente le rapport Power BI.
-
-\paragraph{Slide 39 --- Pointage des employés.}
-Les cartes de synthèse en haut --- présents, retards, absents, taux de
-présence ---, puis le pointage du jour avec ses deux boutons, et le formulaire
-de saisie manuelle réservé à l'administrateur. Le point important :
-\textbf{le statut est calculé par le serveur}, au-delà de neuf heures c'est un
-retard. Il n'est jamais envoyé par le formulaire, donc on ne peut pas se
-déclarer présent en trichant.
-
-\paragraph{Slide 40 --- Tableau de bord embarqué.}
-La synthèse dans l'application : les indicateurs, le bandeau des actions
-requises --- qui dépend du rôle --- et les graphiques, calculés à l'affichage à
-partir de la base. C'est la restitution \textbf{en temps réel}, par opposition
-au rapport Power BI, dont les données sont importées et rafraîchies à la
-demande. Les deux sont complémentaires : c'est une question fréquente.
+\paragraph{Slide 38 --- Assistant intégré.}
+L'application embarque un assistant conversationnel : on lui pose une question
+en langage naturel --- par exemple le nombre de clients --- et il répond à
+partir des données de l'application, les mêmes que celles des cartes du tableau
+de bord. C'est un confort d'accès à l'information, qui évite de naviguer dans
+les écrans pour un chiffre isolé.
 
 \begin{coeur}
-\textbf{Le fil à tenir sur ces sept écrans} : on part de la porte
-d'entrée, on descend dans le référentiel, on arrive à l'activité quotidienne, et
-on termine par la synthèse. C'est la même progression que le rapport, et c'est
-ce qui montre que l'application est un tout, pas une collection d'écrans.
+\textbf{Le fil à tenir sur ces cinq écrans} : on entre, on crée une donnée, on
+l'utilise au quotidien, et on voit qu'une modification sensible exige
+\textbf{deux personnes}. Le message n'est pas \enquote{voici mes écrans}, c'est
+\enquote{voici comment les droits sont réellement appliqués}. Ce n'est pas le
+menu qui protège --- il ne fait que masquer --- c'est le serveur qui refuse.
 \end{coeur}
 
 \begin{note}
-\small Ne pas commenter chaque bouton : une phrase par écran suffit, celle qui
-est déjà sous la capture. Les captures sont là pour \textbf{soutenir} la
-démonstration en direct, ou la remplacer si la base ne répond pas.
+\small Une phrase par écran suffit : celle qui figure déjà sous la capture. Les
+captures sont là pour \textbf{soutenir} la démonstration en direct, ou la
+remplacer si la base ne répond pas.
 \end{note}
 
 % =====================================================================
-\section*{Partie 06 --- Conclusion et perspectives (slides 41 à 44)}
+\section*{Partie 06 --- Conclusion et perspectives (slides 39 à 42)}
 
-\subsection*{Slide 42 --- Conclusion}
+\subsection*{Slide 40 --- Conclusion}
 
 Ce projet livre trois réalisations : une application web de gestion centralisée
 du réseau, une chaîne décisionnelle complète avec quatre tableaux de bord
@@ -545,14 +548,14 @@ Power BI, et un volet intelligence artificielle de segmentation en trois profils
 exploitables. Au final, un système complet, de la donnée opérationnelle à la
 décision.
 
-\subsection*{Slide 43 --- Perspectives}
+\subsection*{Slide 41 --- Perspectives}
 
 Plusieurs perspectives : une sécurité renforcée --- le mot de passe est
 aujourd'hui comparé en clair, il faudrait un condensat salé ---,
 l'industrialisation de l'ETL, des analyses prédictives, une API REST, une
 application mobile, et des alertes automatiques sous seuils critiques.
 
-\subsection*{Slide 44 --- Clôture}
+\subsection*{Slide 42 --- Clôture}
 
 Je vous remercie pour votre attention, et je reste à votre disposition pour vos
 questions.

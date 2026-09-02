@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.8.28)  2 SEP 2026 20:48
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.8.28)  2 SEP 2026 21:02
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1011,11 +1011,11 @@ File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman
 (RS)
 )
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <10.95> on input line 238.
+(Font)              <10.95> on input line 239.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 238.
+(Font)              <8> on input line 239.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 238.
+(Font)              <6> on input line 239.
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1092,11 +1092,11 @@ Package rerunfilecheck Info: File `speech.out' has not changed.
 (rerunfilecheck)             Checksum: E1D0BBC70A42D0EEC4F91D0745984F3F;81.
  ) 
 Here is how much of TeX's memory you used:
- 25520 strings out of 476153
- 471467 string characters out of 5794326
- 1940975 words of memory out of 5000000
+ 25516 strings out of 476153
+ 471460 string characters out of 5794326
+ 1941975 words of memory out of 5000000
  46780 multiletter control sequences out of 15000+600000
- 701393 words of font info for 280 fonts, out of 8000000 for 9000
+ 701200 words of font info for 279 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  106i,13n,110p,1003b,648s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/google/carlito/Crlt-Bold.pfb></usr
@@ -1105,10 +1105,10 @@ e/texlive/texmf-dist/fonts/type1/google/carlito/Crlt-Regular.pfb></usr/share/te
 xlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf/fo
 nts/type1/public/cm-super/sftt1000.pfb></usr/share/texmf/fonts/type1/public/cm-
 super/sftt1095.pfb>
-Output written on speech.pdf (10 pages, 213909 bytes).
+Output written on speech.pdf (10 pages, 213918 bytes).
 PDF statistics:
- 107 PDF objects out of 1000 (max. 8388607)
- 82 compressed objects within 1 object stream
- 24 named destinations out of 1000 (max. 500000)
+ 105 PDF objects out of 1000 (max. 8388607)
+ 80 compressed objects within 1 object stream
+ 22 named destinations out of 1000 (max. 500000)
  53781 words of extra memory for PDF output out of 61914 (max. 10000000)
 

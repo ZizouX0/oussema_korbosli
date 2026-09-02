@@ -2,6 +2,7 @@
 const pptxgen = require("pptxgenjs");
 const path = require("path");
 const { execSync } = require("child_process");
+const fs = require("fs");
 const R = "/home/user/oussema_korbosli/rapport-latex";
 const img = (p) => path.join(R, p);
 
@@ -81,6 +82,16 @@ function stat(s, x, y, w, h, value, label) {
 }
 const dim = {};
 function fit(s, file, bx, by, bw, bh) {
+  // Capture pas encore fournie : on pose un cadre d'attente nommé, pour que la
+  // construction aboutisse et que l'on voie tout de suite ce qui manque.
+  if (!fs.existsSync(img(file))) {
+    s.addShape(pptx.ShapeType.roundRect, { x: bx, y: by, w: bw, h: bh, rectRadius: 0.06,
+      fill: { color: "F0F3F8" }, line: { color: LITE, width: 1.5, dashType: "dash" } });
+    s.addText("Capture attendue\n" + file, { x: bx, y: by, w: bw, h: bh, fontFace: BF,
+      fontSize: 12, color: MUTED, align: "center", valign: "middle", margin: 0,
+      lineSpacing: 18 });
+    return;
+  }
   if (!dim[file]) dim[file] = execSync(
     `python3 -c "from PIL import Image;w,h=Image.open('${img(file)}').size;print(w,h)"`
   ).toString().trim().split(/\s+/).map(Number);
@@ -624,32 +635,39 @@ dash.forEach((d) => {
   });
 });
 
-/* -- réalisation / technologies -- */
+/* -- environnement technique -- */
 {
-  const s = slide("Réalisation et environnement technique");
+  const s = slide("Environnement technique");
   const logos = [["logos/java.png", "Java 21"], ["logos/jakartaee.png", "Jakarta EE 10"],
                  ["logos/hibernate.png", "Hibernate"], ["logos/oracle.png", "Oracle"],
                  ["logos/wildfly.png", "WildFly"], ["logos/maven.png", "Maven"],
                  ["logos/powerbi.png", "Power BI"], ["logos/python.png", "Python"]];
   logos.forEach((l, i) => {
     const col = i % 4, row = Math.floor(i / 4);
-    const x = M + col * 1.62, y = 1.7 + row * 1.55;
-    card(s, x, y, 1.48, 1.38);
-    fit(s, "images/" + l[0], x + 0.34, y + 0.16, 0.8, 0.62);
-    s.addText(l[1], { x: x + 0.05, y: y + 0.88, w: 1.38, h: 0.36, fontFace: BF,
+    const x = M + col * 1.62, y = 1.75 + row * 1.62;
+    card(s, x, y, 1.48, 1.44);
+    fit(s, "images/" + l[0], x + 0.34, y + 0.18, 0.8, 0.64);
+    s.addText(l[1], { x: x + 0.05, y: y + 0.92, w: 1.38, h: 0.38, fontFace: BF,
       fontSize: 10.5, color: NAVY, align: "center", margin: 0, valign: "middle" });
   });
-  s.addText("Application packagée par Maven et déployée sur WildFly ; chaîne ETL et segmentation en Python (pandas, scikit-learn).",
-    { x: M, y: 4.9, w: 6.2, h: 0.72, fontFace: BF, fontSize: 12.5, color: INK, margin: 0,
-      lineSpacing: 18, valign: "top" });
-  card(s, M, 5.72, 6.2, 0.98, NAVY);
-  s.addText("10 scénarios de tests fonctionnels — tous conformes", { x: M, y: 5.72,
+  s.addText("PILE APPLICATIVE", { x: 7.05, y: 1.78, w: 5.7, h: 0.3, fontFace: BF,
+    fontSize: 10.5, bold: true, color: LITE, charSpacing: 2, margin: 0 });
+  bullets(s, 7.05, 2.14, 5.7, [
+    "Java 21 et Jakarta EE 10, empaquet\u00e9s par Maven",
+    "Hibernate pour la persistance, base Oracle",
+    "D\u00e9ploiement sur WildFly, racine /gestion-agences",
+  ], 12.5);
+  s.addText("VOLET D\u00c9CISIONNEL", { x: 7.05, y: 3.94, w: 5.7, h: 0.3, fontFace: BF,
+    fontSize: 10.5, bold: true, color: LITE, charSpacing: 2, margin: 0 });
+  bullets(s, 7.05, 4.30, 5.7, [
+    "Cha\u00eene ETL en Python (pandas)",
+    "Segmentation avec scikit-learn",
+    "Restitution Power BI sur les vues V_BI_*",
+  ], 12.5);
+  card(s, M, 5.36, 6.2, 0.98, NAVY);
+  s.addText("10 sc\u00e9narios de tests fonctionnels \u2014 tous conformes", { x: M, y: 5.36,
     w: 6.2, h: 0.98, fontFace: BF, fontSize: 12.5, color: WHITE, align: "center",
     margin: 0, valign: "middle" });
-  fit(s, "images/screens/pointage.png", 7.05, 1.7, 5.7, 3.4);
-  s.addText("Module de pointage : cartes de synthèse, pointage du jour et saisie manuelle.",
-    { x: 7.05, y: 5.2, w: 5.7, h: 0.6, fontFace: BF, fontSize: 11.5, italic: true,
-      color: MUTED, margin: 0, lineSpacing: 16, valign: "top" });
 }
 
 /* ======================= PARTIE 05 ======================= */
@@ -748,23 +766,19 @@ divider("05", "Intelligence artificielle & démonstration");
       color: "9FB6DC", margin: 0 });
 }
 
-/* -- captures de l'application : une par écran, dans l'ordre du chapitre 4 -- */
+/* -- captures de la démonstration : une par écran -- */
 {
   const ecrans = [
-    ["Authentification", "images/screens/login.png",
-     "L'utilisateur saisit son identifiant et son mot de passe ; le r\u00f4le est lu dans SECURITY_USERS et charg\u00e9 en session."],
-    ["Gestion des agences", "images/screens/agences.png",
-     "L'administrateur cr\u00e9e, consulte ou supprime une agence, et acc\u00e8de \u00e0 la liste de ses membres."],
-    ["Gestion des employ\u00e9s", "images/screens/employes.png",
-     "Ajout d'un employ\u00e9 avec son compte de connexion, filtres de recherche et liste, chacun rattach\u00e9 \u00e0 son agence."],
-    ["Portefeuille clients", "images/screens/clients.png",
-     "Consultation, recherche et affectation de chaque client \u00e0 un gestionnaire."],
-    ["Objectifs commerciaux", "images/screens/objectifs.png",
-     "Production de comptes, de cr\u00e9dits et d'\u00e9pargne, restitu\u00e9e par agence et par gestionnaire."],
-    ["Pointage des employ\u00e9s", "images/screens/pointage.png",
-     "Pointage d'arriv\u00e9e et de d\u00e9part ; le statut est calcul\u00e9 par le serveur \u2014 au-del\u00e0 de 9 h, c'est un retard."],
-    ["Tableau de bord embarqu\u00e9", "images/screens/dashboard.png",
-     "Indicateurs de synth\u00e8se, actions requises selon le r\u00f4le et graphiques calcul\u00e9s \u00e0 l'affichage."],
+    ["Authentification de l'administrateur", "../presentation/captures/01-auth-admin.png",
+     "L'identifiant et le mot de passe sont v\u00e9rifi\u00e9s dans SECURITY_USERS ; le r\u00f4le est charg\u00e9 en session et conditionne tout l'acc\u00e8s."],
+    ["Ajout d'un employ\u00e9", "../presentation/captures/02-ajout-employe.png",
+     "L'administrateur cr\u00e9e l'employ\u00e9 et son compte de connexion, le rattache \u00e0 son agence, et l'action est inscrite au journal d'audit."],
+    ["Pointage de l'utilisateur", "../presentation/captures/03-pointage-utilisateur.png",
+     "L'employ\u00e9 pointe son arriv\u00e9e et son d\u00e9part ; le statut est calcul\u00e9 par le serveur \u2014 au-del\u00e0 de 9 h, c'est un retard."],
+    ["La demande arrive chez le directeur", "../presentation/captures/04-demande-directeur.png",
+     "La demande de modification passe en attente ; le directeur approuve ou refuse, mais la donn\u00e9e n'est modifi\u00e9e qu'apr\u00e8s ex\u00e9cution par l'administrateur."],
+    ["Assistant int\u00e9gr\u00e9", "../presentation/captures/05-assistant.png",
+     "Un assistant conversationnel r\u00e9pond aux questions sur les donn\u00e9es de l'application, \u00e0 partir des m\u00eames indicateurs que le tableau de bord."],
   ];
   ecrans.forEach((e) => {
     const s = slide(e[0]);
