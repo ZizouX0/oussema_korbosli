@@ -459,6 +459,22 @@ divider("03", "Conception & architecture");
   ], 13);
 }
 
+/* -- diagramme de classes -- */
+{
+  const s = slide("Diagramme de classes du modèle métier");
+  fit(s, "diagrams/class.png", M, 1.30, 8.5, 5.60);
+  s.addText("LECTURE DU DIAGRAMME", { x: 9.35, y: 1.72, w: 3.4, h: 0.3, fontFace: BF,
+    fontSize: 10.5, bold: true, color: LITE, charSpacing: 2, margin: 0 });
+  bullets(s, 9.35, 2.10, 3.4, [
+    "13 classes group\u00e9es en 5 paquetages fonctionnels",
+    "\u00ab Utilisateur \u00bb au centre du mod\u00e8le",
+    "Rattachements par cl\u00e9s \u00e9trang\u00e8res : SK_AGENCE, SK_GESTIONNAIRE",
+    "Demandes, pointage, journal, notifications : @ManyToOne vers Utilisateur",
+    "DemandeAgence \u2194 Utilisateur : @ManyToMany",
+    "Ni h\u00e9ritage ni composition",
+  ], 11);
+}
+
 /* -- modèle en étoile -- */
 {
   const s = slide("Modèle décisionnel en étoile");

@@ -25,6 +25,13 @@ segmentation et sur le modèle en étoile. Elles sont récapitulées en dernièr
 page. Les chiffres du réseau (45 agences, 997 employés, 29\,942 clients,
 105\,000 comptes, 1,40 milliard de crédits, 253 millions d'épargne,
 87,9\,\% de présence) ont été vérifiés et sont \textbf{exacts}.
+
+\medskip
+\textbf{Une diapositive a été ajoutée} : le \emph{diagramme de classes},
+inséré en \textbf{slide 19}, juste après le diagramme de cas d'utilisation. La
+présentation passe de 36 à \textbf{37 diapositives}, et \textbf{tout ce qui
+suit est décalé d'un rang} --- le modèle en étoile devient la 20, la conclusion
+la 35. Les numéros de ce document sont déjà à jour.
 \end{corrige}
 
 % =====================================================================
@@ -151,7 +158,7 @@ l'ergonomie, la maintenabilité, et la portabilité --- le standard Jakarta EE
 rendant l'application compatible avec différents serveurs.
 
 % =====================================================================
-\section*{Partie 03 --- Conception et architecture (slides 15 à 19)}
+\section*{Partie 03 --- Conception et architecture (slides 15 à 20)}
 
 \subsection*{Slide 16 --- Architecture logique en couches}
 
@@ -178,7 +185,49 @@ Ce diagramme illustre les interactions des trois acteurs.
 L'administrateur concentre la gestion, le directeur commercial soumet et
 consulte, l'utilisateur pointe et consulte ses données.
 
-\subsection*{Slide 19 --- Modèle décisionnel en étoile}
+\subsection*{Slide 19 --- Diagramme de classes du modèle métier}
+
+Ce diagramme présente le modèle métier : \textbf{treize classes}, regroupées en
+\textbf{cinq paquetages fonctionnels} pour en faciliter la lecture --- le
+référentiel du réseau, la gestion commerciale, la présence, les workflows de
+demandes, et la sécurité et la traçabilité.
+
+La classe \textbf{Utilisateur} occupe une position centrale : c'est elle que
+référencent le pointage, les demandes, le journal d'audit et les notifications.
+Les rattachements à l'agence et au gestionnaire sont portés par des \textbf{clés
+étrangères} --- \texttt{SK\_AGENCE} et \texttt{SK\_GESTIONNAIRE} ; les entités de
+demande, le pointage, le journal et les notifications référencent l'utilisateur
+par une association \texttt{@ManyToOne}. Seule \texttt{DemandeAgence} entretient
+une association \texttt{@ManyToMany} avec \texttt{Utilisateur}, puisqu'une
+demande de création d'agence porte la liste des employés à y rattacher.
+
+Le modèle ne comporte ni héritage ni composition : ce sont des associations,
+implémentées soit par des clés étrangères, soit par des relations JPA
+explicites. Enfin, la classe \texttt{Pointage} porte les deux horodatages exigés
+par le cahier des charges --- l'heure d'arrivée et l'heure de départ --- ainsi
+que l'attribut \texttt{source}, qui distingue le pointage automatique de la
+saisie manuelle par l'administrateur.
+
+\begin{coeur}
+Trois questions tombent souvent sur ce diagramme.
+\textbf{Pourquoi cinq paquetages ?} Pour la lisibilité : treize classes à plat
+seraient illisibles, les paquetages regroupent par domaine fonctionnel.
+\textbf{Pourquoi pas d'héritage ?} Parce qu'aucune entité n'est une
+spécialisation d'une autre : les quatre types de demande ont des attributs et
+des circuits différents, les regrouper sous une classe mère n'apporterait rien.
+\textbf{Pourquoi un seul \texttt{@ManyToMany} ?} Parce qu'un seul lien est
+réellement multiple des deux côtés : une demande d'agence concerne plusieurs
+employés, et un employé peut figurer dans plusieurs demandes.
+\end{coeur}
+
+\begin{note}
+\small Ne pas énumérer les treize classes : citer les cinq paquetages, désigner
+\texttt{Utilisateur} au centre, et dire que les liens sont soit des clés
+étrangères soit des relations JPA. Le jury cherche à savoir si vous comprenez
+votre modèle, pas si vous l'avez appris par c\oe{}ur.
+\end{note}
+
+\subsection*{Slide 20 --- Modèle décisionnel en étoile}
 
 J'ai comparé trois schémas --- étoile, flocon, constellation --- et retenu
 l'étoile, plus simple et plus lisible pour un outil comme Power BI. La table de
@@ -197,9 +246,9 @@ Si le jury ouvre \texttt{etl/entrepot/}, il n'y trouvera que ces deux-là.
 \end{corrige}
 
 % =====================================================================
-\section*{Partie 04 --- Volet décisionnel et réalisation (slides 20 à 28)}
+\section*{Partie 04 --- Volet décisionnel et réalisation (slides 21 à 29)}
 
-\subsection*{Slide 21 --- Chaîne ETL en Python : cinq étapes}
+\subsection*{Slide 22 --- Chaîne ETL en Python : cinq étapes}
 
 La chaîne ETL a cinq étapes : la collecte des cinq tables sources, le nettoyage,
 la transformation --- l'agrégation des indicateurs par agence ---, l'intégration
@@ -221,19 +270,19 @@ d'exploitation forment le réseau commercial ; l'extraction en remonte 49 parce
 qu'elle inclut le siège et les structures régionales et premium.}
 \end{note}
 
-\subsection*{Slide 22 --- Datamart obtenu sur les données réelles}
+\subsection*{Slide 23 --- Datamart obtenu sur les données réelles}
 
 Le datamart révèle une hétérogénéité entre agences --- BIZERTE et MGHIRA
 dominent le portefeuille clients, CENTRALE la production de crédits --- que la
 segmentation va exploiter.
 
-\subsection*{Slide 23 --- Intégration du modèle dans Power BI}
+\subsection*{Slide 24 --- Intégration du modèle dans Power BI}
 
 Le modèle Power BI relie l'agence à ses employés, clients et objectifs, ce qui
 permet un filtrage croisé : un clic recalcule instantanément tous les visuels du
 rapport.
 
-\subsection*{Slides 24 à 27 --- Tableaux de bord}
+\subsection*{Slides 25 à 28 --- Tableaux de bord}
 
 Quatre tableaux de bord Power BI sur données réelles : un résumé du réseau ---
 30\,000 clients, 1,40 milliard de crédits, 87,9\,\% de présence ; l'analyse
@@ -247,7 +296,7 @@ des agences à surveiller identifiées.
 en arrière.
 \end{note}
 
-\subsection*{Slide 28 --- Réalisation et environnement technique}
+\subsection*{Slide 29 --- Réalisation et environnement technique}
 
 L'application repose sur Java 21, Jakarta EE, Hibernate et Oracle, déployée sur
 WildFly. J'ai validé l'application avec dix scénarios de tests fonctionnels,
@@ -261,9 +310,9 @@ ce sont ceux qui figurent dans le document remis au jury.
 \end{note}
 
 % =====================================================================
-\section*{Partie 05 --- Intelligence artificielle et démonstration (slides 29 à 32)}
+\section*{Partie 05 --- Intelligence artificielle et démonstration (slides 30 à 33)}
 
-\subsection*{Slide 30 --- Zoom technique : segmentation par K-Means}
+\subsection*{Slide 31 --- Zoom technique : segmentation par K-Means}
 
 Le principe : regrouper les agences en profils homogènes à partir de leurs
 indicateurs, sans étiquette préalable --- apprentissage non supervisé.
@@ -306,7 +355,7 @@ j'ai retenu la meilleure solution à partir de k = 3, exploitable pour le
 pilotage.}}
 \end{note}
 
-\subsection*{Slide 31 --- Résultats de la segmentation}
+\subsection*{Slide 32 --- Résultats de la segmentation}
 
 Trois profils émergent : \textbf{34 agences d'exploitation}, qui portent
 l'activité du réseau ; \textbf{6 entités de production sans portefeuille
@@ -323,7 +372,7 @@ qui exploitent un portefeuille, celles qui produisent sans portefeuille, celles
 sans activité enregistrée.
 \end{corrige}
 
-\subsection*{Slide 32 --- Démonstration}
+\subsection*{Slide 33 --- Démonstration}
 
 Je vais maintenant vous faire une démonstration de l'application web, du tableau
 de bord embarqué, et du rapport Power BI.
@@ -335,9 +384,9 @@ pluggable est ouverte, sinon l'application renvoie \texttt{IJ000453}.
 \end{note}
 
 % =====================================================================
-\section*{Partie 06 --- Conclusion et perspectives (slides 33 à 36)}
+\section*{Partie 06 --- Conclusion et perspectives (slides 34 à 37)}
 
-\subsection*{Slide 34 --- Conclusion}
+\subsection*{Slide 35 --- Conclusion}
 
 Ce projet livre trois réalisations : une application web de gestion centralisée
 du réseau, une chaîne décisionnelle complète avec quatre tableaux de bord
@@ -345,14 +394,14 @@ Power BI, et un volet intelligence artificielle de segmentation en trois profils
 exploitables. Au final, un système complet, de la donnée opérationnelle à la
 décision.
 
-\subsection*{Slide 35 --- Perspectives}
+\subsection*{Slide 36 --- Perspectives}
 
 Plusieurs perspectives : une sécurité renforcée --- le mot de passe est
 aujourd'hui comparé en clair, il faudrait un condensat salé ---,
 l'industrialisation de l'ETL, des analyses prédictives, une API REST, une
 application mobile, et des alertes automatiques sous seuils critiques.
 
-\subsection*{Slide 36 --- Clôture}
+\subsection*{Slide 37 --- Clôture}
 
 Je vous remercie pour votre attention, et je reste à votre disposition pour vos
 questions.
@@ -367,13 +416,13 @@ questions.
 \hline
 6 & \enquote{issus du datamart produit par ma chaîne ETL} & issus des données réelles restituées par Power BI (l'ETL agrège un périmètre plus restreint)\\
 \hline
-19 & entourée de \textbf{quatre} dimensions & \textbf{deux} dimensions : \texttt{dim\_agence} et \texttt{dim\_gestionnaire}\\
+20 & entourée de \textbf{quatre} dimensions & \textbf{deux} dimensions : \texttt{dim\_agence} et \texttt{dim\_gestionnaire}\\
 \hline
-21 & \textbf{45} agences consolidées & \textbf{49} entités du réseau consolidées\\
+22 & \textbf{45} agences consolidées & \textbf{49} entités du réseau consolidées\\
 \hline
-30 & silhouette \textbf{0,736}, Davies-Bouldin \textbf{0,350} & silhouette \textbf{0,604}, Davies-Bouldin \textbf{0,709} ; DBSCAN a un meilleur Davies-Bouldin\\
+31 & silhouette \textbf{0,736}, Davies-Bouldin \textbf{0,350} & silhouette \textbf{0,604}, Davies-Bouldin \textbf{0,709} ; DBSCAN a un meilleur Davies-Bouldin\\
 \hline
-31 & \textbf{7} grandes / \textbf{16} moyennes / \textbf{22} petites & \textbf{34} d'exploitation / \textbf{6} de production sans portefeuille / \textbf{8} sans activité\\
+32 & \textbf{7} grandes / \textbf{16} moyennes / \textbf{22} petites & \textbf{34} d'exploitation / \textbf{6} de production sans portefeuille / \textbf{8} sans activité\\
 \hline
 \end{tabularx}
 

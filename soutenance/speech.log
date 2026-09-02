@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.8.28)  1 SEP 2026 21:22
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.8.28)  2 SEP 2026 19:58
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -998,17 +998,6 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-9.99997pt}.
 
 [2{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc}]
-(/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-cmr.cfg
-File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
-(RS)
-)
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <10.95> on input line 187.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 187.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 187.
-
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 21.99997pt, for example:
@@ -1017,7 +1006,17 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-9.99997pt}.
 
-[3]
+[3] (/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-cmr.cfg
+File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
+(RS)
+)
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <10.95> on input line 236.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 236.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 236.
+
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 21.99997pt, for example:
@@ -1066,20 +1065,20 @@ Package rerunfilecheck Info: File `speech.out' has not changed.
 (rerunfilecheck)             Checksum: E1D0BBC70A42D0EEC4F91D0745984F3F;81.
  ) 
 Here is how much of TeX's memory you used:
- 25419 strings out of 476153
- 469696 string characters out of 5794326
+ 25437 strings out of 476153
+ 470020 string characters out of 5794326
  1941975 words of memory out of 5000000
- 46771 multiletter control sequences out of 15000+600000
- 689166 words of font info for 229 fonts, out of 8000000 for 9000
+ 46774 multiletter control sequences out of 15000+600000
+ 691489 words of font info for 239 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 106i,13n,110p,1003b,696s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 106i,13n,110p,1003b,539s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/google/carlito/Crlt-Bold.pfb></usr
 /share/texlive/texmf-dist/fonts/type1/google/carlito/Crlt-Italic.pfb></usr/shar
 e/texlive/texmf-dist/fonts/type1/google/carlito/Crlt-Regular.pfb></usr/share/te
 xlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf/fo
 nts/type1/public/cm-super/sftt1000.pfb></usr/share/texmf/fonts/type1/public/cm-
 super/sftt1095.pfb>
-Output written on speech.pdf (7 pages, 186224 bytes).
+Output written on speech.pdf (7 pages, 199098 bytes).
 PDF statistics:
  80 PDF objects out of 1000 (max. 8388607)
  58 compressed objects within 1 object stream
