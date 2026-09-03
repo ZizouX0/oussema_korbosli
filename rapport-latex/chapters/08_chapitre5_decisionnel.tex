@@ -11,12 +11,13 @@ artificielle} : la segmentation des agences par apprentissage non supervisé.
 
 % ----------------------------------------------------------------------
 \section{Chaîne décisionnelle et processus ETL}
+\needspace{14.6cm}%  phrase + fig:etl_chaine sur la même page
 Les données nécessaires au pilotage sont dispersées dans les tables opérationnelles
 et exprimées à des grains hétérogènes. Le processus \textbf{ETL} (\emph{Extract --
 Transform -- Load}) les consolide en un datamart agrégé par agence. La
 figure~\ref{fig:etl_chaine} présente cette chaîne décisionnelle.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.70\textwidth]{etl_chaine.png}
   \caption{Chaîne décisionnelle : du système opérationnel au datamart et à sa restitution}
@@ -83,6 +84,7 @@ directes entre la table de faits et ses dimensions garantissent un filtrage croi
 immédiat.
 
 \subsection{Structure du modèle retenu}
+\needspace{10.2cm}%  phrase + fig:bi sur la même page
 Le volet décisionnel s'appuie sur \textbf{deux niveaux} complémentaires, tous deux
 organisés en étoile et articulés autour des \textbf{mêmes axes d'analyse}. Le
 premier est le \textbf{datamart chargé par la chaîne ETL}
@@ -100,7 +102,7 @@ conforme} \texttt{AGENCE} par la clé \texttt{SK\_AGENCE}, ainsi qu'à la dimens
 \texttt{B\_UTILISATEURS} par cette même clé \texttt{SK\_UTILISATEUR}. La
 figure~\ref{fig:bi} présente ce second niveau.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{bi.png}
   \caption{Modèle décisionnel en étoile (vues \texttt{V\_BI\_*})}
@@ -215,13 +217,14 @@ base Oracle. Elle enchaîne cinq étapes --- \textbf{collecte}, \textbf{nettoyag
 \textbf{transformation}, \textbf{intégration} et \textbf{contrôle de qualité} ---,
 illustrées ci-après par des captures du notebook.
 
+\needspace{8.5cm}%  phrase + fig:etl_cell1 sur la même page
 \paragraph{1. Collecte (\emph{Extract}).} Les cinq jeux de données sources ---
 agences, employés, clients, objectifs et pointages --- sont lus depuis les tables
 Oracle \texttt{AGENCE}, \texttt{B\_UTILISATEURS}, \texttt{CLIENT\_BTK},
 \texttt{B\_OBJECTIF} et \texttt{POINTAGE} (via le connecteur \texttt{oracledb}). La
 figure~\ref{fig:etl_cell1} en présente l'exécution.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{etl/etl_cell1.png}
   \caption{Collecte : lecture des tables sources du réseau BTK (données réelles)}
@@ -264,6 +267,7 @@ taux\_presence & Proportion de pointages « présent » ou « retard » sur le t
 \end{tabularx}
 \end{table}
 
+\needspace{9.4cm}%  phrase + fig:etl_cell2 sur la même page
 \paragraph{4. Intégration.} Les indicateurs agrégés issus des différentes sources
 (effectifs, portefeuille, production, présence) sont \textbf{fusionnés} sur la clé
 \texttt{SK\_AGENCE} en une table unique décrivant chaque agence ; en parallèle, la
@@ -275,19 +279,20 @@ nombre de gestionnaires, le portefeuille clients et la production commerciale
 (comptes, crédits, épargne). Le taux de présence est calculé de la même manière à
 partir de la table \texttt{POINTAGE}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{etl/etl_cell2.png}
   \caption{Datamart par agence sur les données réelles du réseau BTK (49 entités)}
   \label{fig:etl_cell2}
 \end{figure}
 
+\needspace{7.3cm}%  phrase + fig:etl_cell3 sur la même page
 \paragraph{5. Contrôle de qualité.} Avant chargement, la qualité du datamart est
 vérifiée : les \textbf{valeurs manquantes} sont remplacées par zéro et les mesures
 sont \textbf{arrondies}. Un contrôle final confirme l'\textbf{absence de valeur
 manquante} et récapitule les statistiques du datamart (figure~\ref{fig:etl_cell3}).
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{etl/etl_cell3.png}
   \caption{Contrôle de qualité : statistiques du datamart (données réelles du réseau BTK)}
@@ -305,6 +310,7 @@ export est fourni.
 
 % ----------------------------------------------------------------------
 \section{Tableau de bord et restitution Power BI}
+\needspace{10.4cm}%  phrase + fig:ui_dashboard sur la même page
 Le tableau de bord embarqué (\texttt{home.jsp}, alimenté par le
 \texttt{HomeServlet}) comporte une rangée de \textbf{cartes d'indicateurs}
 (employés, clients, présents du jour, taux de présence, demandes en attente) puis
@@ -313,7 +319,7 @@ présence du jour). En complément, les vues \texttt{V\_BI\_*} sont connectées 
 \textbf{Power BI} pour des rapports interactifs. La figure~\ref{fig:ui_dashboard}
 présente le tableau de bord embarqué.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{screens/dashboard.png}
   \caption{Tableau de bord décisionnel embarqué de l'application}
@@ -331,12 +337,13 @@ décisionnelles sont d'abord
 \texttt{V\_BI\_*}) au moyen du connecteur Oracle natif.
 
 \subsection{Création des relations entre les tables}
+\needspace{15.9cm}%  phrase + fig:pbi_modele sur la même page
 Dans la \emph{vue Modèle} de Power BI, des \textbf{relations} sont établies entre la
 dimension centrale \texttt{AGENCE} et les tables de faits, sur les clés de
 substitution (\texttt{SK\_AGENCE} et \texttt{SK\_UTILISATEUR}). La
 figure~\ref{fig:pbi_modele} présente le modèle obtenu.
 
-\begin{figure}[!htb]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.88\textwidth]{etl/pbi_modele.png}
   \caption{Modèle de données Power BI : relations en étoile autour de la dimension \texttt{AGENCE}}
@@ -461,6 +468,7 @@ Segmentation des agences & Profils d'agences : ciblage des actions et fixation d
 
 \FloatBarrier
 \subsection{Page de synthèse}
+\needspace{11.1cm}%  phrase + fig:pbi_resume sur la même page
 La page \emph{Résumé} (figure~\ref{fig:pbi_resume}) offre une vue d'ensemble du
 réseau. Une rangée de \textbf{cartes d'indicateurs} présente les chiffres clés
 (nombre de clients, production de crédits, taux de présence, ouvertures de
@@ -491,6 +499,7 @@ du réseau --- que les trois pages suivantes approfondissent.
 
 \FloatBarrier
 \subsection{Analyse des clients}
+\needspace{11.1cm}%  phrase + fig:pbi_clients sur la même page
 La page \emph{Clients} (figure~\ref{fig:pbi_clients}) segmente le portefeuille selon
 plusieurs axes : le \textbf{type de client}, le \textbf{sexe}, la \textbf{région}
 et le \textbf{gouvernorat} (histogramme des principaux gouvernorats), complétés par
@@ -518,6 +527,7 @@ efforts commerciaux.
 
 \FloatBarrier
 \subsection{Performance commerciale}
+\needspace{11.1cm}%  phrase + fig:pbi_commercial sur la même page
 La page \emph{Commercial} (figure~\ref{fig:pbi_commercial}) détaille les
 \textbf{objectifs} : les ouvertures de comptes par type, la production de crédits
 par nature, l'effort d'équipement (EER), l'\textbf{évolution mensuelle} de la
@@ -545,6 +555,7 @@ le segment entreprise.
 
 \FloatBarrier
 \subsection{Suivi de la présence}
+\needspace{11.1cm}%  phrase + fig:pbi_presence sur la même page
 La page \emph{Présence} (figure~\ref{fig:pbi_presence}) suit l'\textbf{assiduité}
 des employés : le taux de présence, la répartition des statuts (présent, retard,
 absent) et de la source de pointage (automatique, manuel), l'\textbf{évolution
@@ -648,11 +659,12 @@ logarithmique} leur est donc appliquée avant la standardisation, afin qu'une ag
 extrême ne détermine pas à elle seule la structure des groupes.
 
 \subsection{Détermination du nombre de clusters}
+\needspace{8.2cm}%  phrase + fig:choix_k sur la même page
 Le nombre de clusters $k$ étant inconnu a priori, il est déterminé en combinant la
 \textbf{méthode du coude} (inertie intra-cluster) et le \textbf{score de
 silhouette} (figure~\ref{fig:choix_k}).
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{clustering_choix_k.png}
   \caption{Choix du nombre de clusters : méthode du coude et score de silhouette}
@@ -693,7 +705,11 @@ DBSCAN         & 4 & 0,517 & \textbf{0,393} & 65,4\\
 \end{tabularx}
 \end{table}
 
-\begin{figure}[htbp]
+\needspace{8.8cm}%  phrase + fig:comparaison_clustering sur la même page
+La figure~\ref{fig:comparaison_clustering} met ces résultats en regard sur le
+score de silhouette, indice retenu comme critère principal de sélection.
+
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.7\textwidth]{clustering_comparaison.png}
   \caption{Comparaison des modèles selon le score de silhouette}
@@ -724,13 +740,14 @@ nouvelle agence} dans un segment existant, ce qui rend la segmentation réutilis
 métier directe de chaque profil.
 
 \subsection{Résultats et interprétation}
+\needspace{11.1cm}%  phrase + fig:clusters_pca sur la même page
 La figure~\ref{fig:clusters_pca} projette les agences dans le plan des deux
 premières composantes principales (PCA), colorées selon leur cluster. La première
 composante, qui résume le \emph{niveau d'activité} de l'entité, explique à elle
 seule \textbf{80~\%} de la variance ; les trois segments y apparaissent nettement
 séparés.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.78\textwidth]{clustering_pca.png}
   \caption{Segmentation des agences (K-Means) projetée par PCA}

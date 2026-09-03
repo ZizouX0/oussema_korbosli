@@ -102,6 +102,15 @@ global}, formalisé selon la notation \textbf{UML}~\cite{roques2018uml}, qui
 représente d'un point de vue fonctionnel les interactions entre les acteurs et les
 services offerts par le système.
 
+% la figure suit immédiatement la phrase qui l'annonce ; sa hauteur
+% (0,86 de la hauteur de texte) lui réserve une page entière.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,height=0.86\textheight,keepaspectratio]{uc_global.png}
+  \caption{Diagramme de cas d'utilisation global}
+  \label{fig:uc_global}
+\end{figure}
+
 Le diagramme réunit les \textbf{trois acteurs} du tableau~\ref{tab:acteurs} et les
 \textbf{treize cas d'utilisation} détaillés en section~\ref{sec:fiches_cu}.
 Chacun de ces treize cas est relié au cas \emph{S'authentifier} par une relation
@@ -122,15 +131,6 @@ objectifs commerciaux}, \emph{Valider une demande}, \emph{Consulter le tableau d
 bord} et \emph{Soumettre une demande}. L'\textbf{utilisateur}, enfin, se limite à
 \textbf{trois} cas qui ne concernent que ses propres données : \emph{Soumettre une
 demande}, \emph{Pointer la présence} et \emph{Recevoir des notifications}.
-
-% la figure occupe une page entière : sa hauteur (0,86 de la hauteur de texte)
-% interdit à tout autre flottant de la rejoindre sur la même page.
-\begin{figure}[p]
-  \centering
-  \includegraphics[width=\textwidth,height=0.86\textheight,keepaspectratio]{uc_global.png}
-  \caption{Diagramme de cas d'utilisation global}
-  \label{fig:uc_global}
-\end{figure}
 
 % ----------------------------------------------------------------------
 \section{Description textuelle des cas d'utilisation}

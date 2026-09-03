@@ -15,6 +15,7 @@ ils communiquent. Elle est présentée à trois niveaux : globale, physique et
 logique.
 
 \subsection{Architecture globale}
+\needspace{10.8cm}%  phrase + fig:archi_globale sur la même page
 L'architecture globale (figure~\ref{fig:archi_globale}) offre une vue d'ensemble
 des composants. Un poste client (navigateur) dialogue en \texttt{HTTP/HTTPS} avec
 l'application web déployée sur \textbf{WildFly}, structurée en couches
@@ -31,6 +32,7 @@ vues \texttt{V\_BI\_*} et, d'autre part, la \textbf{chaîne décisionnelle Pytho
 \end{figure}
 
 \subsection{Architecture physique}
+\needspace{10.6cm}%  phrase + fig:archi_physique sur la même page
 L'architecture physique (figure~\ref{fig:archi_physique}) représente le
 \textbf{déploiement} des composants sur les nœuds matériels selon une organisation
 \textbf{3-tiers} : le poste client, le serveur d'applications WildFly hébergeant
@@ -46,6 +48,7 @@ poste décisionnel exécutant Power BI.
 \end{figure}
 
 \subsection{Architecture logique}
+\needspace{10.6cm}%  phrase + fig:archi_logique sur la même page
 L'architecture logique (figure~\ref{fig:archi_logique}) décompose le système en
 \textbf{couches} faiblement couplées suivant le patron \textbf{MVC}, conformément
 aux pratiques de la plateforme Jakarta~EE~\cite{goncalves2016jee} : la couche
@@ -67,7 +70,7 @@ La figure~\ref{fig:class} présente le \textbf{diagramme de classes} du modèle
 métier~\cite{fowler2004uml}, qui représente les entités persistantes du domaine,
 leurs attributs et les associations qui les relient.
 
-\begin{figure}[p]
+\begin{figure}[H]
   \centering
   \rotatebox{90}{%
     \includegraphics[width=0.92\textheight,height=\textwidth,keepaspectratio]{class.png}}
@@ -108,7 +111,7 @@ Oracle~\cite{oracle}, chaque attribut en une colonne et chaque association en un
 \textbf{clé étrangère}. La figure~\ref{fig:er} présente ce schéma relationnel, obtenu
 par \emph{mapping} objet-relationnel (JPA/Hibernate) à partir des entités du domaine.
 
-\begin{figure}[p]
+\begin{figure}[H]
   \centering
   \rotatebox{90}{%
     \includegraphics[width=0.92\textheight,height=\textwidth,keepaspectratio]{er.png}}
@@ -225,9 +228,10 @@ des principales fonctionnalités, en montrant les échanges entre la couche de
 présentation, les servlets, les services métier et la base de données.
 
 \subsection{S'authentifier}
+\needspace{9.7cm}%  phrase + fig:seq_auth sur la même page
 La figure~\ref{fig:seq_auth} décrit le déroulement dynamique de l'authentification.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.92\textwidth]{seq_auth.png}
   \caption{Diagramme de séquence -- Authentification}
@@ -243,9 +247,10 @@ redirigé vers le tableau de bord ; en cas d'échec, un message d'erreur est
 renvoyé.
 
 \subsection{Créer une agence}
+\needspace{10.8cm}%  phrase + fig:seq_agence sur la même page
 La figure~\ref{fig:seq_agence} décrit le scénario de création d'une agence.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.92\textwidth]{seq_agence.png}
   \caption{Diagramme de séquence -- Création d'une agence}
@@ -259,10 +264,11 @@ renvoyée à la page \texttt{agences.jsp}. Le même schéma s'applique aux opér
 de modification et de suppression.
 
 \subsection{Gérer un client}
+\needspace{8.7cm}%  phrase + fig:seq_client sur la même page
 La figure~\ref{fig:seq_client} décrit l'enregistrement et l'affectation d'un
 client.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.92\textwidth]{seq_client.png}
   \caption{Diagramme de séquence -- Gestion d'un client}
@@ -275,9 +281,10 @@ dernier, puis le persiste via l'\texttt{EntityManager}. Le portefeuille mis à j
 est renvoyé à la page \texttt{client.jsp}.
 
 \subsection{Pointer un employé}
+\needspace{14.6cm}%  phrase + fig:seq_pointage sur la même page
 La figure~\ref{fig:seq_pointage} décrit le scénario de pointage.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{seq_pointage.png}
   \caption{Diagramme de séquence -- Pointage d'un employé}
@@ -298,10 +305,11 @@ les colonnes \texttt{HEURE\_ARRIVEE} et \texttt{HEURE\_DEPART} de la table
 saisie manuelle effectuée par l'administrateur.
 
 \subsection{Valider une demande}
+\needspace{17.2cm}%  phrase + fig:seq_demande sur la même page
 La figure~\ref{fig:seq_demande} détaille le traitement d'une demande de
 modification, qui repose sur une \textbf{double validation}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.92\textwidth]{seq_demande.png}
   \caption{Diagramme de séquence -- Validation d'une demande}
@@ -328,9 +336,10 @@ comportement est modélisé par un diagramme d'états-transitions et un diagramm
 d'activité.
 
 \subsection{Diagramme d'états-transitions}
+\needspace{12.1cm}%  phrase + fig:state_demande sur la même page
 La figure~\ref{fig:state_demande} modélise le cycle de vie d'une demande.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.6\textwidth]{state_demande.png}
   \caption{Diagramme d'états-transitions -- Cycle de vie d'une demande}
@@ -352,7 +361,7 @@ l'administrateur.
 La figure~\ref{fig:activity_demande} représente le processus métier de traitement
 d'une demande.
 
-\begin{figure}[!htb]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.9\textwidth]{activity_demande.png}
   \caption{Diagramme d'activité -- Traitement d'une demande}
