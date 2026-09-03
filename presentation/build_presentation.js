@@ -212,7 +212,7 @@ divider("01", "Contexte général");
                ["253 M", "collecte d'épargne"], ["87,9 %", "taux de présence"]];
   st2.forEach((v, i) => stat(s, M + i * 3.08, 3.85, 2.86, 1.75, v[0], v[1]));
   card(s, M, 5.92, 12.1, 0.8, NAVY);
-  s.addText("Chiffres issus du datamart réel produit par la chaîne ETL du projet",
+  s.addText("Ces chiffres sont issus des données réelles de la base BTK",
     { x: M, y: 5.92, w: 12.1, h: 0.8, fontFace: BF, fontSize: 12.5, color: "CBD8EE",
       align: "center", margin: 0, valign: "middle" });
 }
