@@ -531,7 +531,7 @@ divider("04", "Volet décisionnel & réalisation");
                  ["Nettoyage", "Lignes incomplètes écartées, typage des colonnes"],
                  ["Transformation", "Agrégation par agence des 7 indicateurs"],
                  ["Intégration", "Fusion sur SK_AGENCE, puis regroupement sur SK_UTILISATEUR"],
-                 ["Contrôle qualité", "Valeurs manquantes, arrondis et journal"]];
+                 ["Contrôle qualité", "Valeurs manquantes et arrondis"]];
   steps.forEach((st, i) => {
     const x = M + i * 2.44;
     card(s, x, 1.72, 2.26, 2.15);
